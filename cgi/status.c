@@ -2061,15 +2061,15 @@ void show_host_detail(void) {
 	printf("<table border=0 class='status' width='100%%'>\n");
 	printf("<tr>\n");
 
-	printf("<th class='status'>Host&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト名で並び替え(昇順)' TITLE='ホスト名で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト名で並び替え(降順)' TITLE='ホスト名で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_HOSTNAME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_HOSTNAME, url_images_path, DOWN_ARROW_ICON);
+	printf("<th class='status'>ホスト&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト名で並び替え(昇順)' TITLE='ホスト名で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト名で並び替え(降順)' TITLE='ホスト名で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_HOSTNAME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_HOSTNAME, url_images_path, DOWN_ARROW_ICON);
 
 	printf("<TH CLASS='status'>エイリアス&nbsp;</TH>");
 
-	printf("<th class='status'>Status&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト稼動状態で並び替え(昇順)' TITLE='ホスト稼動状態で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト稼動状態で並び替え(降順)' TITLE='ホスト稼動状態で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_HOSTSTATUS, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_HOSTSTATUS, url_images_path, DOWN_ARROW_ICON);
+	printf("<th class='status'>状態&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト稼動状態で並び替え(昇順)' TITLE='ホスト稼動状態で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='ホスト稼動状態で並び替え(降順)' TITLE='ホスト稼動状態で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_HOSTSTATUS, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_HOSTSTATUS, url_images_path, DOWN_ARROW_ICON);
 
-	printf("<th class='status'>Last Check&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='最終チェック時刻で並び替え(昇順)' TITLE='最終チェック時刻で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='最終チェック時刻で並び替え(降順)' TITLE='最終チェック時刻で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_LASTCHECKTIME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_LASTCHECKTIME, url_images_path, DOWN_ARROW_ICON);
+	printf("<th class='status'>最終チェック&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='最終チェック時刻で並び替え(昇順)' TITLE='最終チェック時刻で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='最終チェック時刻で並び替え(降順)' TITLE='最終チェック時刻で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_LASTCHECKTIME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_LASTCHECKTIME, url_images_path, DOWN_ARROW_ICON);
 
-	printf("<th class='status'>Duration&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='経過時間で並び替え(昇順)' TITLE='経過時間で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='経過時間で並び替え(降順)' TITLE='経過時間で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_STATEDURATION, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_STATEDURATION, url_images_path, DOWN_ARROW_ICON);
+	printf("<th class='status'>経過時間&nbsp;<a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='経過時間で並び替え(昇順)' TITLE='経過時間で並び替え(昇順)'></a><a href='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' border=0 ALT='経過時間で並び替え(降順)' TITLE='経過時間で並び替え(降順)'></a></th>", temp_url, SORT_ASCENDING, SORT_STATEDURATION, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_STATEDURATION, url_images_path, DOWN_ARROW_ICON);
 
 	printf("<th class='status'>ステータス情報</th>\n");
 	printf("</tr>\n");

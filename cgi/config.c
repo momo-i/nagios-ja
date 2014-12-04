@@ -423,7 +423,7 @@ void display_hosts(void) {
 	char *processed_string = NULL;
 	int options = 0;
 	int odd = 0;
-	char time_string[16];
+	char time_string[24];
 	const char *bg_class = "";
 	int num_contacts = 0;
 
@@ -1159,7 +1159,7 @@ void display_services(void) {
 	char *command_name;
 	int options;
 	int odd = 0;
-	char time_string[16];
+	char time_string[24];
 	const char *bg_class;
 	int num_contacts = 0;
 
@@ -1818,7 +1818,7 @@ void display_serviceescalations(void) {
 	serviceescalation *temp_se = NULL;
 	contactsmember *temp_contactsmember = NULL;
 	contactgroupsmember *temp_contactgroupsmember = NULL;
-	char time_string[16] = "";
+	char time_string[24] = "";
 	int options = FALSE;
 	int odd = 0;
 	const char *bg_class = "";
@@ -2042,7 +2042,7 @@ void display_hostescalations(void) {
 	hostescalation *temp_he = NULL;
 	contactsmember *temp_contactsmember = NULL;
 	contactgroupsmember *temp_contactgroupsmember = NULL;
-	char time_string[16] = "";
+	char time_string[24] = "";
 	int options = FALSE;
 	int odd = 0;
 	const char *bg_class = "";
