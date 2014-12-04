@@ -112,7 +112,7 @@ class patch {
 		if($self->_check_period($period))
 			return $self->_get_newversion($version);
 		else
-			return false;
+			return $self->_get_newversion($version, false);
 	}
 
 	/**
@@ -122,9 +122,13 @@ class patch {
 	 * @access	private
 	 * @return	string	Check Result
 	 */
-	private function _get_newversion($version)
+	private function _get_newversion($version, $check = true)
 	{
 		$msg = "利用可能な最新の日本語化パッチは存在しません。";
+		if($check == false)
+		{
+			return $msg;
+		}
 		$baseurl = sprintf($this->_baseurl, $this->_host);
 		$url = sprintf('%s/nagios-jp-%s.patch.gz', $baseurl, $version);
 		if(extension_loaded('curl'))
