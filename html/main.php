@@ -1,10 +1,8 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
-require_once(dirname(__FILE__).'/includes/patch.inc.php');
 
 $this_version = '4.0.8';
 $this_year = '2014';
-$period = 3600;
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -149,11 +147,10 @@ $period = 3600;
 	} else if (
 		$updateinfo['update_available'] && $this_version < $updateinfo['update_version']
 	) {
-		$patch = patch::get_patch($updateinfo['update_version'], $period);
 ?>
 		<div class="updateavailable">
 			<div class="updatemessage">Nagios Coreの最新バージョンが利用可能です</div>
-			<div class="submessage">Nagios <?php echo $updateinfo['update_version'];?>をダウンロードするために<a href="http://www.nagios.org/download/" target="_blank">nagios.org</a>を訪れてください。<?php echo $patch; ?></div>
+			<div class="submessage">Nagios <?php echo $updateinfo['update_version'];?>をダウンロードするために<a href="http://www.nagios.org/download/" target="_blank">nagios.org</a>を訪れてください。</div>
 		</div>
 <?php
 	}
