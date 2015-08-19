@@ -1487,7 +1487,6 @@ void display_tac_overview(void) {
 			printf("<tr><td width=100%% class='featureItemEnabledServiceHandlers'>全サービス有効</td></tr>\n");
 
 		if(event_handler_disabled_hosts > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledHostHandlers'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_EVENT_HANDLER_DISABLED, event_handler_disabled_hosts);
 			printf("<tr><td width=100%% class='featureItemDisabledHostHandlers'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_EVENT_HANDLER_DISABLED, event_handler_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledHostHandlers'>全ホスト有効</td></tr>\n");
