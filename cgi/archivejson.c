@@ -85,13 +85,13 @@ const string_value_mapping valid_queries[] = {
 	};
 
 static const int query_status[][2] = {
-	{ ARCHIVE_QUERY_HELP, QUERY_STATUS_BETA },
-	{ ARCHIVE_QUERY_ALERTCOUNT, QUERY_STATUS_BETA },
-	{ ARCHIVE_QUERY_ALERTLIST, QUERY_STATUS_BETA },
-	{ ARCHIVE_QUERY_NOTIFICATIONCOUNT, QUERY_STATUS_BETA },
-	{ ARCHIVE_QUERY_NOTIFICATIONLIST, QUERY_STATUS_BETA },
-	{ ARCHIVE_QUERY_STATECHANGELIST, QUERY_STATUS_BETA },
-	{ ARCHIVE_QUERY_AVAILABILITY, QUERY_STATUS_BETA },
+	{ ARCHIVE_QUERY_HELP, QUERY_STATUS_RELEASED },
+	{ ARCHIVE_QUERY_ALERTCOUNT, QUERY_STATUS_RELEASED },
+	{ ARCHIVE_QUERY_ALERTLIST, QUERY_STATUS_RELEASED },
+	{ ARCHIVE_QUERY_NOTIFICATIONCOUNT, QUERY_STATUS_RELEASED },
+	{ ARCHIVE_QUERY_NOTIFICATIONLIST, QUERY_STATUS_RELEASED },
+	{ ARCHIVE_QUERY_STATECHANGELIST, QUERY_STATUS_RELEASED },
+	{ ARCHIVE_QUERY_AVAILABILITY, QUERY_STATUS_RELEASED },
 	{ -1, -1 },
 	};
 
@@ -366,7 +366,7 @@ option_help archive_json_help[] = {
 		{ "alertcount", "alertlist", "notificationcount", "notificationlist", 
 				"availability", NULL },
 		NULL,
-		"要求されたホストの名前。可用性のオブジェクト·タイプがホストで、ホスト名が指定されていない場合可用性レポートの場合、レポートにはすべてのホストに対して生成されます。可用性のオブジェクト·タイプがサービスであるとホスト名が指定されていない場合も同様に、報告書は、サービスの説明のための値に応じて、同じ説明を持つすべてのサービスまたはすべてのサービスのために生成されます。",
+		"要求されたホストの名前。可用性のオブジェクト·タイプがホストで、ホスト名が指定されていない場合可用性レポートの場合、レポトにはすべてのホストに対して生成されます。可用性のオブジェクト·タイプがサービスであるとホスト名が指定されていない場合も同様に、報告書は、サービスの説明のための値に応じて、同じ説明を持つすべてのサービスまたはすべてのサービスのために生成されます。",
 		NULL
 		},
 	{ 
@@ -399,7 +399,7 @@ option_help archive_json_help[] = {
 		{ "alertcount", "alertlist", "notificationcount", "notificationlist", 
 				"statechangelist", "availability", NULL },
 		"hostname",
-		"要求されたサービスの説明。可用性のオブジェクト·タイプがサービスでサービス越名に指定されていない場合、可用性を実現するレポートの場合、レポートには、ホスト名に指定した値に応じて、すべてのサービス、または指定したホスト上のすべてのサービスのいずれかのために生成されます",
+		"要求されたサービスの説明。可用性のオブジェクト·タイプがサービスでサービス越名に指定されていない場合、可用性を実現するレートの場合、レポートには、ホスト名に指定した値に応じて、すべてのサービス、または指定したホスト上のすべてのサービスのいずれかのために生成されます",
 		NULL
 		},
 	{ 
@@ -590,7 +590,6 @@ int main(void) {
 	int result = OK;
 	time_t query_time;
 	archive_json_cgi_data	cgi_data;
-	int whitespace;
 	json_object *json_root;
 	au_log *log;
 	time_t last_archive_data_update = (time_t)0;
@@ -601,7 +600,7 @@ int main(void) {
 
 	json_root = json_new_object();
 	if(NULL == json_root) {
-		printf( "新しいJSONオブジェクトを作成できませんでした\n");
+		printf( "オブジェクトを作成できませんでした\n");
 		exit( 1);
 		}
 	json_object_append_integer(json_root, "format_version", 
@@ -624,7 +623,6 @@ int main(void) {
 		document_footer();
 		return result;
 		}
-	whitespace = cgi_data.format_options & JSON_FORMAT_WHITESPACE;
 
 	/* reset internal variables */
 	reset_cgi_vars();
@@ -637,7 +635,7 @@ int main(void) {
 				svm_get_string_from_value(cgi_data.query, valid_queries), 
 				get_query_status(query_status, cgi_data.query),
 				(time_t)-1, NULL, RESULT_FILE_OPEN_READ_ERROR,
-				"エラー: CGI 設定ファイル '%s' を読み込みで開けませんでした！", 
+				"エラー: CGI 設定ファイル '%s' を読み込みで開けませんでした！",
 				get_cgi_config_location()));
 		json_object_append_object(json_root, "data", 
 				json_help(archive_json_help));
@@ -951,7 +949,7 @@ int main(void) {
 				svm_get_string_from_value(cgi_data.query, valid_queries), 
 				get_query_status(query_status, cgi_data.query),
 				(time_t)-1, &current_authdata, RESULT_OPTION_MISSING,
-				"エラー: オブジェクトタイプが指定されていません。助けのためのデータを参照してください。"));
+				"エラー: オブジェクトタイプが指定されていません。ヘルプについてはデータを参照してください。"));
 		json_object_append_object(json_root, "data", 
 				json_help(archive_json_help));
 		break;
@@ -1068,7 +1066,6 @@ int process_cgivars(json_object *json_root, archive_json_cgi_data *cgi_data,
 	char **variables;
 	int result = RESULT_SUCCESS;
 	int x;
-	int whitespace;
 	authdata *authinfo = NULL; /* Currently always NULL because
 									get_authentication_information() hasn't
 									been called yet, but in case we want to
@@ -1079,7 +1076,6 @@ int process_cgivars(json_object *json_root, archive_json_cgi_data *cgi_data,
 	for(x = 0; variables[x] != NULL; x++) {
 		/* We set these each iteration because they could change with each
 			iteration */
-		whitespace = cgi_data->format_options & JSON_FORMAT_WHITESPACE;
 
 		if(!strcmp(variables[x], "query")) {
 			if((result = parse_enumeration_cgivar(THISCGI, 
@@ -1664,7 +1660,7 @@ int validate_arguments(json_object *json_root, archive_json_cgi_data *cgi_data,
 						valid_queries), 
 						get_query_status(query_status, cgi_data->query),
 						(time_t)-1, authinfo, result,
-						"上位ホスト '%s' を見つけることができませんでした。", 
+						"上位ホスト '%s' を見つけることができませんでした。",
 						cgi_data->parent_host_name));
 				}
 			else {
@@ -1690,7 +1686,7 @@ int validate_arguments(json_object *json_root, archive_json_cgi_data *cgi_data,
 						valid_queries), 
 						get_query_status(query_status, cgi_data->query),
 						(time_t)-1, authinfo, result,
-						"下位ホスト '%s' を見つけることができませんでした。", 
+						"下位ホスト '%s' を見つけることができませんでした。",
 						cgi_data->child_host_name));
 				}
 			else {
@@ -1714,7 +1710,7 @@ int validate_arguments(json_object *json_root, archive_json_cgi_data *cgi_data,
 					svm_get_string_from_value(cgi_data->query, valid_queries), 
 					get_query_status(query_status, cgi_data->query),
 					(time_t)-1, authinfo, result,
-					"ホストグループ '%s' を見つけることができませんでした。", 
+					"ホストグループ '%s' を見つけることができませんでした。",
 					cgi_data->hostgroup_name));
 			}
 		else {
@@ -1732,7 +1728,7 @@ int validate_arguments(json_object *json_root, archive_json_cgi_data *cgi_data,
 					svm_get_string_from_value(cgi_data->query, valid_queries), 
 					get_query_status(query_status, cgi_data->query),
 					(time_t)-1, authinfo, result,
-					"サービスグループ '%s' を見つけることができませんでした。", 
+					"サービスグループ '%s' を見つけることができませんでした。",
 					cgi_data->servicegroup_name));
 			}
 		else {
@@ -1757,7 +1753,7 @@ int validate_arguments(json_object *json_root, archive_json_cgi_data *cgi_data,
 					svm_get_string_from_value(cgi_data->query, valid_queries), 
 					get_query_status(query_status, cgi_data->query),
 					(time_t)-1, authinfo, result,
-					"通知先グループ '%s' を見つけることができませんでした。", 
+					"通知先グループ '%s' を見つけることができませんでした。",
 					cgi_data->contactgroup_name));
 			}
 		else {
@@ -1775,7 +1771,7 @@ int validate_arguments(json_object *json_root, archive_json_cgi_data *cgi_data,
 					svm_get_string_from_value(cgi_data->query, valid_queries), 
 					get_query_status(query_status, cgi_data->query),
 					(time_t)-1, authinfo, result,
-					"期間 '%s' を見つけることができませんでした。", 
+					"期間 '%s' を見つけることができませんでした。",
 					cgi_data->timeperiod_name));
 			}
 		else {
@@ -3016,26 +3012,20 @@ json_object *json_archive_statechangelist(unsigned format_options,
 	au_node *temp_node;
 	int initial_host_state = AU_STATE_NO_DATA;
 	int	initial_service_state = AU_STATE_NO_DATA;
-	int last_host_state = AU_STATE_NO_DATA;
-	int	last_service_state = AU_STATE_NO_DATA;
 	au_log_entry *temp_entry = NULL;
 	au_log_alert *temp_state_log = NULL;
 	au_log_alert *start_log = NULL;
 	au_log_alert *end_log = NULL;
 	au_host *temp_host = NULL;
 	au_service *temp_service = NULL;
-	void *object = NULL;
 	int have_seen_first_entry = 0;
 	int current = 0;
 	int counted = 0;
 
-	if(assumed_initial_host_state != AU_STATE_NO_DATA) {
-		last_host_state = initial_host_state = assumed_initial_host_state;
-		}
-	if(assumed_initial_service_state != AU_STATE_NO_DATA) {
-		last_service_state = initial_service_state = 
-				assumed_initial_service_state;
-		}
+	if(assumed_initial_host_state != AU_STATE_NO_DATA)
+		initial_host_state = assumed_initial_host_state;
+	if(assumed_initial_service_state != AU_STATE_NO_DATA)
+		initial_service_state = assumed_initial_service_state;
 
 	json_data = json_new_object();
 	json_object_append_object(json_data, "selectors", 
@@ -3059,13 +3049,11 @@ json_object *json_archive_statechangelist(unsigned format_options,
 		switch(temp_state_log->obj_type) {
 		case AU_OBJTYPE_HOST:
 			temp_host = (au_host *)temp_state_log->object;
-			object = (void *)temp_host;
 			temp_service = NULL;
 			break;
 		case AU_OBJTYPE_SERVICE:
 			temp_host = NULL;
 			temp_service = (au_service *)temp_state_log->object;
-			object = (void *)temp_service;
 			break;
 			}
 
@@ -3084,16 +3072,12 @@ json_object *json_archive_statechangelist(unsigned format_options,
 				state */
 			switch(temp_state_log->obj_type) {
 			case AU_OBJTYPE_HOST:
-				if(AU_STATE_NO_DATA == assumed_initial_host_state) {
-					last_host_state = initial_host_state = 
-							temp_state_log->state;
-					}
+				if(AU_STATE_NO_DATA == assumed_initial_host_state)
+					initial_host_state = temp_state_log->state;
 				break;
 			case AU_OBJTYPE_SERVICE:
-				if(AU_STATE_NO_DATA == assumed_initial_service_state) {
-					last_service_state = initial_service_state = 
-							temp_state_log->state;
-					}
+				if(AU_STATE_NO_DATA == assumed_initial_service_state)
+					initial_service_state = temp_state_log->state;
 				break;
 				}
 			continue;
@@ -3165,14 +3149,21 @@ json_object *json_archive_statechangelist(unsigned format_options,
 	/* Inject a pseudo entry with the final state */
 	switch(object_type) {
 	case AU_OBJTYPE_HOST:
-		end_log = au_create_alert_or_state_log(object_type, 
-				temp_host, AU_STATETYPE_HARD, temp_state_log->state, 
-				"Final Host Pseudo-State");
+		temp_host = au_find_host(log->hosts, host_name);
+		if(NULL != temp_host) {
+			end_log = au_create_alert_or_state_log(object_type,
+					temp_host, AU_STATETYPE_HARD, temp_state_log->state,
+					"Final Host Pseudo-State");
+			}
 		break;
 	case AU_OBJTYPE_SERVICE:
-		end_log = au_create_alert_or_state_log(object_type, 
-				temp_service, AU_STATETYPE_HARD, temp_state_log->state, 
-				"Final Service Pseudo-State");
+		temp_service = au_find_service(log->hosts, host_name,
+				service_description);
+		if(NULL != temp_service) {
+			end_log = au_create_alert_or_state_log(object_type,
+					temp_service, AU_STATETYPE_HARD, temp_state_log->state,
+					"Final Service Pseudo-State");
+			}
 		break;
 		}
 	if(end_log != NULL) {
@@ -4474,11 +4465,13 @@ json_object *json_archive_single_host_availability(unsigned format_options,
 		host = au_add_host(log->hosts, host_name);
 		/* Add global events to this new host */
 		global_host = au_find_host(log->hosts, "*");
-		for(temp_entry = global_host->log_entries->head; NULL != temp_entry; 
-				temp_entry = temp_entry->next) {
-			if(au_list_add_node(host->log_entries, temp_entry->data, 
-					au_cmp_log_entries) == 0) {
-				break;
+		if(NULL != global_host) {
+			for(temp_entry = global_host->log_entries->head; NULL != temp_entry;
+					temp_entry = temp_entry->next) {
+				if(au_list_add_node(host->log_entries, temp_entry->data,
+						au_cmp_log_entries) == 0) {
+					break;
+					}
 				}
 			}
 		}
@@ -4513,11 +4506,13 @@ json_object *json_archive_single_service_availability(unsigned format_options,
 		service = au_add_service(log->services, host_name, service_description);
 		/* Add global events to this new service */
 		global_host = au_find_host(log->hosts, "*");
-		for(temp_entry = global_host->log_entries->head; NULL != temp_entry; 
-				temp_entry = temp_entry->next) {
-			if(au_list_add_node(service->log_entries, temp_entry->data, 
-					au_cmp_log_entries) == 0) {
-				break;
+		if(NULL != global_host) {
+			for(temp_entry = global_host->log_entries->head; NULL != temp_entry;
+					temp_entry = temp_entry->next) {
+				if(au_list_add_node(service->log_entries, temp_entry->data,
+						au_cmp_log_entries) == 0) {
+					break;
+					}
 				}
 			}
 		}
