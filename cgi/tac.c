@@ -1455,7 +1455,6 @@ void display_tac_overview(void) {
 			printf("<tr><td width=100%% class='featureItemEnabledServiceNotifications'>全サービス有効</td></tr>\n");
 
 		if(notification_disabled_hosts > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledHostNotifications'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_NOTIFICATIONS_DISABLED, notification_disabled_hosts);
 			printf("<tr><td width=100%% class='featureItemDisabledHostNotifications'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_NOTIFICATIONS_DISABLED, notification_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledHostNotifications'>全ホスト有効</td></tr>\n");
