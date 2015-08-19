@@ -9,13 +9,13 @@
 	</head>
 	<body>
 		<div id="wrap">
-			<h1>JSON クエリー ジェネレーター</h1>
+			<h1>JSON Query Generator</h1>
 			<div id="results">
-				<p>クエリーの結果がここに表示されます。</p>
+				<p>Your query results will appear here.</p>
 			</div>
 			<div id="options">
-				<p>ここにオプションを入れてください。</p>
-				<form id="query" action="jsonquery.php" method="get">
+				<p>Enter your options here.</p>
+				<form id="query" action="jsonquery.html" method="get">
 					<table id="cgiform">
 						<tr>
 							<td class="label">
@@ -24,22 +24,22 @@
 							<td>
 								<select id="cginame" name="cginame">
 									<option value="none">
-										CGIを選択
+										Select a CGI
 									</option>
 									<option value="archivejson.cgi">
-										アーカイブ JSON CGI
+										Archive JSON CGI
 									</option>
 									<option value="objectjson.cgi">
-										オブジェクト JSON CGI
+										Object JSON CGI
 									</option>
 									<option value="statusjson.cgi">
-										ステータス JSON CGI
+										Status JSON CGI
 									</option>
 								</select>
 							</td>
 						</tr>
 					</table>
-					<button type="submit">クエリーの送信</button>
+					<button type="submit">Send Query</button>
 				<form>
 			<div>
 		</div>

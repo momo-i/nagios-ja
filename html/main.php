@@ -1,8 +1,8 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
 
-$this_version = '4.0.8';
-$this_year = '2014';
+$this_version = '4.1.0';
+$this_year = '2015';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -24,7 +24,7 @@ $this_year = '2014';
 
 		loadRemoteFeed( // "Latest News"
 			'#splashbox4-contents', 'frontpage', 3,
-			'<ul>', processNewsItem, '<li><a href="http://www.nagios.org/news" target="_blank">新着情報...</a></li></ul>'
+			'<ul>', processNewsItem, '<li><a href="https://www.nagios.org/news" target="_blank">新着情報...</a></li></ul>'
 		);
 
 		loadRemoteFeed( // "Don't Miss..."
@@ -39,7 +39,7 @@ $this_year = '2014';
 	function loadRemoteFeed(id, name, n, prefix, formatter, suffix) {
 		$.ajax({
 			type: 'GET',
-			url: 'http://www.nagios.org/backend/feeds/' + name + '/',
+			url: 'https://www.nagios.org/backend/feeds/' + name + '/',
 			crossDomain: true,
 			success: function(d, status, jqXHR) {
 				// We should have Internet access, set the playlist HTML.
@@ -95,7 +95,7 @@ $this_year = '2014';
 	function getCoreStatus() {
 		setCoreStatusHTML('passiveonly', 'Checking process status...');
 
-		$.get('cgi-bin/statusjson.cgi?query=programstatus', function(d) {
+		$.get('<?php echo $cfg["cgi_base_url"];?>/statusjson.cgi?query=programstatus', function(d) {
 			d = d && d.data && d.data.programstatus || false;
 			if (d && d.nagios_pid) {
 				var pid = d.nagios_pid;
@@ -121,7 +121,7 @@ $this_year = '2014';
 
 
 <div id="mainbrandsplash">
-	<div id="mainlogo"><a href="http://www.nagios.org/" target="_blank"><img src="images/logofullsize.png" border="0" alt="Nagios" title="Nagios"></a></div>
+	<div id="mainlogo"><a href="https://www.nagios.org/" target="_blank"><img src="images/logofullsize.png" border="0" alt="Nagios" title="Nagios"></a></div>
 	<div><span id="core-status"></span></div>
 </div>
 
@@ -129,8 +129,8 @@ $this_year = '2014';
 <div id="currentversioninfo">
 	<div class="product">Nagios<sup><span style="font-size: small;">&reg;</span></sup> Core<sup><span style="font-size: small;">&trade;</span></sup> 日本語化</div>
 	<div class="version">バージョン <?php echo $this_version; ?></div>
-	<div class="releasedate">2014年8月12日</div>
-	<div class="checkforupdates"><a href="http://www.nagios.org/checkforupdates/?version=<?php echo $this_version; ?>&amp;product=nagioscore" target="_blank">Check for updates</a></div>
+	<div class="releasedate">2015年8月18日</div>
+	<div class="checkforupdates"><a href="https://www.nagios.org/checkforupdates/?version=<?php echo $this_version; ?>&amp;product=nagioscore" target="_blank">更新のチェック</a></div>
 </div>
 
 
@@ -141,7 +141,7 @@ $this_year = '2014';
 ?>
 		<div class="updatechecksdisabled">
 			<div class="warningmessage">警告: 自動更新チェックは無効です。</div>
-			<div class="submessage">アップデートチェックを無効にすると潜在的なセキュリティリスクがあります。Nagiosの設定ファイルで更新チェックを有効にするか、手動で更新を確認するために<a href="http://www.nagios.org/" target="_blank">nagios.org</a>を訪れてください。</a></div>
+			<div class="submessage">アップデートチェックを無効にすると潜在的なセキュリティリスクがあります。Nagiosの設定ファイルで更新チェックを有効にするか、手動で更新を確認するために<a href="https://www.nagios.org/" target="_blank">nagios.org</a>を訪れてください。</a></div>
 		</div>
 <?php
 	} else if (
@@ -150,7 +150,7 @@ $this_year = '2014';
 ?>
 		<div class="updateavailable">
 			<div class="updatemessage">Nagios Coreの最新バージョンが利用可能です</div>
-			<div class="submessage">Nagios <?php echo $updateinfo['update_version'];?>をダウンロードするために<a href="http://www.nagios.org/download/" target="_blank">nagios.org</a>を訪れてください。</div>
+			<div class="submessage">Nagios <?php echo $updateinfo['update_version'];?>をダウンロードするために<a href="https://www.nagios.org/download/" target="_blank">nagios.org</a>を訪れてください。</div>
 		</div>
 <?php
 	}
@@ -172,25 +172,25 @@ $this_year = '2014';
 		<div id="splashbox1" class="splashbox splashbox-clear">
 			<h2>始めに</h2>
 			<ul>
-				<li><a href="http://go.nagios.com/nagioscore/startmonitoring" target="_blank">インフラストラクチャの監視を開始</a></li>
-				<li><a href="http://go.nagios.com/nagioscore/changelook" target="_blank">Nagiosの外観を変更</a></li>
-				<li><a href="http://go.nagios.com/nagioscore/extend" target="_blank">数百ものアドオンでNagiosを拡張</a></li>
-				<!--<li><a href="http://go.nagios.com/nagioscore/docs" target="_blank">Read the Nagios documentation</a></li>-->
-				<li><a href="http://go.nagios.com/nagioscore/support" target="_blank">サポート</a></li>
-				<li><a href="http://go.nagios.com/nagioscore/training" target="_blank">トレーニング</a></li>
-				<li><a href="http://go.nagios.com/nagioscore/certification" target="_blank">認定</a></li>
+				<li><a href="https://go.nagios.com/nagioscore/startmonitoring" target="_blank">インフラストラクチャの監視を開始</a></li>
+				<li><a href="https://go.nagios.com/nagioscore/changelook" target="_blank">Nagiosの外観を変更</a></li>
+				<li><a href="https://go.nagios.com/nagioscore/extend" target="_blank">数百ものアドオンでNagiosを拡張</a></li>
+				<!--<li><a href="https://go.nagios.com/nagioscore/docs" target="_blank">Read the Nagios documentation</a></li>-->
+				<li><a href="https://go.nagios.com/nagioscore/support" target="_blank">サポート</a></li>
+				<li><a href="https://go.nagios.com/nagioscore/training" target="_blank">トレーニング</a></li>
+				<li><a href="https://go.nagios.com/nagioscore/certification" target="_blank">認定</a></li>
 			</ul>
 		</div>
 
 		<div id="splashbox2" class="splashbox">
 			<h2>クイックリンク</h2>
 			<ul>
-				<li><a href="http://library.nagios.com" target="_blank">Nagios Library</a> (チュートリアルとドキュメント)</li>
-				<li><a href="http://labs.nagios.com" target="_blank">Nagios Labs</a> (開発ブログ)</li>
-				<li><a href="http://exchange.nagios.org" target="_blank">Nagios Exchange</a> (プラグインとアドオン)</li>
-				<li><a href="http://support.nagios.com" target="_blank">Nagios Support</a> (テクニカルサポート)</li>
-				<li><a href="http://www.nagios.com" target="_blank">Nagios.com</a> (会社)</li>
-				<li><a href="http://www.nagios.org" target="_blank">Nagios.org</a> (プロジェクト)</li>
+				<li><a href="https://library.nagios.com" target="_blank">Nagios Library</a> (チュートリアルとドキュメント)</li>
+				<li><a href="https://labs.nagios.com" target="_blank">Nagios Labs</a> (開発ブログ)</li>
+				<li><a href="https://exchange.nagios.org" target="_blank">Nagios Exchange</a> (プラグインとアドオン)</li>
+				<li><a href="https://support.nagios.com" target="_blank">Nagios Support</a> (テクニカルサポート)</li>
+				<li><a href="https://www.nagios.com" target="_blank">Nagios.com</a> (会社)</li>
+				<li><a href="https://www.nagios.org" target="_blank">Nagios.org</a> (プロジェクト)</li>
 			</ul>
 		</div>
 
@@ -225,10 +225,10 @@ $this_year = '2014';
 		Copyright &copy; 2010-<?php echo $this_year; ?> Nagios Core Development Team and Community Contributors. Copyright &copy; 1999-2009 Ethan Galstad. See the THANKS file for more information on contributors.
 	</div>
 	<div CLASS="disclaimer">
-		Nagios Core is licensed under the GNU General Public License and is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE.  Nagios, Nagios Core and the Nagios logo are trademarks, servicemarks, registered trademarks or registered servicemarks owned by Nagios Enterprises, LLC.  Use of the Nagios marks is governed by the <A href="http://www.nagios.com/legal/trademarks/">trademark use restrictions</a>.
+		Nagios Core is licensed under the GNU General Public License and is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE.  Nagios, Nagios Core and the Nagios logo are trademarks, servicemarks, registered trademarks or registered servicemarks owned by Nagios Enterprises, LLC.  Use of the Nagios marks is governed by the <A href="https://www.nagios.com/legal/trademarks/">trademark use restrictions</a>.
 	</div>
 	<div class="logos">
-		<a href="http://www.nagios.org/" target="_blank"><img src="images/weblogo1.png" width="102" height="47" border="0" style="padding: 0 40px 0 40px;" title="Nagios.org" /></a>
+		<a href="https://www.nagios.org/" target="_blank"><img src="images/weblogo1.png" width="102" height="47" border="0" style="padding: 0 40px 0 40px;" title="Nagios.org" /></a>
 		<a href="http://sourceforge.net/projects/nagios" target="_blank"><img src="images/sflogo.png" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 	</div>
 </div> 

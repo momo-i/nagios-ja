@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
 
-$this_version = '4.0.8';
+$this_version = '4.1.0';
 $link_target = 'main';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -19,7 +19,7 @@ $link_target = 'main';
 <body class='navbar'>
 
 <div class="navbarlogo">
-	<a href="http://www.nagios.org" target="_blank"><img src="images/sblogo.png" height="39" width="140" border="0" alt="Nagios" /></a>
+	<a href="https://www.nagios.org" target="_blank"><img src="images/sblogo.png" height="39" width="140" border="0" alt="Nagios" /></a>
 </div>
 
 <div class="navsection">
@@ -27,7 +27,7 @@ $link_target = 'main';
 	<div class="navsectionlinks">
 		<ul class="navsectionlinks">
 			<li><a href="main.php" target="<?php echo $link_target;?>">ホーム</a></li>
-			<li><a href="http://go.nagios.com/nagioscore/docs" target="_blank">ドキュメント</a></li>
+			<li><a href="https://go.nagios.com/nagioscore/docs" target="_blank">ドキュメント</a></li>
 		</ul>
 	</div>
 </div>
@@ -37,7 +37,10 @@ $link_target = 'main';
 	<div class="navsectionlinks">
 		<ul class="navsectionlinks">
 			<li><a href="<?php echo $cfg["cgi_base_url"];?>/tac.cgi" target="<?php echo $link_target;?>">総合監視状態</a></li>
-			<li><a href="<?php echo $cfg["cgi_base_url"];?>/statusmap.cgi?host=all" target="<?php echo $link_target;?>">マップ</a></li>
+			<li>
+				<a href="map.html?host=all" target="<?php echo $link_target;?>">マップ</a>
+				<a href="<?php echo $cfg["cgi_base_url"];?>/statusmap.cgi?host=all" target="<?php echo $link_target;?>">(旧)</a>
+			</li>
 			<li><a href="<?php echo $cfg["cgi_base_url"];?>/status.cgi?hostgroup=all&amp;style=hostdetail" target="<?php echo $link_target;?>">ホスト</a></li>
 			<li><a href="<?php echo $cfg["cgi_base_url"];?>/status.cgi?host=all" target="<?php echo $link_target;?>">サービス</a></li>
 			<li>
@@ -80,12 +83,18 @@ $link_target = 'main';
 	<div class="navsectionlinks">
 		<ul class="navsectionlinks">
 			<li><a href="<?php echo $cfg["cgi_base_url"];?>/avail.cgi" target="<?php echo $link_target;?>">稼動状況</a></li>
-			<li><a href="<?php echo $cfg["cgi_base_url"];?>/trends.cgi" target="<?php echo $link_target;?>">傾向</a></li>
+			<li>
+				<a href="trends.html" target="<?php echo $link_target;?>">傾向</a>
+				<a href="<?php echo $cfg["cgi_base_url"];?>/trends.cgi" target="<?php echo $link_target;?>">(旧)</a>
+			</li>
 			<li><a href="<?php echo $cfg["cgi_base_url"];?>/history.cgi?host=all" target="<?php echo $link_target;?>">警報</a>
 			<ul>
 				<li><a href="<?php echo $cfg["cgi_base_url"];?>/history.cgi?host=all" target="<?php echo $link_target;?>">履歴</a></li>
 				<li><a href="<?php echo $cfg["cgi_base_url"];?>/summary.cgi" target="<?php echo $link_target;?>">サマリー</a></li>
-				<li><a href="<?php echo $cfg["cgi_base_url"];?>/histogram.cgi" target="<?php echo $link_target;?>">ヒストグラム</a></li>
+				<li>
+					<a href="histogram.html" target="<?php echo $link_target;?>">ヒストグラム</a>
+					<a href="<?php echo $cfg["cgi_base_url"];?>/histogram.cgi" target="<?php echo $link_target;?>">(旧)</a>
+				</li>
 			</ul>
 			</li>
 			<li><a href="<?php echo $cfg["cgi_base_url"];?>/notifications.cgi?contact=all" target="<?php echo $link_target;?>">通知</a></li>
