@@ -396,7 +396,11 @@ int main(int argc, char **argv) {
 		/* right hand column of top row */
 		printf("<td align=right valign=bottom width=33%%>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 		printf("<form method=\"GET\" action=\"%s\">\n", HISTOGRAM_CGI);
+#else
+		printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_HISTOGRAM_CGI);
+#endif
 		printf("<table border=0 CLASS='optBox'>\n");
 
 		if(display_type != DISPLAY_NO_HISTOGRAM && input_type == GET_INPUT_NONE) {
@@ -544,7 +548,11 @@ int main(int argc, char **argv) {
 
 			printf("<BR><BR>\n");
 			printf("<DIV ALIGN=CENTER>\n");
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<IMG SRC='%s?createimage&t1=%lu&t2=%lu", HISTOGRAM_CGI, (unsigned long)t1, (unsigned long)t2);
+#else
+			printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_HISTOGRAM_CGI);
+#endif
 			printf("&host=%s", url_encode(host_name));
 			if(display_type == DISPLAY_SERVICE_HISTOGRAM)
 				printf("&service=%s", url_encode(svc_description));
@@ -738,7 +746,11 @@ int main(int argc, char **argv) {
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<form method=\"GET\" action=\"%s\" name=\"serviceform\">\n", HISTOGRAM_CGI);
+#else
+			printf("<form method=\"GET\" action=\"%s\" name=\"serviceform\">\n", LEGACY_HISTOGRAM_CGI);
+#endif
 			printf("<input type='hidden' name='input' value='getoptions'>\n");
 			printf("<input type='hidden' name='host' value='%s'>\n", (first_service == NULL) ? "unknown" : (char *)escape_string(first_service));
 
@@ -782,7 +794,11 @@ int main(int argc, char **argv) {
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<form method=\"GET\" action=\"%s\">\n", HISTOGRAM_CGI);
+#else
+			printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_HISTOGRAM_CGI);
+#endif
 			printf("<input type='hidden' name='host' value='%s'>\n", escape_string(host_name));
 			if(display_type == DISPLAY_SERVICE_HISTOGRAM)
 				printf("<input type='hidden' name='service' value='%s'>\n", escape_string(svc_description));
@@ -946,7 +962,11 @@ int main(int argc, char **argv) {
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<form method=\"GET\" action=\"%s\">\n", HISTOGRAM_CGI);
+#else
+			printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_HISTOGRAM_CGI);
+#endif
 			printf("<TABLE BORDER=0 cellpadding=5>\n");
 			printf("<tr><td class='reportSelectSubTitle' align=right>種類:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
@@ -1017,7 +1037,11 @@ void document_header(int use_stylesheet) {
 		printf("<BODY CLASS='histogram'>\n");
 
 		/* include user SSI header */
+#ifdef LEGACY_GRAPHICAL_CGIS
 		include_ssi_files(HISTOGRAM_CGI, SSI_HEADER);
+#else
+		include_ssi_files(LEGACY_HISTOGRAM_CGI, SSI_HEADER);
+#endif
 
 		printf("<div id=\"popup\" style=\"position:absolute; z-index:1; visibility: hidden\"></div>\n");
 		}
@@ -1050,7 +1074,11 @@ void document_footer(void) {
 	if(mode == CREATE_HTML) {
 
 		/* include user SSI footer */
+#ifdef LEGACY_GRAPHICAL_CGIS
 		include_ssi_files(HISTOGRAM_CGI, SSI_FOOTER);
+#else
+		include_ssi_files(LEGACY_HISTOGRAM_CGI, SSI_FOOTER);
+#endif
 
 		printf("</body>\n");
 		printf("</html>\n");

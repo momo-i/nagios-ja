@@ -53,6 +53,7 @@ const string_value_mapping svm_format_options[] = {
 		"読みやすさを高めるために空白で埋めます" },
 	{ "enumerate", JSON_FORMAT_ENUMERATE, 
 		"テキスト形式の列挙値の表現ではなく、生の数値を使用します" },
+		"raw numeric values" },
 	{ "bitmask", JSON_FORMAT_BITMASK, 
 		"テキスト形式のビットマスク値の表現ではなく、生の数値を使用します" },
 	{ "duration", JSON_FORMAT_DURATION, 
@@ -62,7 +63,7 @@ const string_value_mapping svm_format_options[] = {
 		"形式が指定されていない場合、strftime形式を指定するか"
 		"'%%Y-%%m-%%d %%H:%%M:%%S'に従って日付/時刻の値形式にします" },
 	{ "date", JSON_FORMAT_DATE, 
-		"形式が指定されていない場合、strftime形式またはデフォルトのJavascript形式(Unixエポックの最初からのミリ秒)にしたがった日付の形式にします" },
+		"形式が指定されていない場合、strftime形式またはデフォルトのJavascript形式(Unixエポックの最初からのミリ秒)にしたがった日付>の形式にします" },
 	{ "time", JSON_FORMAT_TIME, 
 		"与えられたstrftime形式や指定されたフォーマットの'%%H:%%M:%%S'に従った時間の形式にします" },
 #endif
@@ -190,17 +191,17 @@ const string_value_mapping svm_option_types[] = {
 #endif
 
 const string_value_mapping parent_host_extras[] = {
-	{ "none", 0, "Nagiosのコアホストから直接到達しているホストです" },
+	{ "none", 0, "Nagiosのコアホストから直接到達しているホスト" },
 	{ NULL, -1, NULL },
 	};
 
 const string_value_mapping child_host_extras[] = {
-	{ "none", 0, "下位ホストを持たないホストです" },
+	{ "none", 0, "下位ホストを持たないホスト" },
 	{ NULL, -1, NULL },
 	};
 
 const string_value_mapping parent_service_extras[] = {
-	{ "none", 0, "上位サービスを持たないサービスです" },
+	{ "none", 0, "上位サービスを持たないサービス" },
 	{ NULL, -1, NULL },
 	};
 
@@ -516,7 +517,7 @@ void json_object_append_string(json_object *obj, char *key,
 		escaped_format = format;
 		}
 	if(NULL != escaped_format) {
-		va_start(a_list, escaped_format);
+		va_start(a_list, format);
 		result = vasprintf(&buf, escaped_format, a_list);
 		va_end(a_list);
 		if(result >= 0) {
@@ -730,10 +731,14 @@ void json_array_print(json_array *obj, int padding, int whitespace,
 void json_member_print(json_object_member *mp, int padding, int whitespace, 
 		char *strftime_format, unsigned format_options) {
 
+	char *buf = NULL;
+
 	switch(mp->type) {
 	case JSON_TYPE_OBJECT:
 		if(NULL != mp->key) {
-			indentf(padding, whitespace, "\"%s\": ", mp->key);
+			buf = json_escape_string(mp->key, &string_escapes);
+			indentf(padding, whitespace, "\"%s\": ", buf);
+			if(NULL != buf) free(buf);
 			}
 		else {
 			indentf(padding, whitespace, "");
@@ -743,7 +748,9 @@ void json_member_print(json_object_member *mp, int padding, int whitespace,
 		break;
 	case JSON_TYPE_ARRAY:
 		if(NULL != mp->key) {
-			indentf(padding, whitespace, "\"%s\": ", mp->key);
+			buf = json_escape_string(mp->key, &string_escapes);
+			indentf(padding, whitespace, "\"%s\": ", buf);
+			if(NULL != buf) free(buf);
 			}
 		else {
 			indentf(padding, whitespace, "");
@@ -940,64 +947,91 @@ int passes_start_and_count_limits(int start, int max, int current, int counted) 
 
 void json_string(int padding, int whitespace, char *key, char *value) {
 
-	char *buf = NULL;
+	char *keybuf = NULL;
+	char *valbuf = NULL;
 
-	buf = json_escape_string(value, &string_escapes);
+	valbuf = json_escape_string(value, &string_escapes);
 
 	if( NULL == key) {
-		indentf(padding, whitespace, "\"%s\"", (( NULL == buf) ? "" : buf));
+		indentf(padding, whitespace, "\"%s\"",
+				(( NULL == valbuf) ? "" : valbuf));
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s\"%s\"", key, 
-				(( whitespace> 0) ? " " : ""), (( NULL == buf) ? "" : buf));
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s\"%s\"", keybuf, 
+				(( whitespace> 0) ? " " : ""),
+				(( NULL == valbuf) ? "" : valbuf));
 		}
-	if(NULL != buf) free(buf);
+	if(NULL != keybuf) free(keybuf);
+	if(NULL != valbuf) free(valbuf);
 	}
 
 void json_boolean(int padding, int whitespace, char *key, int value) {
+
+	char *keybuf = NULL;
+
 	if( NULL == key) {
 		indentf(padding, whitespace, "%s", 
 				(( 0 == value) ? "false" : "true"));
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s%s", key, 
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s%s", keybuf, 
 				(( whitespace > 0) ? " " : ""),
 				(( 0 == value) ? "false" : "true"));
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_int(int padding, int whitespace, char *key, int value) {
+
+	char *keybuf = NULL;
+
 	if( NULL == key) {
 		indentf(padding, whitespace, "%d", value); 
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s%d", key, 
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s%d", keybuf, 
 				(( whitespace > 0) ? " " : ""), value); 
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_unsigned(int padding, int whitespace, char *key, 
 		unsigned long long value) {
+
+	char *keybuf = NULL;
+
 	if( NULL == key) {
 		indentf(padding, whitespace, "%llu", value);
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s%llu", key, 
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s%llu", keybuf, 
 				(( whitespace > 0) ? " " : ""), value);
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_float(int padding, int whitespace, char *key, double value) {
+
+	char *keybuf = NULL;
+
 	if( NULL == key) {
 		indentf(padding, whitespace, "%.2f", value);
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s%.2f", key, 
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s%.2f", keybuf, 
 				(( whitespace > 0) ? " " : ""), value);
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_time(int padding, int whitespace, char *key, unsigned long value) {
+
+	char *keybuf = NULL;
 	unsigned hours;
 	unsigned minutes;
 	unsigned seconds;
@@ -1013,15 +1047,18 @@ void json_time(int padding, int whitespace, char *key, unsigned long value) {
 				seconds);
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s\"%02u:%02u:%02u\"", key, 
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s\"%02u:%02u:%02u\"", keybuf, 
 				(( whitespace > 0) ? " " : ""), hours, minutes,
 				seconds);
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_time_t(int padding, int whitespace, char *key, time_t value, 
 		char *format) {
 
+	char		*keybuf = NULL;
 	char		buf[1024];
 	struct tm	*tmp_tm;
 
@@ -1040,14 +1077,17 @@ void json_time_t(int padding, int whitespace, char *key, time_t value,
 		indentf(padding, whitespace, "%s", buf);
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s%s", key, 
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s%s", keybuf, 
 				(( whitespace > 0) ? " " : ""), buf);
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_duration(int padding, int whitespace, char *key, unsigned long value,
 		int format_duration) {
 
+	char		*keybuf = NULL;
 	char		buf[1024];
 	int			days = 0;
 	int			hours = 0;
@@ -1065,7 +1105,7 @@ void json_duration(int padding, int whitespace, char *key, unsigned long value,
 		minutes = (unsigned)(value / 60);
 		value -= minutes * 60;
 		seconds = value;
-		snprintf(buf, sizeof(buf)-1, "%ud %uh %um %us", days, hours, minutes, 
+		snprintf(buf, sizeof(buf)-1, "%u日 %u時間 %u分 %u病", days, hours, minutes, 
 				seconds);
 		}
 
@@ -1073,10 +1113,12 @@ void json_duration(int padding, int whitespace, char *key, unsigned long value,
 		indentf(padding, whitespace, "%s", buf);
 		}
 	else {
-		indentf(padding, whitespace, "\"%s\":%s%s%s%s", key,
+		keybuf = json_escape_string(key, &string_escapes);
+		indentf(padding, whitespace, "\"%s\":%s%s%s%s", keybuf, 
 				(( whitespace > 0) ? " " : ""), (format_duration ? "\"" : ""),
 				buf, (format_duration ? "\"" : ""));
 		}
+	if(NULL != keybuf) free(keybuf);
 	}
 
 void json_enumeration(json_object *json_parent, unsigned format_options, 
@@ -1378,7 +1420,7 @@ char *json_escape_string(const char *src, const json_escape *escapes) {
 
 	/* Make a wide string copy of src */
 	wdest_len = mbstowcs(NULL, src, 0);
-	if(0 == wdest_len) return NULL;
+	if(wdest_len <= 0) return NULL;
 	if((wdest = calloc(wdest_len + 1, sizeof(wchar_t))) == NULL) {
 		return NULL;
 		}
@@ -1400,11 +1442,11 @@ char *json_escape_string(const char *src, const json_escape *escapes) {
 				if((wdest_size - wdest_len) < (to_len - from_len)) {
 					/* If more room is needed, realloc and update variables */
 					wdest_size += (to_len - from_len) * BUF_REALLOC_MULTIPLIER;
-					wdest = realloc(wdest, wdest_size * sizeof(wchar_t));
+					wdest = realloc(wdest, (wdest_size + 1) * sizeof(wchar_t));
 					if(NULL == wdest) return NULL;
 					fromp = wdest + offset;
 					}
-				wchars = wdest_len - offset + from_len + 1;
+				wchars = wdest_len - offset - from_len + 1;
 				wmemmove(fromp + to_len, fromp + from_len, wchars);
 				wcsncpy(fromp, escp->to, to_len);
 				wdest_len += (to_len - from_len);
