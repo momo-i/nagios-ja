@@ -70,6 +70,9 @@ int             lock_author_names = TRUE;
 int             navbar_search_addresses = TRUE;
 int             navbar_search_aliases = TRUE;
 
+int		ack_no_sticky  = FALSE;
+int		ack_no_send    = FALSE;
+
 time_t          this_scheduled_log_rotation = 0L;
 time_t          last_scheduled_log_rotation = 0L;
 time_t          next_scheduled_log_rotation = 0L;
@@ -106,7 +109,7 @@ lifo            *lifo_list = NULL;
 char encoded_url_string[2][MAX_INPUT_BUFFER]; // 2 to be able use url_encode twice
 char *encoded_html_string = NULL;
 
-char	ttf_file[MAX_FILENAME_LENGTH];
+char   ttf_file[MAX_FILENAME_LENGTH];
 
 /*
  * These function stubs allow us to compile a lot of the
@@ -443,7 +446,10 @@ int read_cgi_config_file(const char *filename) {
 
 		else if(!strcmp(var, "navbar_search_aliases"))
 			navbar_search_aliases = (atoi(val) > 0) ? TRUE : FALSE;
-
+		else if(!strcmp(var, "ack_no_sticky"))
+			ack_no_sticky = (atoi(val) > 0) ? TRUE : FALSE;
+		else if(!strcmp(var, "ack_no_send"))
+			ack_no_send = (atoi(val) > 0) ? TRUE : FALSE;
 		else if(!strcmp(var, "ttf_file")) {
 			strncpy(ttf_file, val, sizeof(ttf_file));
 			ttf_file[sizeof(ttf_file)-1] = '\x0';
@@ -1033,7 +1039,7 @@ void get_interval_time_string(double time_units, char *buffer, int buffer_length
 	minutes = (int)total_seconds / 60;
 	total_seconds %= 60;
 	seconds = (int)total_seconds;
-	snprintf(buffer, buffer_length, "%d時間と %d分 %d秒", hours, minutes, seconds);
+	snprintf(buffer, buffer_length, "%d時間 %d分 %d秒", hours, minutes, seconds);
 	buffer[buffer_length - 1] = '\x0';
 
 	return;
@@ -1125,7 +1131,7 @@ static char * encode_character(wchar_t wc, char *outstp, int output_max) {
 #define WHERE_OUTSIDE_TAG				0	/* Not in an HTML tag */
 #define WHERE_IN_TAG_NAME				1	/* In HTML tag name (either opening
 												or closing tag) */
-#define WHERE_IN_TAG_OUTSIDE_ATTRIBUTE	2	/* In HTML tag, but before or after
+#define WHERE_IN_TAG_OUTSIDE_ATTRIBUTE	2	/* In HTML tag, but before or after 
 												an attribute. Should be <, > or
 												space */
 #define WHERE_IN_TAG_IN_ATTRIBUTE_NAME	3	/* In the attribute name */
@@ -1144,7 +1150,7 @@ char * html_encode(char *input, int escape_newlines) {
 	size_t		mbstowcs_result;
 	int			x;
 	int			where_in_tag = WHERE_OUTSIDE_TAG; /* Location in HTML tag */
-	wchar_t		attr_value_start = (wchar_t)0;  /* character that starts the
+	wchar_t		attr_value_start = (wchar_t)0;	/* character that starts the 
 													attribute value */
 	int			tag_depth = 0;					/* depth of nested HTML tags */
 
@@ -1166,7 +1172,7 @@ char * html_encode(char *input, int escape_newlines) {
 		}
 
 	/* Process all converted characters */
-	for( x = 0, inwcp = wcinput; x < (int)mbstowcs_result && '\0' != *inwcp;
+	for( x = 0, inwcp = wcinput; x < (int)mbstowcs_result && '\0' != *inwcp; 
 			x++, inwcp++) {
 
 		/* Most ASCII characters don't get encoded */
@@ -1211,7 +1217,7 @@ char * html_encode(char *input, int escape_newlines) {
 			}
 
 		/* Special handling for quotes */
-		else if(FALSE == escape_html_tags &&
+		else if(FALSE == escape_html_tags && 
 				('"' == *inwcp || '\'' == *inwcp)) {
 			switch(where_in_tag) {
 			case WHERE_OUTSIDE_TAG:
@@ -1238,14 +1244,14 @@ char * html_encode(char *input, int escape_newlines) {
 					}
 				else if(attr_value_start == *inwcp) {
 					/* If the quote is the same type of quote that started
-						the attribute value and it is not backslash
+						the attribute value and it is not backslash 
 						escaped, it signals the end of the attribute value */
 					outstp = copy_wc_to_output(*inwcp, outstp, output_max);
 					where_in_tag = WHERE_IN_TAG_OUTSIDE_ATTRIBUTE;
 					}
 				else {
 					/* If we encounter an quote that did not start the
-						attribute value and is not backslash escaped,
+						attribute value and is not backslash escaped, 
 						use it as is */
 					outstp = copy_wc_to_output(*inwcp, outstp, output_max);
 					}
@@ -1617,20 +1623,20 @@ void display_info_table(const char *title, int refresh, authdata *current_authda
 		printf("ログイン名: <i>%s</i><BR>\n", (!strcmp(current_authdata->username, "")) ? "?" : current_authdata->username);
 
 	printf("<BR>\n");
-	printf("Nagios&reg; Core&trade; %s - <A HREF='http://www.nagios.org' TARGET='_new' CLASS='homepageURL'>www.nagios.org</A><BR>\n", PROGRAM_VERSION);
+	printf("Nagios&reg; Core&trade; %s - <A HREF='https://www.nagios.org' TARGET='_new' CLASS='homepageURL'>www.nagios.org</A><BR>\n", PROGRAM_VERSION);
 
 	if(nagios_process_state != STATE_OK)
-		printf("<DIV CLASS='infoBoxBadProcStatus'>警告: 監視プロセスが稼働してないようです。<br><A HREF='%s?type=%d'>ここ</A>をクリックして確認してください。</DIV>", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
+		printf("<DIV CLASS='infoBoxBadProcStatus'>警告: 監視プロセスが稼働してないようです。<br><A HREF='%s?type=%d'>ここ</A>をク>リックして確認してください。</DIV>", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
 
 	if(result == ERROR)
 		printf("<DIV CLASS='infoBoxBadProcStatus'>警告: プログラムのステータス情報が読み込めません。</DIV>");
 
 	else {
 		if(enable_notifications == FALSE)
-			printf("<DIV CLASS='infoBoxBadProcStatus'>- 通知機能は無効になっています。</DIV>");
+			printf("<DIV CLASS='infoBoxBadProcStatus'>- 通知機能は無効になっています</DIV>");
 
 		if(execute_service_checks == FALSE)
-			printf("<DIV CLASS='infoBoxBadProcStatus'>- サービスチェックは無効になっています。</DIV>");
+			printf("<DIV CLASS='infoBoxBadProcStatus'>- サービスチェックは無効になっています</DIV>");
 		}
 
 	printf("</TD></TR>\n");
@@ -1666,7 +1672,7 @@ void display_nav_table(char *url, int archive) {
 		printf("<DIV CLASS='navBoxTitle'>ログファイルナビ</DIV>\n");
 		get_time_string(&last_scheduled_log_rotation, date_time, (int)sizeof(date_time), LONG_DATE_TIME);
 		printf("%s", date_time);
-		printf("<br>から<br>");
+		printf("<br>to<br>");
 		if(archive == 0)
 			printf("現在...");
 		else {
@@ -1828,14 +1834,14 @@ void include_ssi_files(const char *cgi_name, int type) {
 	cgi_ssi_file[sizeof(cgi_ssi_file) - 1] = '\x0';
 
 	if(type == SSI_HEADER) {
-		printf("\n<!-- Produced by Nagios (http://www.nagios.org).  Copyright (c) 1999-2007 Ethan Galstad. -->\n");
+		printf("\n<!-- Produced by Nagios (https://www.nagios.org).  Copyright (c) 1999-2007 Ethan Galstad. -->\n");
 		include_ssi_file(common_ssi_file);
 		include_ssi_file(cgi_ssi_file);
 		}
 	else {
 		include_ssi_file(cgi_ssi_file);
 		include_ssi_file(common_ssi_file);
-		printf("\n<!-- Produced by Nagios (http://www.nagios.org).  Copyright (c) 1999-2007 Ethan Galstad. -->\n");
+		printf("\n<!-- Produced by Nagios (https://www.nagios.org).  Copyright (c) 1999-2007 Ethan Galstad. -->\n");
 		}
 
 	return;
@@ -1926,7 +1932,7 @@ void cgi_config_file_error(const char *config_file) {
 	printf("</P>\n");
 
 	printf("<P>\n");
-	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='http://www.nagios.org'>http://www.nagios.org</a>>へどうぞ。\n");
+	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='https://www.nagios.org'>https://www.nagios.org</a>>へどうぞ。\n");
 	printf("</P>\n");
 
 	return;
@@ -1955,7 +1961,7 @@ void main_config_file_error(const char *config_file) {
 	printf("</P>\n");
 
 	printf("<P>\n");
-	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='http://www.nagios.org'>http://www.nagios.org</a>へどうぞ。\n");
+	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='https://www.nagios.org'>https://www.nagios.org</a>へどうぞ。\n");
 	printf("</P>\n");
 
 	return;
@@ -1983,7 +1989,7 @@ void object_data_error(void) {
 	printf("</P>\n");
 
 	printf("<P>\n");
-	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='http://www.nagios.org'>http://www.nagios.org</a>へどうぞ。\n");
+	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='https://www.nagios.org'>https://www.nagios.org</a>へどうぞ。\n");
 	printf("</P>\n");
 
 	return;
@@ -2015,7 +2021,7 @@ void status_data_error(void) {
 	printf("</P>\n");
 
 	printf("<P>\n");
-	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='http://www.nagios.org'>http://www.nagios.org</a>へどうぞ。\n");
+	printf("作業を続ける前に徹底的にNagiosのドキュメントの\"Installing and configuration\"を読んでください。もし熟読してもわからない場合、メーリングリストを活用してみてください。詳しい情報は<a href='https://www.nagios.org'>https://www.nagios.org</a>へどうぞ。\n");
 	printf("</P>\n");
 
 	return;
