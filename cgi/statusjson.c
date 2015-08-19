@@ -63,7 +63,7 @@ extern service *service_list;
 extern contact *contact_list;
 #endif
 extern servicestatus *servicestatus_list;
-extern comment *comment_list;
+extern nagios_comment *comment_list;
 extern scheduled_downtime *scheduled_downtime_list;
 
 /* Program status variables */
@@ -159,26 +159,26 @@ const string_value_mapping valid_queries[] = {
 	};
 
 static const int query_status[][2] = {
-	{ STATUS_QUERY_HOSTCOUNT, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_HOSTLIST, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_HOST, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_SERVICECOUNT, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_SERVICELIST, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_SERVICE, QUERY_STATUS_BETA },
+	{ STATUS_QUERY_HOSTCOUNT, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_HOSTLIST, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_HOST, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_SERVICECOUNT, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_SERVICELIST, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_SERVICE, QUERY_STATUS_RELEASED },
 #if 0
 	{ STATUS_QUERY_CONTACTCOUNT, QUERY_STATUS_BETA },
 	{ STATUS_QUERY_CONTACTLIST, QUERY_STATUS_BETA },
 	{ STATUS_QUERY_CONTACT, QUERY_STATUS_BETA },
 #endif
-	{ STATUS_QUERY_COMMENTCOUNT, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_COMMENTLIST, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_COMMENT, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_DOWNTIMECOUNT, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_DOWNTIMELIST, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_DOWNTIME, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_PROGRAMSTATUS, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_PERFORMANCEDATA, QUERY_STATUS_BETA },
-	{ STATUS_QUERY_HELP, QUERY_STATUS_BETA },
+	{ STATUS_QUERY_COMMENTCOUNT, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_COMMENTLIST, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_COMMENT, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_DOWNTIMECOUNT, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_DOWNTIMELIST, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_DOWNTIME, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_PROGRAMSTATUS, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_PERFORMANCEDATA, QUERY_STATUS_RELEASED },
+	{ STATUS_QUERY_HELP, QUERY_STATUS_RELEASED },
 	{ -1, -1},
 	};
 
@@ -717,7 +717,7 @@ json_object *json_status_service_selectors(unsigned, int, int, int, host *, int,
 		time_t, time_t, char *, char *, char *, contactgroup *, timeperiod *,
 		timeperiod *, command *, command *);
 
-int json_status_comment_passes_selection(comment *, int, time_t, time_t,
+int json_status_comment_passes_selection(nagios_comment *, int, time_t, time_t,
 		unsigned, unsigned, unsigned, unsigned, char *, char *);
 json_object *json_status_comment_selectors(unsigned, int, int, int, time_t, 
 		time_t, unsigned, unsigned, unsigned, unsigned, char *, char *);
@@ -731,7 +731,6 @@ int main(void) {
 	int result = OK;
 	time_t query_time;
 	status_json_cgi_data	cgi_data;
-	int whitespace;
 	json_object *json_root;
 	struct stat sdstat;
 	time_t	last_status_data_update = (time_t)0;
@@ -765,7 +764,6 @@ int main(void) {
 		document_footer();
 		return ERROR;
 		}
-	whitespace = cgi_data.format_options & JSON_FORMAT_WHITESPACE;
 
 	/* reset internal variables */
 	reset_cgi_vars();
@@ -1275,7 +1273,6 @@ int process_cgivars(json_object *json_root, status_json_cgi_data *cgi_data,
 	char **variables;
 	int result = RESULT_SUCCESS;
 	int x;
-	int whitespace;
 	authdata *authinfo = NULL; /* Currently always NULL because
 									get_authentication_information() hasn't
 									been called yet, but in case we want to
@@ -1286,7 +1283,6 @@ int process_cgivars(json_object *json_root, status_json_cgi_data *cgi_data,
 	for(x = 0; variables[x] != NULL; x++) {
 		/* We set these each iteration because they could change with each
 			iteration */
-		whitespace = cgi_data->format_options & JSON_FORMAT_WHITESPACE;
 
 		/* we found the query argument */
 		if(!strcmp(variables[x], "query")) {
@@ -1824,7 +1820,7 @@ int validate_arguments(json_object *json_root, status_json_cgi_data *cgi_data,
 	timeperiod *temp_timeperiod = NULL;
 	command *temp_command = NULL;
 	contact *temp_contact = NULL;
-	comment *temp_comment = NULL;
+	nagios_comment *temp_comment = NULL;
 	scheduled_downtime *temp_downtime = NULL;
 	authdata *authinfo = NULL; /* Currently always NULL because
 									get_authentication_information() hasn't
@@ -3482,7 +3478,7 @@ void json_status_service_details(json_object *json_details,
 			&percent_escapes, temp_servicestatus->long_plugin_output);
 	json_object_append_string(json_details, "perf_data", &percent_escapes,
 			temp_servicestatus->perf_data);
-	json_object_append_integer(json_details, "max_attemps", 
+	json_object_append_integer(json_details, "max_attempts",
 			temp_servicestatus->max_attempts);
 	json_object_append_integer(json_details, "current_attempt", 
 			temp_servicestatus->current_attempt);
@@ -3522,6 +3518,8 @@ void json_status_service_details(json_object *json_details,
 			temp_servicestatus->last_notification);
 	json_object_append_time_t(json_details, "next_notification", 
 			temp_servicestatus->next_notification);
+	json_object_append_time_t(json_details, "next_check",
+			temp_servicestatus->next_check);
 	json_object_append_boolean(json_details, "no_more_notifications", 
 			temp_servicestatus->no_more_notifications);
 	json_object_append_boolean(json_details, "notifications_enabled", 
@@ -3568,10 +3566,10 @@ void json_status_service_details(json_object *json_details,
 #endif
 	}
 
-int json_status_comment_passes_selection(comment *temp_comment, int time_field, 
-		time_t start_time, time_t end_time, unsigned comment_types,
-		unsigned entry_types, unsigned persistence, unsigned expiring,
-		char *host_name, char *service_description) {
+int json_status_comment_passes_selection(nagios_comment *temp_comment,
+		int time_field, time_t start_time, time_t end_time,
+		unsigned comment_types, unsigned entry_types, unsigned persistence,
+		unsigned expiring, char *host_name, char *service_description) {
 
 	switch(time_field) {
 	case STATUS_TIME_INVALID: 
@@ -3743,7 +3741,7 @@ json_object *json_status_commentcount(unsigned format_options, int time_field,
 		char *host_name, char *service_description) {
 
 	json_object *json_data;
-	comment *temp_comment;
+	nagios_comment *temp_comment;
 	int count = 0;
 
 	json_data = json_new_object();
@@ -3777,7 +3775,7 @@ json_object *json_status_commentlist(unsigned format_options, int start,
 	json_object *json_commentlist_object = NULL;
 	json_object *json_commentlist_array = NULL;
 	json_object *json_comment_details;
-	comment *temp_comment;
+	nagios_comment *temp_comment;
 	int current = 0;
 	int counted = 0;
 	char *buf;
@@ -3835,7 +3833,8 @@ json_object *json_status_commentlist(unsigned format_options, int start,
 	return json_data;
 	}
 
-json_object *json_status_comment(unsigned format_options, comment *temp_comment) {
+json_object *json_status_comment(unsigned format_options,
+		nagios_comment *temp_comment) {
 
 	json_object *json_comment = json_new_object();
 	json_object *json_details = json_new_object();
@@ -3849,7 +3848,7 @@ json_object *json_status_comment(unsigned format_options, comment *temp_comment)
 	}
 
 void json_status_comment_details(json_object *json_details, 
-		unsigned format_options, comment *temp_comment) {
+		unsigned format_options, nagios_comment *temp_comment) {
 
 	json_object_append_integer(json_details, "comment_id", 
 			temp_comment->comment_id);
