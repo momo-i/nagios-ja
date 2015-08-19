@@ -53,7 +53,6 @@ const string_value_mapping svm_format_options[] = {
 		"読みやすさを高めるために空白で埋めます" },
 	{ "enumerate", JSON_FORMAT_ENUMERATE, 
 		"テキスト形式の列挙値の表現ではなく、生の数値を使用します" },
-		"raw numeric values" },
 	{ "bitmask", JSON_FORMAT_BITMASK, 
 		"テキスト形式のビットマスク値の表現ではなく、生の数値を使用します" },
 	{ "duration", JSON_FORMAT_DURATION, 
