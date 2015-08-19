@@ -463,7 +463,11 @@ int main(int argc, char **argv) {
 				printf("<a href='%s?host=%s'>このホストの通知履歴を見る</a><BR>\n", NOTIFICATIONS_CGI, url_encode(host_name));
 				}
 			else {
+#ifdef LEGACY_GRAPHICAL_CGIS
 				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>このホストの傾向を見る</a><BR>\n", TRENDS_CGI, url_encode(host_name), t1, t2, (include_soft_states == TRUE) ? "yes" : "no", (assume_state_retention == TRUE) ? "yes" : "no", (assume_initial_states == TRUE) ? "yes" : "no", (assume_states_during_notrunning == TRUE) ? "yes" : "no", initial_assumed_service_state, backtrack_archives);
+#else
+				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>このホストの傾向を見る</a><BR>\n", LEGACY_TRENDS_CGI, url_encode(host_name), t1, t2, (include_soft_states == TRUE) ? "yes" : "no", (assume_state_retention == TRUE) ? "yes" : "no", (assume_initial_states == TRUE) ? "yes" : "no", (assume_states_during_notrunning == TRUE) ? "yes" : "no", initial_assumed_service_state, backtrack_archives);
+#endif
 				printf("<a href='%s?host=%s", AVAIL_CGI, url_encode(host_name));
 				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&includesoftstates=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d&show_log_entries'>このサービスの稼働レポートを見る</a><BR>\n", url_encode(svc_description), t1, t2, (include_soft_states == TRUE) ? "yes" : "no", (assume_state_retention == TRUE) ? "yes" : "no", (assume_initial_states == TRUE) ? "yes" : "no", (assume_states_during_notrunning == TRUE) ? "yes" : "no", initial_assumed_service_state, backtrack_archives);
 				printf("<a href='%s?host=%s", HISTOGRAM_CGI, url_encode(host_name));
@@ -511,7 +515,11 @@ int main(int argc, char **argv) {
 		/* right hand column of top row */
 		printf("<td align=right valign=bottom width=33%%>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 		printf("<form method=\"GET\" action=\"%s\">\n", TRENDS_CGI);
+#else
+		printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_TRENDS_CGI);
+#endif
 		printf("<table border=0 CLASS='optBox'>\n");
 
 		if(display_type != DISPLAY_NO_TRENDS && input_type == GET_INPUT_NONE) {
@@ -830,7 +838,11 @@ int main(int argc, char **argv) {
 
 			printf("<BR><BR>\n");
 			printf("<DIV ALIGN=CENTER>\n");
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<IMG SRC='%s?createimage&t1=%lu&t2=%lu", TRENDS_CGI, (unsigned long)t1, (unsigned long)t2);
+#else
+			printf("<IMG SRC='%s?createimage&t1=%lu&t2=%lu", LEGACY_TRENDS_CGI, (unsigned long)t1, (unsigned long)t2);
+#endif
 			printf("&assumeinitialstates=%s", (assume_initial_states == TRUE) ? "yes" : "no");
 			printf("&assumestatesduringnotrunning=%s", (assume_states_during_notrunning == TRUE) ? "yes" : "no");
 			printf("&initialassumedhoststate=%d", initial_assumed_host_state);
@@ -952,7 +964,11 @@ int main(int argc, char **argv) {
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<form method=\"GET\" action=\"%s\" name=\"serviceform\">\n", TRENDS_CGI);
+#else
+			printf("<form method=\"GET\" action=\"%s\" name=\"serviceform\">\n", LEGACY_TRENDS_CGI);
+#endif
 			printf("<input type='hidden' name='input' value='getoptions'>\n");
 			printf("<input type='hidden' name='host' value='%s'>\n", (first_service == NULL) ? "unknown" : (char *)escape_string(first_service));
 			printf("<TABLE BORDER=0 cellpadding=5>\n");
@@ -996,7 +1012,11 @@ int main(int argc, char **argv) {
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<form method=\"GET\" action=\"%s\">\n", TRENDS_CGI);
+#else
+			printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_TRENDS_CGI);
+#endif
 			printf("<input type='hidden' name='host' value='%s'>\n", escape_string(host_name));
 			if(display_type == DISPLAY_SERVICE_TRENDS)
 				printf("<input type='hidden' name='service' value='%s'>\n", escape_string(svc_description));
@@ -1164,7 +1184,11 @@ int main(int argc, char **argv) {
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 			printf("<form method=\"GET\" action=\"%s\">\n", TRENDS_CGI);
+#else
+			printf("<form method=\"GET\" action=\"%s\">\n", LEGACY_TRENDS_CGI);
+#endif
 			printf("<TABLE BORDER=0 cellpadding=5>\n");
 
 			printf("<tr><td class='reportSelectSubTitle' align=right>種類:</td>\n");
@@ -1244,7 +1268,11 @@ void document_header(int use_stylesheet) {
 		printf("<BODY CLASS='trends'>\n");
 
 		/* include user SSI header */
+#ifdef LEGACY_GRAPHICAL_CGIS
 		include_ssi_files(TRENDS_CGI, SSI_HEADER);
+#else
+		include_ssi_files(LEGACY_TRENDS_CGI, SSI_HEADER);
+#endif
 
 		printf("<div id=\"popup\" style=\"position:absolute; z-index:1; visibility: hidden\"></div>\n");
 		}
@@ -1277,7 +1305,11 @@ void document_footer(void) {
 	if(mode == CREATE_HTML) {
 
 		/* include user SSI footer */
+#ifdef LEGACY_GRAPHICAL_CGIS
 		include_ssi_files(TRENDS_CGI, SSI_FOOTER);
+#else
+		include_ssi_files(LEGACY_TRENDS_CGI, SSI_FOOTER);
+#endif
 
 		printf("</body>\n");
 		printf("</html>\n");
@@ -2266,7 +2298,11 @@ void graph_trend_data(int first_state, int last_state, time_t real_start_time, t
 
 		printf("coords='%d,%d,%d,%d' ", drawing_x_offset + start_pixel, drawing_y_offset + (drawing_height - height), drawing_x_offset + end_pixel, drawing_y_offset + drawing_height);
 
+#ifdef LEGACY_GRAPHICAL_CGIS
 		printf("href='%s?t1=%lu&t2=%lu&host=%s", TRENDS_CGI, (unsigned long)next_start_time, (unsigned long)next_end_time, url_encode(host_name));
+#else
+		printf("href='%s?t1=%lu&t2=%lu&host=%s", LEGACY_TRENDS_CGI, (unsigned long)next_start_time, (unsigned long)next_end_time, url_encode(host_name));
+#endif
 		if(display_type == DISPLAY_SERVICE_TRENDS)
 			printf("&service=%s", url_encode(svc_description));
 		printf("&assumeinitialstates=%s", (assume_initial_states == TRUE) ? "yes" : "no");
