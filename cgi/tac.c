@@ -1409,7 +1409,7 @@ void display_tac_overview(void) {
 		printf("<table border=0 width=100%%>\n");
 
 		if(flap_disabled_services > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledServiceFlapDetection'><a href='%s?host=all&type=detail&serviceprops=%d'>%d サービスが無効</a></td></tr>\n", STATUS_CGI, SERVICE_FLAP_DETECTION_DISABLED, flap_disabled_services);
+			printf("<tr><td width=100%% class='featureItemDisabledServiceFlapDetection'><a href='%s?hostgroup=all&style=hostdetail&serviceprops=%d'>%d サービスが無効</a></td></tr>\n", STATUS_CGI, SERVICE_FLAP_DETECTION_DISABLED, flap_disabled_services);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledServiceFlapDetection'>全サービス有効</td></tr>\n");
 
@@ -1419,12 +1419,12 @@ void display_tac_overview(void) {
 			printf("<tr><td width=100%% class='featureItemServicesNotFlapping'>フラップ中のサービスはありません</td></tr>\n");
 
 		if(flap_disabled_hosts > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledHostFlapDetection'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_FLAP_DETECTION_DISABLED, flap_disabled_hosts);
+			printf("<tr><td width=100%% class='featureItemDisabledHostFlapDetection'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_FLAP_DETECTION_DISABLED, flap_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledHostFlapDetection'>全ホスト有効</td></tr>\n");
 
 		if(flapping_hosts > 0)
-			printf("<tr><td width=100%% class='featureItemHostsFlapping'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストがフラップ中</a></td></tr>\n", STATUS_CGI, HOST_IS_FLAPPING, flapping_hosts);
+			printf("<tr><td width=100%% class='featureItemHostsFlapping'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストがフラップ中</a></td></tr>\n", STATUS_CGI, HOST_IS_FLAPPING, flapping_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemHostsNotFlapping'>フラップ中のホストはありません</td></tr>\n");
 
@@ -1456,6 +1456,7 @@ void display_tac_overview(void) {
 
 		if(notification_disabled_hosts > 0)
 			printf("<tr><td width=100%% class='featureItemDisabledHostNotifications'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_NOTIFICATIONS_DISABLED, notification_disabled_hosts);
+			printf("<tr><td width=100%% class='featureItemDisabledHostNotifications'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_NOTIFICATIONS_DISABLED, notification_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledHostNotifications'>全ホスト有効</td></tr>\n");
 
@@ -1488,6 +1489,7 @@ void display_tac_overview(void) {
 
 		if(event_handler_disabled_hosts > 0)
 			printf("<tr><td width=100%% class='featureItemDisabledHostHandlers'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_EVENT_HANDLER_DISABLED, event_handler_disabled_hosts);
+			printf("<tr><td width=100%% class='featureItemDisabledHostHandlers'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_EVENT_HANDLER_DISABLED, event_handler_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledHostHandlers'>全ホスト有効</td></tr>\n");
 
@@ -1519,7 +1521,7 @@ void display_tac_overview(void) {
 			printf("<tr><td width=100%% class='featureItemEnabledActiveServiceChecks'>全サービス有効</td></tr>\n");
 
 		if(active_checks_disabled_hosts > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledActiveHostChecks'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_CHECKS_DISABLED, active_checks_disabled_hosts);
+			printf("<tr><td width=100%% class='featureItemDisabledActiveHostChecks'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_CHECKS_DISABLED, active_checks_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledActiveHostChecks'>全ホスト有効</td></tr>\n");
 
@@ -1552,7 +1554,7 @@ void display_tac_overview(void) {
 			printf("<tr><td width=100%% class='featureItemEnabledPassiveServiceChecks'>全サービス有効</td></tr>\n");
 
 		if(passive_checks_disabled_hosts > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledPassiveHostChecks'><a href='%s?host=all&type=detail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_PASSIVE_CHECKS_DISABLED, passive_checks_disabled_hosts);
+			printf("<tr><td width=100%% class='featureItemDisabledPassiveHostChecks'><a href='%s?hostgroup=all&style=hostdetail&hostprops=%d'>%d ホストが無効</a></td></tr>\n", STATUS_CGI, HOST_PASSIVE_CHECKS_DISABLED, passive_checks_disabled_hosts);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledPassiveHostChecks'>全ホスト有効</td></tr>\n");
 
