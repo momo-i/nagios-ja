@@ -21,13 +21,13 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: nagios
-Version: 4.0.8
+Version: 4.1.0
 Release: 2%{?dist}
 License: GPL
 Group: Applications/System
-URL: http://www.nagios.org/
+URL: https://www.nagios.org/
 Packager: Daniel Wittenberg <dwittenberg2008@gmail.com>
-Vendor: Nagios Enterprises (http://www.nagios.org)
+Vendor: Nagios Enterprises (https://www.nagios.org)
 Source0: http://dl.sf.net/nagios/nagios-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gd-devel > 1.8
