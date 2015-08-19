@@ -290,6 +290,8 @@ static void destroy_job(struct wproc_job *job)
 	case WPJOB_SVC_EVTHANDLER:
 	case WPJOB_GLOBAL_HOST_EVTHANDLER:
 	case WPJOB_HOST_EVTHANDLER:
+	case WPJOB_HOST_PERFDATA:
+	case WPJOB_SVC_PERFDATA:
 		/* these require nothing special */
 		break;
 	case WPJOB_CALLBACK:
@@ -370,8 +372,24 @@ static int wproc_destroy(struct wproc_worker *wp, int flags)
 /* remove the worker list pointed to by to_remove */
 static int remove_specialized(void *data)
 {
-	if (data == to_remove)
+	if (data == to_remove) {
 		return DKHASH_WALK_REMOVE;
+	} else if (to_remove == NULL) {
+		/* remove all specialised workers and their lists */
+		struct wproc_list *h = data;
+		int i;
+		for (i=0;i<h->len;i++) {
+			/* not sure what WPROC_FORCE is actually for.
+			 * Nagios does *not* retain workers across
+			 * restarts, as stated in wproc_destroy?
+			 */
+			wproc_destroy(h->wps[i], WPROC_FORCE);
+		}
+		h->len = 0;
+		free(h->wps);
+		free(h);
+		return DKHASH_WALK_REMOVE;
+	}
 	return 0;
 }
 
@@ -773,8 +791,13 @@ static int handle_worker_result(int sd, int events, void *arg)
 			run_job_callback(job, &wpres, 0);
 			break;
 
+		case WPJOB_HOST_PERFDATA:
+		case WPJOB_SVC_PERFDATA:
+			/* these require nothing special */
+			break;
+
 		default:
-			logit(NSLOG_RUNTIME_WARNING, TRUE, "Worker %d: Unknown jobtype: %d\n", wp->pid, job->type);
+			logit(NSLOG_RUNTIME_WARNING, TRUE, "Worker %ld: Unknown jobtype: %d\n", (long)wp->pid, job->type);
 			break;
 		}
 		destroy_job(job);
@@ -904,9 +927,9 @@ static int wproc_query_handler(int sd, char *buf, unsigned int len)
 
 		for (i = 0; i < workers.len; i++) {
 			struct wproc_worker *wp = workers.wps[i];
-			nsock_printf(sd, "name=%s;pid=%d;jobs_running=%u;jobs_started=%u\n",
-						 wp->name, wp->pid,
-						 wp->jobs_running, wp->jobs_started);
+			nsock_printf(sd, "name=%s;pid=%ld;jobs_running=%u;jobs_started=%u\n",
+					wp->name, (long)wp->pid,
+					wp->jobs_running, wp->jobs_started);
 		}
 		return 0;
 	}

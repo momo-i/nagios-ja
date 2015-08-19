@@ -1183,6 +1183,7 @@ int check_service_check_viability(service *svc, int check_options, int *time_is_
 	time_t current_time = 0L;
 	time_t preferred_time = 0L;
 	int check_interval = 0;
+	host *temp_host = NULL;
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "check_service_check_viability()\n");
 
@@ -1229,6 +1230,19 @@ int check_service_check_viability(service *svc, int check_options, int *time_is_
 			perform_check = FALSE;
 
 			log_debug_info(DEBUGL_CHECKS, 2, "Execution dependencies for this service failed, so it will not be actively checked.\n");
+			}
+		}
+
+		/* check if host is up - if not, do not perform check */
+		if(host_down_disable_service_checks) {
+			if((temp_host = svc->host_ptr) == NULL) {
+				log_debug_info(DEBUGL_CHECKS, 2, "Host pointer NULL in check_service_check_viability().\n");
+				return ERROR;
+			} else {
+				if(temp_host->current_state != HOST_UP) {
+					log_debug_info(DEBUGL_CHECKS, 2, "Host state not UP, so service check will not be performed - will be rescheduled as normal.\n");
+					perform_check = FALSE;
+				}
 			}
 		}
 
@@ -2494,8 +2508,10 @@ int process_host_check_result(host *hst, int new_state, char *old_plugin_output,
 				if(hst->current_attempt == hst->max_attempts)
 					hst->state_type = HARD_STATE;
 				/* the host was in a hard problem state before, so it still is now */
-				else if(hst->current_attempt == 1)
+                /* 2015-07-23 with the change adjust_host_check_attempt, this can no longer happen
+                else if(hst->current_attempt == 1)
 					hst->state_type = HARD_STATE;
+                */
 				/* the host is in a soft state and the check will be retried */
 				else
 					hst->state_type = SOFT_STATE;
@@ -2785,7 +2801,8 @@ int adjust_host_check_attempt(host *hst, int is_active) {
 	log_debug_info(DEBUGL_CHECKS, 2, "Adjusting check attempt number for host '%s': current attempt=%d/%d, state=%d, state type=%d\n", hst->name, hst->current_attempt, hst->max_attempts, hst->current_state, hst->state_type);
 
 	/* if host is in a hard state, reset current attempt number */
-	if(hst->state_type == HARD_STATE)
+    /* 2015-07-23 only reset current_attempt if host is up */
+	if(hst->state_type == HARD_STATE && hst->current_state == HOST_UP)
 		hst->current_attempt = 1;
 
 	/* if host is in a soft UP state, reset current attempt number (active checks only) */
