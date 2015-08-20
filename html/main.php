@@ -93,19 +93,19 @@ $this_year = '2015';
 
 	// Get the daemon status JSON.
 	function getCoreStatus() {
-		setCoreStatusHTML('passiveonly', 'Checking process status...');
+		setCoreStatusHTML('passiveonly', 'プロセスのステータスをチェック中...');
 
 		$.get('<?php echo $cfg["cgi_base_url"];?>/statusjson.cgi?query=programstatus', function(d) {
 			d = d && d.data && d.data.programstatus || false;
 			if (d && d.nagios_pid) {
 				var pid = d.nagios_pid;
-				var daemon = d.daemon_mode ? 'Daemon' : 'Process';
-				setCoreStatusHTML('enabled', daemon + ' running with PID ' + pid);
+				var daemon = d.daemon_mode ? 'デーモン' : 'プロセス';
+				setCoreStatusHTML('enabled', daemon + 'はプロセスID' + pid + 'で動作中');
 			} else {
-				setCoreStatusHTML('disabled', 'Not running');
+				setCoreStatusHTML('disabled', '動作していません');
 			}
 		}).fail(function() {
-			setCoreStatusHTML('disabled', 'Unable to get process status');
+			setCoreStatusHTML('disabled', 'プロセスのステータスを取得できませんでした');
 		});
 	}
 
