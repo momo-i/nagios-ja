@@ -2,10 +2,10 @@
 	<span id="popup-state">{{popupContents.state}}</span><br/>
 	<span class="field-name">時間範囲: </span>
 	<span id="popup-start">
-		{{popupContents.start | date:'EEE MMM dd HH:mm:ss yyyy'}}
+		{{popupContents.start | date:'yyyy MMM dd HH:mm:ss EEE'}}
 	</span> to
 	<span id="popup-end">
-		{{popupContents.end | date:'EEE MMM dd HH:mm:ss yyyy'}}
+		{{popupContents.end | date:'yyyy MMM dd HH:mm:ss EEE'}}
 	</span><br/>
 	<span class="field-name">期間: </span>
 	<span id="popup-duration">
@@ -32,8 +32,8 @@
 					State History for Host '{{host}}'
 				</text>
 				<text x="365" y="40">
-					{{startTime | date:'EEE MMM dd HH:mm:ss yyyy'}} から
-					{{endTime | date:'EEE MMM dd HH:mm:ss yyyy'}}
+					{{startTime | date:'yyyy MMM dd HH:mm:ss EEE'}} から
+					{{endTime | date:'yyyy MMM dd HH:mm:ss EEE'}}
 				</text>
 			</g>
 			<g id="grid" transform="translate(110, 53)">

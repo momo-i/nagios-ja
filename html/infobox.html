@@ -11,37 +11,37 @@
 					{{decorationTitle}}
 				</span>
 				<div ng-hide="isCollapsed">
-					Last Updated: {{lastUpdate | date:'EEE MMM dd HH:mm:ss yyyy'}}
+					最終更新: {{lastUpdate | date:'yyyy MMM dd HH:mm:ss EEE'}}
 					<br>
 					Nagios&reg; Core&trade; {{json.data.programstatus.version}} -
 					<a href="https://www.nagios.org" target="_new"
 							class="homepageURL">www.nagios.org</a>
 					<br>
 					<span ng-show="updateInterval > 0">
-						Updated every {{updateInterval}} seconds
+						{{updateInterval}} 秒ごとの更新
 						<br/>
 					</span>
 					<span ng-show="haveProgramStatus">
-						Logged in as <i>{{json.result.user}}</i>
+						<i>{{json.result.user}}</i> としてログイン中
 						<br>
 					</span>
 					<div class="infoBoxBadProcStatus"
 							ng-hide="haveProgramStatus">
-						Warning: Monitoring process may not be running!
+						警告: モニタリングプロセスが動作していません！
 						<br/>
-						Click <a href="{{cgiurl}}extinfo.cgi?type=0">here</a>
-						for more info.
+						詳細については<a href="{{cgiurl}}extinfo.cgi?type=0">ここ</a>
+						をクリックしてください。
 					</div>
 					<!--div class="infoBoxBadProcStatus">
 						Warning: Could not read program status information!
 					</div-->
 					<div class="infoBoxBadProcStatus"
 							ng-show="notificationsDisabled()">
-						- Notifications are disabled
+						- 通知は無効です
 					</div>
 					<div class="infoBoxBadProcStatus"
 							ng-show="serviceChecksDisabled()">
-						- Service checks are disabled
+						- サービスチェックは無効です
 					</div>
 				</div>
 			</td>

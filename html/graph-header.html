@@ -18,8 +18,8 @@
 		ng-show="params.reporttype == 'services'">
 <br clear="all"/>
 <div class="reportRange">
-	{{params.t1 * 1000 | date:'MM-dd-yy HH:mm:ss'}} から
-	{{params.t2 * 1000 | date:'MM-dd-yy HH:mm:ss'}}
+	{{params.t1 * 1000 | date:'yyyy-MM-dd HH:mm:ss'}} から
+	{{params.t2 * 1000 | date:'yyyy-MM-dd HH:mm:ss'}}
 </div>
 <div class="reportDuration">
 	期間: {{(params.t2 - params.t1) * 1000 | duration}}
