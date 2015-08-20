@@ -191,13 +191,13 @@ angular.module("trendsApp", ["ui.bootstrap", "ui.utils",
 		$scope.infoBoxTitle = function() {
 			switch ($scope.params.reporttype) {
 			case "hosts":
-				return "Host State Trends";
+				return "ホスト状態の傾向";
 				break;
 			case "services":
-				return "Service State Trends";
+				return "サービス状態の傾向";
 				break;
 			default:
-				return "Host and Service State Trends";
+				return "ホスト及びサービス状態の傾向";
 				break;
 			}
 		};

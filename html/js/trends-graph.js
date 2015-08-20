@@ -44,31 +44,31 @@ angular.module("trendsApp")
 				// State information for services
 				$scope.serviceStates = {
 					"ok": {
-						"label": "Ok",
-						"popupText": "OK",
+						"label": "サービス正常(OK)",
+						"popupText": "正常(OK)",
 						"y": 13,
 						"color": { "r": 0, "g": 210, "b": 0 }
 					},
 					"warning": {
-						"label": "Warning",
-						"popupText": "WARNING",
+						"label": "サービス警告(WARNING)",
+						"popupText": "警告(WARNING)",
 						"y": 36,
 						"color": { "r": 176, "g": 178, "b": 20 }
 					},
 					"unknown": {
-						"label": "Unknown",
-						"popupText": "UNKNOWN",
+						"label": "サービス不明(UNKNOWN)",
+						"popupText": "不明(UNKNOWN)",
 						"y": 59,
 						"color": { "r": 255, "g": 100, "b": 25 }
 					},
 					"critical": {
-						"label": "Critical",
-						"popupText": "CRITICAL",
+						"label": "サービス異常(CRITICAL)",
+						"popupText": "異常(CRITICAL)",
 						"y": 82,
 						"color": { "r": 255, "g": 0, "b": 0 }
 					},
 					"nodata": {
-						"label": "Indeterminate",
+						"label": "サービス不確定(INDETERMINATE)",
 						"popupText": "?",
 						"y": 107,
 						"color": { "r": 0, "g": 0, "b": 0, "a": 0 }
@@ -78,25 +78,25 @@ angular.module("trendsApp")
 				// State information for hosts
 				$scope.hostStates = {
 					"up": {
-						"label": "Up",
+						"label": "ホスト稼働(UP)",
 						"popupText": "UP",
 						"y": 13,
 						"color": { "r": 0, "g": 210, "b": 0 }
 					},
 					"down": {
-						"label": "Down",
+						"label": "ホスト停止(DOWN)",
 						"popupText": "DOWN",
 						"y": 38,
 						"color": { "r": 255, "g": 0, "b": 0 }
 					},
 					"unreachable": {
-						"label": "Unreachable",
+						"label": "ホスト未到達(UNREACHABLE)",
 						"popupText": "UNREACHABLE",
 						"y": 63,
 						"color": { "r": 128, "g": 0, "b": 0 }
 					},
 					"nodata": {
-						"label": "Indeterminate",
+						"label": "ホスト不確定(INDETERMINATE)",
 						"popupText": "?",
 						"y": 88,
 						"color": { "r": 0, "g": 0, "b": 0, "a": 0 }

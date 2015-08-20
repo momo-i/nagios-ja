@@ -10,19 +10,19 @@ angular.module("trendsApp")
 		$scope.initialAssumedStates = {
 			"": [],
 			"hosts": [
-				{ value: "", label: "Unspecified" },
-				{ value: "current", label: "Current State" },
-				{ value: "up", label: "Host Up" },
-				{ value: "down", label: "Host Down" },
-				{ value: "unreachable", label: "Host Unreachable" }
+				{ value: "", label: "考慮しない" },
+				{ value: "current", label: "現在の状態" },
+				{ value: "up", label: "ホスト稼働(UP)" },
+				{ value: "down", label: "ホスト停止(DOWN)" },
+				{ value: "unreachable", label: "ホスト未到達(UNREACHABLE)" }
 			],
 			"services": [
-				{ value: "", label: "Unspecified" },
-				{ value: "current", label: "Current State" },
-				{ value: "ok", label: "Service Ok" },
-				{ value: "warning", label: "Service Warning" },
-				{ value: "unknown", label: "Service Unknown" },
-				{ value: "critical", label: "Service Critical" },
+				{ value: "", label: "考慮しない" },
+				{ value: "current", label: "現在の状態" },
+				{ value: "ok", label: "サービス正常(OK)" },
+				{ value: "warning", label: "サービス警告(WARNING)" },
+				{ value: "unknown", label: "サービス不明(UNKNOWN)" },
+				{ value: "critical", label: "サービス異常(CRITICAL)" },
 			]
 		};
 
@@ -82,9 +82,9 @@ angular.module("trendsApp")
 				break;
 			case "custom":
 				if ($scope.params.t1 == 0 ||
-						$scope.params.t1 == "Invalid Date" ||
+						$scope.params.t1 == "不正な日付" ||
 						$scope.params.t2 == 0 ||
-						$scope.params.t2 == "Invalid Date") {
+						$scope.params.t2 == "不正な日付") {
 					return false;
 				}
 				else {
@@ -173,7 +173,7 @@ angular.module("trendsApp")
 		$scope.$watch('params.startDate', function(newValue) {
 			if (newValue != undefined) {
 				time = new Date(newValue);
-				if (time != "Invalid Date") {
+				if (time != "不正な日付") {
 					$scope.params.t1 = time.getTime() / 1000;
 				}
 			}
@@ -182,7 +182,7 @@ angular.module("trendsApp")
 		$scope.$watch('params.endDate', function(newValue) {
 			if (newValue != undefined) {
 				time = new Date(newValue);
-				if (time != "Invalid Date") {
+				if (time != "不正な日付") {
 					$scope.params.t2 = time.getTime() / 1000;
 				}
 			}

@@ -20,24 +20,24 @@ angular.module("nagiosTime", [])
 	.service("nagiosTimeService", function() {
 		return {
 			cannedTimeperiods: [
-				{ "value": "today",			"label": "Today" },
-				{ "value": "last24hours",	"label": "Last 24 Hours" },
-				{ "value": "yesterday",		"label": "Yesterday" },
-				{ "value": "thisweek",		"label": "This Week" },
-				{ "value": "last7days",		"label": "Last 7 Days" },
-				{ "value": "lastweek",		"label": "Last Week" },
-				{ "value": "thismonth",		"label": "This Month" },
-				{ "value": "last31days",	"label": "Last 31 Days" },
-				{ "value": "lastmonth",		"label": "Last Month" },
-				{ "value": "thisyear",		"label": "This Year" },
-				{ "value": "lastyear",		"label": "Last Year" }
+				{ "value": "today",			"label": "今日" },
+				{ "value": "last24hours",	"label": "過去24時間" },
+				{ "value": "yesterday",		"label": "昨日" },
+				{ "value": "thisweek",		"label": "今週" },
+				{ "value": "last7days",		"label": "過去7日間" },
+				{ "value": "lastweek",		"label": "先週" },
+				{ "value": "thismonth",		"label": "今月" },
+				{ "value": "last31days",	"label": "過去31日間" },
+				{ "value": "lastmonth",		"label": "先月" },
+				{ "value": "thisyear",		"label": "今年" },
+				{ "value": "lastyear",		"label": "去年" }
 			],
 			timeperiodlist: function() {
 				// TODO: Only define this once
 				var list = this.cannedTimeperiods.concat([]);
 				list.push({
 					value: "custom",
-					label: "* CUSTOM REPORT PERIOD *"
+					label: "* カスタム期間設定 *"
 				});
 				return list;
 			},

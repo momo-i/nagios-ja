@@ -1,7 +1,7 @@
 angular.module("mapApp", ["ui.bootstrap", "ui.utils", "nagiosDecorations",
 		"nagiosTime"])
 
-	.constant("nagiosProcessName", "Nagios Process")
+	.constant("nagiosProcessName", "Nagios プロセス")
 
 	// Layout options
 	.constant("layouts", {
@@ -204,10 +204,10 @@ angular.module("mapApp", ["ui.bootstrap", "ui.utils", "nagiosDecorations",
 
 		$scope.infoBoxTitle = function() {
 			if ($scope.params.root == nagiosProcessName) {
-				return "Network Map for All Hosts";
+				return "全ホストのネットワークマップ";
 			}
 			else {
-				return "Network Map for Host " + $scope.params.root;
+				return "ホスト " + $scope.params.root + " のネットワークマップ";
 			}
 		};
 
