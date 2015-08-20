@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
 
-$this_version = '4.1.0';
+$this_version = '4.1.1';
 $this_year = '2015';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -129,7 +129,7 @@ $this_year = '2015';
 <div id="currentversioninfo">
 	<div class="product">Nagios<sup><span style="font-size: small;">&reg;</span></sup> Core<sup><span style="font-size: small;">&trade;</span></sup> 日本語化</div>
 	<div class="version">バージョン <?php echo $this_version; ?></div>
-	<div class="releasedate">2015年8月18日</div>
+	<div class="releasedate">2015年8月19日</div>
 	<div class="checkforupdates"><a href="https://www.nagios.org/checkforupdates/?version=<?php echo $this_version; ?>&amp;product=nagioscore" target="_blank">更新のチェック</a></div>
 </div>
 
