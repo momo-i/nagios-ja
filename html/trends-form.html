@@ -6,63 +6,63 @@
 			<span class="sr-only">Close</span>
 		</button>
 		<h4 class="modal-title" id="nagiosTrendsLabel">
-			Nagios Trends
+			Nagios 傾向
 		</h4>
 	</div>
 	<div class="modal-body">
 		<tabset>
 			<tab heading="Standard">
 				<div class="form-group">
-					<label>URL for JSON CGIs</label>
+					<label>JSON CGIのURL</label>
 					<input type="text" class="form-control"
 							ng-model="params.cgiurl"
 							placeholder="URL for JSON CGIs"
 							ui-event="{ blur : 'onBlurCgiurl($event)' }">
 				</div>
 				<div class="form-group">
-					<label>Report Type</label>
+					<label>レポートタイプ</label>
 					<select class="form-control"
 							ng-model="params.reporttype">
 						<option value="">
-							-- Select Report Type --
+							-- レポートタイプを選択 --
 						</option>
-						<option value="hosts">Host</option>
-						<option value="services">Service</option>
+						<option value="hosts">ホスト</option>
+						<option value="services">サービス</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showHost()">
-					<label>Host</label>
+					<label>ホスト</label>
 					<select name="host" class="form-control"
 							ng-model="params.host"
 							ng-options="host for host in hostlist track by host">
-						<option value="">-- Select Host --</option>
+						<option value="">-- ホストを選択 --</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showService()">
-					<label>Service</label>
+					<label>サービス</label>
 					<select name="service" class="form-control"
 							ng-model="params.service"
 							ng-options="service for service in servicelist track by service">
 						<option value="">
-							{{params.host == "" ? "-- Select Host First --" : "-- Select Service --"}}
+							{{params.host == "" ? "-- 最初にホストを選択 --" : "-- サービスを選択 --"}}
 						</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showTimeperiod()">
-					<label>Report Period</label>
+					<label>レポート期間</label>
 					<select name="timeperiod" class="form-control"
 							ng-model="params.timeperiod"
 							ng-options="tp.value as tp.label for tp in timeperiodlist">
-						<option value="">-- Select Timeperiod --</option>
+						<option value="">-- 期間を選択 --</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showDates()">
-					<label>Start Date (inclusive)</label>
+					<label>開始日 (指定日を含む)</label>
 					<input type="date" class="form-control"
 							ng-model="params.startDate">
 				</div>
 				<div class="form-group" ng-show="showDates()">
-					<label>End Date (inclusive)</label>
+					<label>終了日 (指定日を含む)</label>
 					<input type="date" class="form-control"
 							ng-model="params.endDate">
 				</div>
@@ -72,46 +72,45 @@
 					<label>
 						<input type="checkbox"
 								ng-model="params.assumeinitialstates">
-						Assume Initial States
+						初期状態を考慮
 					</label>
 				</div>
 				<div class="checkbox">
 					<label>
 						<input type="checkbox"
 								ng-model="params.assumestateretention">
-						Assume State Retention
+						保存状態を考慮
 					</label>
 				</div>
 				<div class="checkbox">
 					<label>
 						<input type="checkbox"
 								ng-model="params.assumestatesduringnotrunning">
-						Assume States During Program Downtime
+						ダウンタイム中の状態を考慮
 					</label>
 				</div>
 				<div class="checkbox">
 					<label>
 						<input type="checkbox"
 								ng-model="params.includesoftstates">
-						Include Soft States
+						ソフト状態を含む
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
-						First Assumed State
+						考慮する初期状態
 					</label>
 					<select class="form-control"
 							ng-model="params.initialassumedstate"
 							ng-options="st.value as st.label for st in initialAssumedStates[params.reporttype]">
 						<option value="">
-							{{params.reporttype == "" ? "-- Select Report Type First --" : "-- Select First Assumed State --"}}
+							{{params.reporttype == "" ? "-- 最初にレポートタイプを選択 --" : "-- 考慮する初期状態を選択 --"}}
 						</option>
 					</select>
 				</div>
 				<div class="form-group">
 					<label for="backtrack">
-						Backtracked Archives (To Scan for Initial
-						States)
+						過去のアーカイブ数(初期ステータスを調べるためのもの)
 					</label>
 					<input type="number" class="form-control"
 							ng-model="params.backtrack"
@@ -120,13 +119,13 @@
 				<div class="checkbox">
 					<label>
 						<input type="checkbox" ng-model="params.nomap">
-						Supress Image Map
+						イメージマップを非表示
 					</label>
 				</div>
 				<div class="checkbox">
 					<label>
 						<input type="checkbox" ng-model="params.nopopups">
-						Supress Popups
+						ポップアップを非表示
 					</label>
 				</div>
 			</tab>
@@ -135,7 +134,7 @@
 	<div class="modal-footer">
 		<button id="submit" type="submit" class="btn btn-default"
 				ng-disabled="disableApply()" ng-click="apply()">
-			Apply
+			適用
 		</button>
 	</div>
 </form>

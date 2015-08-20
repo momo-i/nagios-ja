@@ -3,98 +3,98 @@
 		<button type="button" class="close" data-dismiss="modal"
 				ng-click="cancel()">
 			<span aria-hidden="true">&times;</span>
-			<span class="sr-only">Close</span>
+			<span class="sr-only">閉じる</span>
 		</button>
 		<h4 class="modal-title" id="nagiosTrendsLabel">
-			Nagios Histogram
+			Nagios ヒストグラム
 		</h4>
 	</div>
 	<div class="modal-body">
 		<tabset>
 			<tab heading="Standard">
 				<div class="form-group" id="cgiurlDiv">
-					<label>URL for JSON CGIs</label>
+					<label>JSON CGIのURL</label>
 					<input type="text" class="form-control"
 							ng-model="params.cgiurl"
 							placeholder="URL for JSON CGIs"
 							ui-event="{ blur : 'onBlurCgiurl($event)' }">
 				</div>
 				<div class="form-group">
-					<label>Report Type</label>
+					<label>レポートタイプ</label>
 					<select class="form-control"
 							ng-model="params.reporttype">
 						<option value="">
-							-- Select Report Type --
+							-- レポートタイプを選択 --
 						</option>
-						<option value="hosts">Host</option>
-						<option value="services">Service</option>
+						<option value="hosts">ホスト</option>
+						<option value="services">サービス</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showHost()">
-					<label>Host</label>
+					<label>ホスト</label>
 					<select name="host" class="form-control"
 							ng-model="params.host"
 							ng-options="host for host in hostlist track by host">
-						<option value="">-- Select Host --</option>
+						<option value="">-- ホストを選択 --</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showService()">
-					<label>Service</label>
+					<label>サービス</label>
 					<select name="service" class="form-control"
 							ng-model="params.service"
 							ng-options="service for service in servicelist track by service">
 						<option value="">
-							{{params.host == "" ? "-- Select Host First --" : "-- Select Service --"}}
+							{{params.host == "" ? "-- 最初にホストを選択 --" : "-- サービスを選択 --"}}
 						</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showTimeperiod()">
-					<label>Report Period</label>
+					<label>レポート期間</label>
 					<select name="timeperiod" class="form-control"
 							ng-model="params.timeperiod"
 							ng-options="tp.value as tp.label for tp in timeperiodlist">
-						<option value="">-- Select Timeperiod --</option>
+						<option value="">-- 期間を選択 --</option>
 					</select>
 				</div>
 				<div class="form-group" ng-show="showDates()">
-					<label>Start Date (inclusive)</label>
+					<label>開始日 (指定日を含む)</label>
 					<input type="date" class="form-control"
 							ng-model="params.startDate">
 				</div>
 				<div class="form-group" ng-show="showDates()">
-					<label>End Date (inclusive)</label>
+					<label>終了日 (指定日を含む)</label>
 					<input type="date" class="form-control"
 							ng-model="params.endDate">
 				</div>
 			</tab>
 			<tab heading="Advanced">
 				<div class="form-group">
-					<label>Statistics Breakdown</label>
+					<label>統計の内訳</label>
 					<select name="breakdown" class="form-control"
 							ng-model="params.breakdown"
 							ng-options="bd.value as bd.label for bd in statisticsBreakdown">
 						<option value="">
-							-- Select Statistics Breakdown --
+							-- 統計の内訳を選択 --
 						</option>
 					</select>
 				</div>
 				<div class="form-group">
-					<label>Events To Graph</label>
+					<label>グラフにするイベント</label>
 					<select name="graphevents" class="form-control"
 							ng-model="params.events"
 							ng-options="evt.value as evt.label for evt in eventslist">
-						<option value="">-- Select Graph Events --</option>
+						<option value="">-- グラフイベントを選択 --</option>
 					</select>
 				</div>
 				<div class="form-group">
-					<label>State Types To Graph</label>
+					<label>グラフにする状態タイプ</label>
 					<select name="graphstatetypes" class="form-control"
 							ng-model="params.graphstatetypes">
-						<option value="">-- Select State Types --</option>
-						<option value="2">Hard states</option>
-						<option value="1">Soft states</option>
+						<option value="">-- 状態タイプを選択 --</option>
+						<option value="2">ハード状態</option>
+						<option value="1">ソフト状態</option>
 						<option value="3" selected>
-							Hard and soft states
+							ハード及びソフト状態
 						</option>
 					</select>
 				</div>
@@ -102,21 +102,21 @@
 					<label>
 						<input type="checkbox"
 								ng-model="params.assumestateretention">
-						Assume State Retention
+						保存状態を考慮
 					</label>
 				</div>
 				<div class="checkbox">
 					<label>
 						<input type="checkbox"
 								ng-model="params.initialstateslogged">
-						Initial State Logged
+						初期状態を記録
 					</label>
 				</div>
 				<div class="checkbox">
 					<label>
 						<input type="checkbox" 
 								ng-model="params.ignorerepeatedstates">
-						Ignore Repeated States
+						連続した状態を無視
 					</label>
 				</div>
 			</tab>
@@ -125,7 +125,7 @@
 	<div class="modal-footer">
 		<button id="submit" type="submit" class="btn btn-default"
 				ng-disabled="disableApply()" ng-click="apply()">
-			Apply
+			適用
 		</button>
 	</div>
 </form>

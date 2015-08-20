@@ -3,45 +3,45 @@
 		<tr>
 			<td class="linkBox" ng-show="params.reporttype == 'hosts'">
 				<a href="{{params.cgiurl}}avail.cgi?host={{params.host | uriComponentEncode}}&t1={{params.t1}}&t2={{params.t1}}&includesoftstates={{params.includesoftstates ? 'yes' : 'no'}}&assumestateretention={{params.assumestateretention ? 'yes' : 'no'}}&assumeinitialstates={{params.assumeinitialstates ? 'yes' : 'no'}}&assumestatesduringnotrunning={{params.assumestatesduringnotrunning ? 'yes' : 'no'}}&initialassumedhoststate={{params.initialassumedhoststate}}&backtrack={{params.backtrack}}&show_log_entries" target="_self">
-						View Availability Report For This Host
+						このホストの稼働レポートを見る
 				</a>
 				<br/>
 				<a href="histogram.html?cgiurl={{params.cgiurl | uriComponentEncode}}&host={{params.host | uriComponentEncode}}&t1={{params.t1}}&t2={{params.t2}}&assumestateretention={{params.assumestateretention ? 'yes' : 'no'}}" target="_self">
-					View Alert Histogram For This Host
+					このホストの警報ヒストグラムを見る
 				</a>
 				<br/>
 				<a href="{{params.cgiurl}}status.cgi?host={{params.host | uriComponentEncode}}" target="_self">
-					View Status Detail For This Host
+					このホストの稼動状態を見る
 				</a>
 				<br>
 				<a href="{{params.cgiurl}}history.cgi?host={{params.host | uriComponentEncode}}" target="_self">
-					View Alert History For This Host
+					このホストの警報履歴を見る
 				</a>
 				<br>
 				<a href="{{params.cgiurl}}notifications.cgi?host={{params.host | uriComponentEncode}}" target="_self">
-					View Notifications For This Host
+					このホストの通知履歴を見る
 				</a>
 				<br>
 			</td>
 			<td class="linkBox" ng-show="params.reporttype == 'services'">
 				<a href="trends.html?cgiurl={{params.cgiurl}}&host={{params.host | uriComponentEncode}}&t1={{params.t1}}&t2={{params.t2}}&includesoftstates={{params.includesoftstates ? 'yes' : 'no'}}&assumestateretention={{params.assumestateretention ? 'yes' : 'no'}}&assumeinitialstates={{params.assumeinitialstates ? 'yes' : 'no'}}&assumestatesduringnotrunning={{params.assumestatesduringnotrunning ? 'yes' : 'no'}}&initialassumedservicestate={{params.initialassumedservicestate}}&backtrack={{params.backtrack}}" target="_self">
-					View Trends For This Host
+					このホストの傾向を見る
 				</a>
 				<br/>
 				<a href="{{params.cgiurl}}avail.cgi?host={{params.host | uriComponentEncode}}&service={{params.service | uriComponentEncode}}&t1={{params.t1}}&t2={{params.t1}}&includesoftstates={{params.includesoftstates ? 'yes' : 'no'}}&assumestateretention={{params.assumestateretention ? 'yes' : 'no'}}&assumeinitialstates={{params.assumeinitialstates ? 'yes' : 'no'}}&assumestatesduringnotrunning={{params.assumestatesduringnotrunning ? 'yes' : 'no'}}&initialassumedhoststate={{params.initialassumedhoststate}}&backtrack={{params.backtrack}}&show_log_entries" target="_self">
-						View Availability Report For This Service
+						このサービスの稼働レポートを見る
 				</a>
 				<br/>
 				 <a href="histogram.html?cgiurl={{params.cgiurl | uriComponentEncode}}&host={{params.host | uriComponentEncode}}&service={{params.service | uriComponentEncode}}&t1={{params.t1}}&t2={{params.t2}}&assumestateretention={{params.assumestateretention ? 'yes' : 'no'}}" target="_self">
-					View Alert Histogram For This Service
+					このサービスの警報ヒストグラムを見る
 				</a>
 				<br/>
 				<a href="{{params.cgiurl}}history.cgi?host={{params.host | uriComponentEncode}}&service={{params.service | uriComponentEncode}}" target="_self">
-					View Alert History For This Service
+					このサービスの警報履歴を見る
 				</a>
 				<br>
 				<a href="{{params.cgiurl}}notifications.cgi?host={{params.host | uriComponentEncode}}&service={{params.service | uriComponentEncode}}" target="_self">
-					View Notifications For This Service
+					このサービスの通知履歴を見る
 				</a>
 				<br>
 			</td>

@@ -2,19 +2,20 @@
 
 <html>
 	<head>
-		<title>JSON Query Generator</title>
+		<meta charset="utf-8">
+		<title>JSON クエリー ジェネレーター</title>
 		<link rel="stylesheet" type="text/css" href="stylesheets/jsonquery.css"/>
 		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 		<script type="text/javascript" src="js/jsonquery.js"></script>
 	</head>
 	<body>
 		<div id="wrap">
-			<h1>JSON Query Generator</h1>
+			<h1>JSON クエリー ジェネレーター</h1>
 			<div id="results">
-				<p>Your query results will appear here.</p>
+				<p>クエリーの結果がここに表示されます。</p>
 			</div>
 			<div id="options">
-				<p>Enter your options here.</p>
+				<p>ここにオプションを入れてください。</p>
 				<form id="query" action="jsonquery.html" method="get">
 					<table id="cgiform">
 						<tr>
@@ -24,22 +25,22 @@
 							<td>
 								<select id="cginame" name="cginame">
 									<option value="none">
-										Select a CGI
+										CGIを選択
 									</option>
 									<option value="archivejson.cgi">
-										Archive JSON CGI
+										アーカイブ JSON CGI
 									</option>
 									<option value="objectjson.cgi">
-										Object JSON CGI
+										オブジェクト JSON CGI
 									</option>
 									<option value="statusjson.cgi">
-										Status JSON CGI
+										ステータス JSON CGI
 									</option>
 								</select>
 							</td>
 						</tr>
 					</table>
-					<button type="submit">Send Query</button>
+					<button type="submit">クエリー送信</button>
 				<form>
 			<div>
 		</div>
