@@ -22,7 +22,7 @@ $( document).ready( function() {
 			.attr({
 				 value: ''
 			})
-			.text( 'Select a value')
+			.text( '値を選択')
 		);
 		if( option.valid_values instanceof Array) {
 			for( var x = 0; x < option.valid_values.length; x++) {

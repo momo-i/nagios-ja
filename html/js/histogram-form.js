@@ -65,9 +65,9 @@ angular.module("histogramApp")
 				break;
 			case "custom":
 				if ($scope.params.t1 == 0 ||
-						$scope.params.t1 == "Invalid Date" ||
+						$scope.params.t1 == "不正な日付" ||
 						$scope.params.t2 == 0 ||
-						$scope.params.t2 == "Invalid Date") {
+						$scope.params.t2 == "不正な日付") {
 					return false;
 				}
 				else {

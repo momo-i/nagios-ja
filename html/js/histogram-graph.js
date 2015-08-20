@@ -92,16 +92,16 @@ angular.module("histogramApp")
 
 					switch($scope.breakdown) {
 					case "monthly":
-						var months = ["January", "February", "March",
-								"April", "May", "June", "July", "August",
-								"September", "October", "November",
-								"December", "January"];
+						var months = ["1月", "2月", "3月",
+								"4月", "5月", "6月", "7月", "8月",
+								"9月", "10月", "11月",
+								"12月", "1月"];
 						return months[d % 12];
 						break;
 					case "dayofweek":
-						var days = ["Sunday", "Monday", "Tuesday",
-								"Wednesday", "Thursday", "Friday",
-								"Saturday", "Sunday"];
+						var days = ["日", "月", "火",
+								"水", "木", "金",
+								"土", "日"];
 						return days[d % 7];
 						break;
 					case "hourly":

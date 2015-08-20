@@ -22,27 +22,27 @@ angular.module("histogramEvents", [])
 			hostEvents: [
 				{
 					value: this.hostAll,
-					label: "All host events",
+					label: "全ホストイベント",
 					states: "up down unreachable"
 				},
 				{
 					value: this.hostProblems,
-					label: "Host problem events",
+					label: "ホスト障害イベント",
 					states: "down unreachable"
 				},
 				{
 					value: this.hostUp,
-					label: "Host up events",
+					label: "ホスト稼働(UP)イベント",
 					states: "up"
 				},
 				{
 					value: this.hostDown,
-					label: "Host down events",
+					label: "ホスト停止(DOWN)イベント",
 					states: "down"
 				},
 				{
 					value: this.hostUnreachable,
-					label: "Host unreachable events",
+					label: "ホスト未到達(UNREACHABLE)イベント",
 					states: "unreachable"
 				}
 			],
@@ -51,32 +51,32 @@ angular.module("histogramEvents", [])
 			serviceEvents: [
 				{
 					value: this.serviceAll,
-					label: "All service events",
+					label: "全サービスイベント",
 					states: "ok warning unknown critical"
 				},
 				{
 					value: this.serviceProblems,
-					label: "Service problem events",
+					label: "サービス障害イベント",
 					states: "warning unknown critical"
 				},
 				{
 					value: this.serviceOk,
-					label: "Service ok events",
+					label: "サービス正常(OK)イベント",
 					states: "ok"
 				},
 				{
 					value: this.serviceWarning,
-					label: "Service warning events",
+					label: "サービス警告(WARNING)イベント",
 					states: "warning"
 				},
 				{
 					value: this.serviceUnknown,
-					label: "Service unknown events",
+					label: "サービス不明(UNKNOWN)イベント",
 					states: "unknown"
 				},
 				{
 					value: this.serviceCritical,
-					label: "Service critical events",
+					label: "サービス障害(CRITICAL)イベント",
 					states: "critical"
 				},
 			]
