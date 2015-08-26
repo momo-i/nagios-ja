@@ -194,9 +194,6 @@ $this_year = '2015';
 			</ul>
 		</div>
 
-		<div id="splashbox3" class="splashbox3-empty"><!-- youtube playlist -->
-		</div>
-
 	</div><!-- end splashrow1 -->
 	
 	<div id="splashrow2">
@@ -213,6 +210,9 @@ $this_year = '2015';
 			<div id="splashbox5-contents">
 				<?php @include(dirname(__FILE__).'/rss-corefeed.html'); ?>
 			</div>
+		</div>
+
+		<div id="splashbox3" class="splashbox3-empty"><!-- youtube playlist -->
 		</div>
 
 	</div><!-- end splashrow2 -->
