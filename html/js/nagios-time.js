@@ -13,7 +13,7 @@ angular.module("nagiosTime", [])
 			timeLeft -= m * 60000;
 			s = Math.floor(timeLeft / 1000);
 
-			return d + "d " + h + "h " + m + "m " + s + "s";
+			return d + "日 " + h + "時間 " + m + "分 " + s + "秒";
 		}
 	})
 

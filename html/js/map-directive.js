@@ -107,7 +107,7 @@ angular.module("mapApp")
 				$scope.updateDuration = 0;
 
 				// Date format for popup dates
-				$scope.popupDateFormat = d3.time.format("%m-%d-%Y %H:%M:%S");
+				$scope.popupDateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
 
 				// Root node name
 				$scope.rootNodeName = nagiosProcessName;

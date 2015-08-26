@@ -3,10 +3,10 @@ angular.module("histogramApp", ["ui.bootstrap", "ui.utils",
 
 	// Statistics breakdown list
 	.constant("statisticsBreakdown", [
-		{ value: "monthly",		label: "Month" },
-		{ value: "dayofmonth",	label: "Day of the Month" },
-		{ value: "dayofweek",	label: "Day of the Week" },
-		{ value: "hourly",		label: "Hour of the Day" }
+		{ value: "monthly",		label: "月間" },
+		{ value: "dayofmonth",	label: "1ヶ月の1日" },
+		{ value: "dayofweek",	label: "1周間の1日" },
+		{ value: "hourly",		label: "1日の1時間" }
 	])
 
 	.config(function($locationProvider) {
@@ -117,13 +117,13 @@ angular.module("histogramApp", ["ui.bootstrap", "ui.utils",
 		$scope.infoBoxTitle = function() {
 			switch ($scope.params.reporttype) {
 			case "hosts":
-				return "Host Alert Histogram";
+				return "ホスト警報ヒストグラム";
 				break;
 			case "services":
-				return "Service Alert Histogram";
+				return "サービス警報ヒストグラム";
 				break;
 			default:
-				return "Alert Histogram";
+				return "警報ヒストグラム";
 				break;
 			}
 		};
