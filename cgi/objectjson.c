@@ -728,6 +728,10 @@ int main(void) {
 	/* get authentication information */
 	get_authentication_information(&current_authdata);
 
+	/* For most locales, floats get output with a comma instead of a
+	 * decimal point, which messes up the JSON data structure. */
+	setlocale(LC_NUMERIC, "C");
+
 	/* Return something to the user */
 	switch( cgi_data.query) {
 	case OBJECT_QUERY_HOSTCOUNT:
@@ -1733,6 +1737,9 @@ int process_cgivars(json_object *json_root, object_json_cgi_data *cgi_data,
 				}
 			x++;
 			}
+
+		else if(!strcmp(variables[x], "NagFormId"))
+			++x;
 
 		else if(!strcmp(variables[x], ""));
 
@@ -3555,10 +3562,14 @@ json_object *json_object_service(unsigned format_options, service *temp_service)
 	json_object *json_service = json_new_object();
 	json_object *json_details = json_new_object();
 
+/* host_name and description are included when json_object_service_details()
+	is called, so we don't need them here */
+/*
 	json_object_append_string(json_details, "host_name", &percent_escapes,
 			temp_service->host_name);
 	json_object_append_string(json_details, "description", &percent_escapes,
 			temp_service->description);
+ */
 	json_object_service_details(json_details, format_options, temp_service);
 	json_object_append_object(json_service, "service", json_details);
 

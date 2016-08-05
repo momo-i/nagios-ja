@@ -3552,14 +3552,13 @@ void show_hostgroup_overviews(void) {
 		printf("<p>\n");
 		printf("<div align='center'>\n");
 
-		if(hoststatus_list != NULL) {
+		if(hostgroup_list != NULL) {
 			printf("<div class='errorMessage'>要求したサービスを閲覧する権限が無いようです...</div>\n");
 			printf("<div class='errorDescription'>このメッセージが何らかのエラーである場合はHTTPサーバのこのCGIに対するアクセス権限の設定かNagiosのCGI用設定ファイルの認証に関するオプションを調べてみてください</div>\n");
-			}
+		}
 		else {
-			printf("<div class='infoMessage'>ステータスログにサービスの情報がまったくありません...<br><br>\n");
-			printf("Nagiosが正常に稼働して、ステータス情報を収集しているか確認してください。</div>\n");
-			}
+			printf("<div class='errorMessage'>定義されたホストグループはありません。</div>\n");
+		}
 
 		printf("</div>\n");
 		printf("</p>\n");
