@@ -1409,7 +1409,7 @@ void display_tac_overview(void) {
 		printf("<table border=0 width=100%%>\n");
 
 		if(flap_disabled_services > 0)
-			printf("<tr><td width=100%% class='featureItemDisabledServiceFlapDetection'><a href='%s?hostgroup=all&style=hostdetail&serviceprops=%d'>%d サービスが無効</a></td></tr>\n", STATUS_CGI, SERVICE_FLAP_DETECTION_DISABLED, flap_disabled_services);
+			printf("<tr><td width=100%% class='featureItemDisabledServiceFlapDetection'><a href='%s?host=all&type=detail&serviceprops=%d'>%d サービスが無効</a></td></tr>\n", STATUS_CGI, SERVICE_FLAP_DETECTION_DISABLED, flap_disabled_services);
 		else
 			printf("<tr><td width=100%% class='featureItemEnabledServiceFlapDetection'>全サービス有効</td></tr>\n");
 
