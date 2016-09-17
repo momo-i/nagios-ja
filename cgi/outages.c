@@ -284,6 +284,7 @@ void display_network_outages(void) {
 	int total_entries = 0;
 
 	/* user must be authorized for all hosts.. */
+/*
 	if(is_authorized_for_all_hosts(&current_authdata) == FALSE) {
 
 		printf("<P><DIV CLASS='errorMessage'>要求したリクエストを閲覧する権限が無いようです。</DIV></P>\n");
@@ -291,6 +292,7 @@ void display_network_outages(void) {
 
 		return;
 		}
+*/
 
 	/* find all hosts that are causing network outages */
 	find_hosts_causing_outages();
@@ -438,6 +440,9 @@ void find_hosts_causing_outages(void) {
 			temp_host = find_host(temp_hoststatus->host_name);
 
 			if(temp_host == NULL)
+				continue;
+
+			if (!is_authorized_for_host(temp_host, &current_authdata))
 				continue;
 
 			/* if the route to this host is not blocked, it is a causing an outage */
