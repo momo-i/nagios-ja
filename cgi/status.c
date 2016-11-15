@@ -1968,6 +1968,8 @@ void show_host_detail(void) {
 	regex_t preg_hostname;
 //	int show_host = FALSE;
 
+	if(host_filter != NULL)
+		regcomp(&preg_hostname, host_filter, REG_ICASE);
 
 	/* sort the host list if necessary */
 	if(sort_type != SORT_NONE) {
