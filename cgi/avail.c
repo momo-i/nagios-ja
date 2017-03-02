@@ -444,7 +444,10 @@ int main(int argc, char **argv) {
 			printf("<div align=center class='reportRange'>%s から %s</div>\n", start_timestring, end_timestring);
 
 			get_time_breakdown((time_t)(t2 - t1), &days, &hours, &minutes, &seconds);
-			printf("<div align=center class='reportDuration'>期間: %d日間と %d時間 %d分 %d秒</div>\n", days, hours, minutes, seconds);
+			printf("<div align=center class='reportDuration'>期間: %d日間と %d時間 %d分 %d秒", days, hours, minutes, seconds);
+			if (current_timeperiod)
+				printf("<br>(期間 %s を使用します)", current_timeperiod->name);
+			printf("</div>\n");
 			}
 
 		printf("</td>\n");

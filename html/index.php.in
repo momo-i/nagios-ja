@@ -2,7 +2,7 @@
 // Allow specifying main window URL for permalinks, etc.
 $url = 'main.php';
 
-if (isset($_GET['corewindow'])) {
+if ("@COREWINDOW@" == "yes" && isset($_GET['corewindow'])) {
 
 	// The default window url may have been overridden with a permalink...
 	// Parse the URL and remove permalink option from base.
@@ -26,13 +26,12 @@ if (isset($_GET['corewindow'])) {
 		$url = "main.php";
 }
 
-$this_year = '2016';
+$this_year = '2017';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html;charset=UTF-8">
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <script LANGUAGE="javascript">
 	var n = Math.round(Math.random() * 10000000000);
@@ -42,7 +41,7 @@ $this_year = '2016';
 	<link rel="shortcut icon" href="images/favicon.ico" type="image/ico">
 </head>
 
-<frameset cols="205,*" style="border: 0px;">
+<frameset cols="180,*" style="border: 0px;">
 	<frame src="side.php" name="side" frameborder="0" style="">
 	<frame src="<?php echo $url; ?>" name="main" frameborder="0" style="">
 

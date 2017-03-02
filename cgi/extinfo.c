@@ -33,7 +33,6 @@
 
 static nagios_macros *mac;
 
-extern char             nagios_check_command[MAX_INPUT_BUFFER];
 extern char             nagios_process_info[MAX_INPUT_BUFFER];
 extern int              nagios_process_state;
 extern int              refresh_rate;
@@ -47,6 +46,7 @@ extern char url_stylesheets_path[MAX_FILENAME_LENGTH];
 extern char url_docs_path[MAX_FILENAME_LENGTH];
 extern char url_images_path[MAX_FILENAME_LENGTH];
 extern char url_logo_images_path[MAX_FILENAME_LENGTH];
+extern char url_js_path[MAX_FILENAME_LENGTH];
 
 extern int              enable_splunk_integration;
 
@@ -131,10 +131,10 @@ int main(void) {
 	/* initialize macros */
 	init_macros();
 
-	document_header(TRUE);
-
 	/* get authentication information */
 	get_authentication_information(&current_authdata);
+
+	document_header(TRUE);
 
 
 	if(display_header == TRUE) {
@@ -522,6 +522,7 @@ int main(void) {
 
 void document_header(int use_stylesheet) {
 	char date_time[MAX_DATETIME_LENGTH];
+	char *vidurl = NULL;
 	time_t current_time;
 	time_t expire_time;
 
@@ -553,7 +554,30 @@ void document_header(int use_stylesheet) {
 	if(use_stylesheet == TRUE) {
 		printf("<LINK REL='stylesheet' TYPE='text/css' HREF='%s%s'>", url_stylesheets_path, COMMON_CSS);
 		printf("<LINK REL='stylesheet' TYPE='text/css' HREF='%s%s'>", url_stylesheets_path, EXTINFO_CSS);
+		printf("<LINK REL='stylesheet' TYPE='text/css' HREF='%s%s'>\n", url_stylesheets_path, NAGFUNCS_CSS);
 		}
+
+	if (display_type == DISPLAY_HOST_INFO)
+		vidurl = "https://www.youtube.com/embed/n3QEAf-MxY4";
+	else if(display_type == DISPLAY_SERVICE_INFO)
+		vidurl = "https://www.youtube.com/embed/f_knwQOS6FI";
+
+	if (vidurl) {
+		printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, JQUERY_JS);
+		printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, NAGFUNCS_JS);
+		printf("<script type='text/javascript'>\n");
+		printf("var vbox, vBoxId='extinfo%d', vboxText = "
+				"'<a href=https://www.nagios.com/tours target=_blank>"
+				"Nagios4のツアー全体を見るにはここをクリック！</a>';\n",
+				display_type);
+		printf("$(document).ready(function() {\n"
+				"var user = '%s';\nvBoxId += ';' + user;\n",
+				current_authdata.username);
+		printf("vbox = new vidbox({pos:'lr',vidurl:'%s',text:vboxText,"
+				"vidid:vBoxId});\n", vidurl);
+		printf("});\n</script>\n");
+	}
+
 	printf("</head>\n");
 
 	printf("<body CLASS='extinfo'>\n");
@@ -874,11 +898,6 @@ void show_process_info(void) {
 		}
 	else {
 		printf("<DIV ALIGN=CENTER CLASS='infoMessage'>Nagiosが動作していないため、コマンドは使えません。\n");
-		if(!strcmp(nagios_check_command, "")) {
-			printf("<BR><BR>\n");
-			printf("ヒント: プロセス情報をチェックするコマンドが設定されてない可能性があります。CGI設定ファイル中の<b>nagios_check_command</b>をチェックしてください。<BR>\n");
-			printf("より詳しい情報はドキュメントを参照してください。\n");
-			}
 		printf("</DIV>\n");
 		}
 
@@ -1159,9 +1178,10 @@ void show_host_info(void) {
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストのイベントハンドラを無効' TITLE='このホストのイベントハンドラを無効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストのイベントハンドラを無効</a></td></tr>\n", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_DISABLE_HOST_EVENT_HANDLER, url_encode(host_name));
 		else
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストのイベントハンドラを有効' TITLE='このホストのイベントハンドラを有効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストのイベントハンドラを有効</a></td></tr>\n", url_images_path, ENABLED_ICON, COMMAND_CGI, CMD_ENABLE_HOST_EVENT_HANDLER, url_encode(host_name));
-		if(temp_hoststatus->flap_detection_enabled == TRUE)
+		if(temp_hoststatus->flap_detection_enabled == TRUE) {
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストのフラップ検知を無効' TITLE='このホストのフラップ検知を無効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストのフラップ検知を無効</a></td></tr>\n", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_DISABLE_HOST_FLAP_DETECTION, url_encode(host_name));
-		else
+			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストのフラッピング状態をクリア' TITLE='このホストのフラッピング状態をクリア'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストのフラッピング状態をクリア</a></td></tr>\n", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_CLEAR_HOST_FLAPPING_STATE, url_encode(host_name));
+		} else
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストのフラップ検知を有効' TITLE='このホストのフラップ検知を有効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストのフラップ検知を有効</a></td></tr>\n", url_images_path, ENABLED_ICON, COMMAND_CGI, CMD_ENABLE_HOST_FLAP_DETECTION, url_encode(host_name));
 
 		printf("</TABLE>\n");
@@ -1498,6 +1518,8 @@ void show_service_info(void) {
 		if(temp_svcstatus->flap_detection_enabled == TRUE) {
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このサービスのフラップ検知を無効' TITLE='このサービスのフラップ検知を無効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_DISABLE_SVC_FLAP_DETECTION, url_encode(host_name));
 			printf("&service=%s'>このサービスのフラップ検知を無効</a></td></tr>\n", url_encode(service_desc));
+			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このサービスのフラッピング状態をクリア' TITLE='このサービスのフラッピング状態をクリア'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_CLEAR_SVC_FLAPPING_STATE, url_encode(host_name));
+			printf("&service=%s'>このサービスのフラッピング状態をクリア</a></td></tr>\n", url_encode(service_desc));
 			}
 		else {
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このサービスのフラップ検知を有効' TITLE='このサービスのフラップ検知を有効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s", url_images_path, ENABLED_ICON, COMMAND_CGI, CMD_ENABLE_SVC_FLAP_DETECTION, url_encode(host_name));
@@ -2421,6 +2443,7 @@ void display_comments(int type) {
 	int odd = 1;
 	char date_time[MAX_DATETIME_LENGTH];
 	nagios_comment *temp_comment;
+	scheduled_downtime *temp_downtime;
 	char *comment_type;
 	char expire_time[MAX_DATETIME_LENGTH];
 
@@ -2515,15 +2538,31 @@ void display_comments(int type) {
 					comment_type = "未知";
 				}
 
+			if (temp_comment->entry_type == DOWNTIME_COMMENT) {
+				for(temp_downtime = scheduled_downtime_list; temp_downtime != NULL; temp_downtime = temp_downtime->next) {
+					if (temp_downtime->comment_id == temp_comment->comment_id)
+						break;
+					}
+				}
+			else
+				temp_downtime = NULL;
+
 			get_time_string(&temp_comment->entry_time, date_time, (int)sizeof(date_time), SHORT_DATE_TIME);
 			get_time_string(&temp_comment->expire_time, expire_time, (int)sizeof(date_time), SHORT_DATE_TIME);
 			printf("<tr CLASS='%s'>", bg_class);
-			printf("<td CLASS='%s'>%s</td><td CLASS='%s'>%s</td><td CLASS='%s'>%s</td><td CLASS='%s'>%lu</td><td CLASS='%s'>%s</td><td CLASS='%s'>%s</td><td CLASS='%s'>%s</td>", bg_class, date_time, bg_class, temp_comment->author, bg_class, temp_comment->comment_data, bg_class, temp_comment->comment_id, bg_class, (temp_comment->persistent) ? "はい" : "いいえ", bg_class, comment_type, bg_class, (temp_comment->expires == TRUE) ? expire_time : "N/A");
+			printf("<td CLASS='%s'>%s</td><td CLASS='%s'>%s</td>", bg_class, date_time, bg_class, temp_comment->author);
+			printf("<td CLASS='%s'>%s", bg_class, temp_comment->comment_data);
+			if (temp_downtime)
+				printf("<hr>%s", temp_downtime->comment);
+			printf("</td><td CLASS='%s'>%lu</td><td CLASS='%s'>%s</td><td CLASS='%s'>%s</td><td CLASS='%s'>%s</td>",
+				bg_class, temp_comment->comment_id, bg_class, (temp_comment->persistent) ? "はい" : "いいえ",
+				bg_class, comment_type, bg_class, (temp_comment->expires == TRUE) ? expire_time : "N/A");
 			if(is_authorized_for_read_only(&current_authdata)==FALSE)
 				printf("<td><a href='%s?cmd_typ=%d&com_id=%lu'><img src='%s%s' border=0 ALT='このコメントを削除' TITLE='このコメントを削除'></td>", COMMAND_CGI, (type == HOST_COMMENT) ? CMD_DEL_HOST_COMMENT : CMD_DEL_SVC_COMMENT, temp_comment->comment_id, url_images_path, DELETE_ICON);
 			printf("</tr>\n");
 
 			total_comments++;
+
 			}
 		}
 

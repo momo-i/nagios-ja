@@ -950,6 +950,11 @@ void request_command_data(int cmd) {
 			printf("指定したサービスグループ上のサービスのダウンタイムをスケジュールに追加する");
 			break;
 
+		case CMD_CLEAR_HOST_FLAPPING_STATE:
+		case CMD_CLEAR_SVC_FLAPPING_STATE:
+			printf("%sのフラッピング状態をクリアする", (cmd == CMD_CLEAR_HOST_FLAPPING_STATE) ? "ホスト" : "サービス");
+			break;
+
 		case CMD_SEND_CUSTOM_HOST_NOTIFICATION:
 		case CMD_SEND_CUSTOM_SVC_NOTIFICATION:
 			printf("カスタム%s通知を送信する", (cmd == CMD_SEND_CUSTOM_HOST_NOTIFICATION) ? "ホスト" : "サービス");
@@ -1094,6 +1099,7 @@ void request_command_data(int cmd) {
 		case CMD_DISABLE_SVC_FLAP_DETECTION:
 		case CMD_START_OBSESSING_OVER_SVC:
 		case CMD_STOP_OBSESSING_OVER_SVC:
+		case CMD_CLEAR_SVC_FLAPPING_STATE:
 			printf("<tr><td CLASS='optBoxRequiredItem'>ホスト名:</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='host' VALUE='%s'>", escape_string(host_name));
 			printf("</b></td></tr>\n");
@@ -1122,6 +1128,7 @@ void request_command_data(int cmd) {
 		case CMD_DISABLE_PASSIVE_HOST_CHECKS:
 		case CMD_START_OBSESSING_OVER_HOST:
 		case CMD_STOP_OBSESSING_OVER_HOST:
+		case CMD_CLEAR_HOST_FLAPPING_STATE:
 			printf("<tr><td CLASS='optBoxRequiredItem'>ホスト名:</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='host' VALUE='%s'>", escape_string(host_name));
 			printf("</b></td></tr>\n");
@@ -1589,6 +1596,7 @@ void commit_command_data(int cmd) {
 		case CMD_DISABLE_SVC_FLAP_DETECTION:
 		case CMD_START_OBSESSING_OVER_SVC:
 		case CMD_STOP_OBSESSING_OVER_SVC:
+		case CMD_CLEAR_SVC_FLAPPING_STATE:
 
 			/* make sure we have author name and comment data... */
 			if(cmd == CMD_SCHEDULE_SVC_DOWNTIME) {
@@ -1693,6 +1701,7 @@ void commit_command_data(int cmd) {
 		case CMD_SCHEDULE_HOST_CHECK:
 		case CMD_START_OBSESSING_OVER_HOST:
 		case CMD_STOP_OBSESSING_OVER_HOST:
+		case CMD_CLEAR_HOST_FLAPPING_STATE:
 
 			/* make sure we have author name and comment data... */
 			if(cmd == CMD_SCHEDULE_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOST_SVC_DOWNTIME) {
@@ -2036,6 +2045,7 @@ int commit_command(int cmd) {
 		case CMD_ENABLE_HOST_CHECK:
 		case CMD_DISABLE_HOST_CHECK:
 		case CMD_REMOVE_HOST_ACKNOWLEDGEMENT:
+		case CMD_CLEAR_HOST_FLAPPING_STATE:
 			result = cmd_submitf(cmd, "%s", host_name);
 			break;
 
@@ -2054,6 +2064,7 @@ int commit_command(int cmd) {
 		case CMD_ENABLE_SVC_CHECK:
 		case CMD_DISABLE_SVC_CHECK:
 		case CMD_REMOVE_SVC_ACKNOWLEDGEMENT:
+		case CMD_CLEAR_SVC_FLAPPING_STATE:
 			result = cmd_submitf(cmd, "%s;%s", host_name, service_desc);
 			break;
 
@@ -2751,6 +2762,14 @@ void show_command_help(int cmd) {
 			printf("フィールドにダウンタイム開始時間と終了時間を<b>mm/dd/yyyy hh:mm:ss</b>形式で入力してください。\n");
 			printf("もし「<B>固定</B>」にチェックを入れると入力した開始時間と終了時間きっちりにスケジュールされます。もし「<B>固定</B>」にチェックを入れない場合はNagiosは\"フレキシブル\"なダウンタイムとします。\n");
 			printf("フレキシブルなダウンタイムとはホストが停止または未到達になる開始時間から経過時間を指定してダウンタイムを決定することです。「<B>固定</B>」にチェックを入れた場合<b>期間</b>を指定する箇所は入力しても無効になります。</b>\n");
+			break;
+
+		case CMD_CLEAR_HOST_FLAPPING_STATE:
+		case CMD_CLEAR_SVC_FLAPPING_STATE:
+			printf("このコマンドは指定された%sのフラッピング状態をリセットするために使用されます。\n",
+				(cmd == CMD_CLEAR_HOST_FLAPPING_STATE) ? "ホスト" : "サービス");
+			printf("指定されて%sのすべての状態履歴がクリアされます。\n",
+				(cmd == CMD_CLEAR_HOST_FLAPPING_STATE) ? "ホスト" : "サービス");
 			break;
 
 		case CMD_SEND_CUSTOM_HOST_NOTIFICATION:

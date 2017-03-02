@@ -1,8 +1,8 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
 
-$this_version = '4.2.4';
-$this_year = '2016';
+$this_version = '4.3.1';
+$this_year = '2017';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -13,10 +13,21 @@ $this_year = '2016';
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
 <title>Nagios Core 日本語化</title>
 <link rel="stylesheet" type="text/css" href="stylesheets/common.css?<?php echo $this_version; ?>" />
+<link rel="stylesheet" type="text/css" href="stylesheets/nag_funcs.css?<?php echo $this_version; ?>" />
 <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="js/nag_funcs.js"></script>
 
 <script type='text/javascript'>
+	var vbox, cookie;
+	var vBoxId = "main";
+	var vboxText = "<a href=https://www.nagios.com/tours target=_blank> " +
+					"Nagiosコア4のツアー全体を見るにはここをクリック！</a>";
 	$(document).ready(function() {
+		var user = "<?php echo $_SERVER['REMOTE_USER']; ?>";
+
+		vBoxId += ";" + user;
+		vbox = new vidbox({pos:'lr',vidurl:'https://www.youtube.com/embed/2hVBAet-XpY',
+							text:vboxText,vidid:vBoxId});
 		loadRemoteFeed( // Our top banner splash.
 			'#splashbox0-contents', 'corebanner', 1,
 			'', processBannerItem, ''
@@ -129,7 +140,7 @@ $this_year = '2016';
 <div id="currentversioninfo">
 	<div class="product">Nagios<sup><span style="font-size: small;">&reg;</span></sup> Core<sup><span style="font-size: small;">&trade;</span></sup> 日本語化</div>
 	<div class="version">バージョン <?php echo $this_version; ?></div>
-	<div class="releasedate">2016年12月07日</div>
+	<div class="releasedate">2017年2月23日</div>
 	<div class="checkforupdates"><a href="https://www.nagios.org/checkforupdates/?version=<?php echo $this_version; ?>&amp;product=nagioscore" target="_blank">更新のチェック</a></div>
 </div>
 

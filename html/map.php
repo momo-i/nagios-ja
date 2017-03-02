@@ -42,6 +42,7 @@
 		<link type='text/css' rel='stylesheet' href='stylesheets/common.css'/>
 		<link type='text/css' rel='stylesheet' href='stylesheets/map.css'/>
 		<link type='text/css' rel='stylesheet' href='stylesheets/map-directive.css'/>
+		<link type='text/css' rel='stylesheet' href='stylesheets/nag_funcs.css'/>
 		<script type="text/javascript" src="d3/d3.min.js"></script>
 		<script type="text/javascript"
 				src="angularjs/angular-1.3.9/angular.min.js"></script>
@@ -55,6 +56,23 @@
 		<script type="text/javascript" src="js/map-form.js"></script>
 		<script type="text/javascript" src="js/nagios-decorations.js"></script>
 		<script type="text/javascript" src="js/nagios-time.js"></script>
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/nag_funcs.js"></script>
+
+		<script type='text/javascript'>
+			var vbox;
+			var vBoxId = "map";
+			var vboxText = "<a href=https://www.nagios.com/tours target=_blank>" +
+						"Nagiosコア4のツアー全体を見るにはここをクリック！</a>";
+			$(document).ready(function() {
+				var user = "<?php echo $_SERVER['REMOTE_USER']; ?>";
+
+				vBoxId += ";" + user;
+				vbox = new vidbox({pos:'lr',vidurl:'https://www.youtube.com/embed/leaRdb3BElI',
+									text:vboxText,vidid:vBoxId});
+			});
+		</script>
+
 	</head>
 	<body ng-controller="mapCtrl" <?php echo $img; ?>>
 		<div id="image-cache" style="display: none;"></div>
