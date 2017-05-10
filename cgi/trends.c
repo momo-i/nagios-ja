@@ -455,7 +455,7 @@ int main(int argc, char **argv) {
 
 			if(display_type == DISPLAY_HOST_TRENDS) {
 				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedhoststate=%d&backtrack=%d&show_log_entries'>このホストの稼働レポートを見る</a><BR>\n", AVAIL_CGI, url_encode(host_name), t1, t2, (include_soft_states == TRUE) ? "yes" : "no", (assume_state_retention == TRUE) ? "yes" : "no", (assume_initial_states == TRUE) ? "yes" : "no", (assume_states_during_notrunning == TRUE) ? "yes" : "no", initial_assumed_host_state, backtrack_archives);
-#ifdef USE_HISTROGRAM
+#ifdef USE_HISTRGRAM
 				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&assumestateretention=%s'>このホストの警報ヒストグラムを見る</a><BR>\n", HISTOGRAM_CGI, url_encode(host_name), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
 #endif
 				printf("<a href='%s?host=%s'>このホストの稼動状態を見る</a><BR>\n", STATUS_CGI, url_encode(host_name));

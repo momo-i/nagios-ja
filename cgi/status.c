@@ -174,6 +174,7 @@ unsigned long service_properties = 0L;
 
 
 int num_services = 0;
+int num_hosts = 0;
 
 int sort_type = SORT_NONE;
 int sort_option = SORT_HOSTNAME;
@@ -448,7 +449,7 @@ int main(void) {
 		}
 
 	/* Special case where there is a host with no services */
-	if(display_type == DISPLAY_HOSTS && num_services == 0 && display_header) {
+	if(display_type == DISPLAY_HOSTS && num_services == 0 && num_hosts != 0 && display_header) {
 		display_type = DISPLAY_HOSTGROUPS;
 		group_style_type = STYLE_HOST_DETAIL;
 	}
@@ -863,7 +864,11 @@ void show_service_status_totals(void) {
 				count_service = 1;
 			else if (!strcmp(host_name, temp_host->address))
 				count_service = 1;
-			else if(host_filter != NULL && 0 == regexec(&preg_hostname, temp_host->address, 0, NULL, 0))
+			else if(host_filter != NULL && navbar_search_addresses == TRUE && 0 == regexec(&preg_hostname, temp_host->address, 0, NULL, 0))
+				count_service = 1;
+			else if (!strcmp(host_name, temp_host->alias))
+				count_service = 1;
+			else if(host_filter != NULL && navbar_search_aliases == TRUE && 0 == regexec(&preg_hostname, temp_host->alias, 0, NULL, 0))
 				count_service = 1;
 			}
 		else if(display_type == DISPLAY_SERVICEGROUPS) {
@@ -918,6 +923,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -933,6 +940,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -948,6 +957,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -963,6 +974,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -978,6 +991,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+		if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1022,6 +1037,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1037,6 +1054,8 @@ void show_service_status_totals(void) {
 
 	printf("<th class='serviceTotals'>");
 	printf("<a class='serviceTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 		/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1107,7 +1126,11 @@ void show_host_status_totals(void) {
 				count_host = 1;
 			else if (!strcmp(host_name, temp_host->address))
 				count_host = 1;
-			else if(host_filter != NULL && 0 == regexec(&preg_hostname, temp_host->address, 0, NULL, 0))
+			else if(host_filter != NULL && navbar_search_addresses == TRUE && 0 == regexec(&preg_hostname, temp_host->address, 0, NULL, 0))
+				count_host = 1;
+			else if (!strcmp(host_name, temp_host->alias))
+				count_host = 1;
+			else if(host_filter != NULL && navbar_search_aliases == TRUE && 0 == regexec(&preg_hostname, temp_host->alias, 0, NULL, 0))
 				count_host = 1;
 			}
 		else if(display_type == DISPLAY_SERVICEGROUPS) {
@@ -1144,6 +1167,7 @@ void show_host_status_totals(void) {
 		}
 
 	total_hosts = total_up + total_down + total_unreachable + total_pending;
+	num_hosts = total_hosts;
 	total_problems = total_down + total_unreachable;
 
 	printf("<div class='hostTotals'>ホスト稼動状態の概況</div>\n");
@@ -1157,6 +1181,8 @@ void show_host_status_totals(void) {
 
 	printf("<th class='hostTotals'>");
 	printf("<a class='hostTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 	/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1178,6 +1204,8 @@ void show_host_status_totals(void) {
 
 	printf("<th class='hostTotals'>");
 	printf("<a class='hostTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 	/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1199,6 +1227,8 @@ void show_host_status_totals(void) {
 
 	printf("<th class='hostTotals'>");
 	printf("<a class='hostTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 	/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1220,6 +1250,8 @@ void show_host_status_totals(void) {
 
 	printf("<th class='hostTotals'>");
 	printf("<a class='hostTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 	/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1266,6 +1298,8 @@ void show_host_status_totals(void) {
 
 	printf("<th class='hostTotals'>");
 	printf("<a class='hostTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 	/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -1287,6 +1321,8 @@ void show_host_status_totals(void) {
 
 	printf("<th class='hostTotals'>");
 	printf("<a class='hostTotals' href='%s?", STATUS_CGI);
+	if (navbar_search)
+		printf("navbarsearch=1&");
 	/* paging */
 	if(temp_result_limit)
 		printf("limit=%i&",temp_result_limit);
@@ -2193,7 +2229,9 @@ void show_host_detail(void) {
 
 		if (show_all_hosts == FALSE) {
 			if(host_filter != NULL) {
-				if (regexec(&preg_hostname, temp_host->name, 0, NULL, 0) != 0 && regexec(&preg_hostname, temp_host->address, 0, NULL, 0) != 0)
+				if (regexec(&preg_hostname, temp_host->name, 0, NULL, 0) != 0
+				&& regexec(&preg_hostname, temp_host->address, 0, NULL, 0) != 0
+				&& regexec(&preg_hostname, temp_host->alias, 0, NULL, 0) != 0)
 					continue;
 			} else if (strcmp(host_name, temp_host->name))
 				continue;
