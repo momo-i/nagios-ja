@@ -498,7 +498,7 @@ int read_main_config_file(const char *filename) {
 		else if(strstr(input, "log_file=") == input) {
 			temp_buffer = strtok(input, "=");
 			temp_buffer = strtok(NULL, "\x0");
-			strncpy(log_file, (temp_buffer == NULL) ? "" : temp_buffer, sizeof(log_file));
+			strncpy(log_file, (temp_buffer == NULL) ? "" : nspath_absolute(temp_buffer, config_file_dir),sizeof(log_file) - 1);
 			log_file[sizeof(log_file) - 1] = '\x0';
 			strip(log_file);
 			}
@@ -1056,7 +1056,7 @@ const char *url_encode(const char *input) {
 		return str;
 
 	len = (int)strlen(input);
-	output_len = (int)sizeof(encoded_url_string[0]);
+	output_len = (int)sizeof(encoded_url_string[i]);
 
 	str[0] = '\x0';
 
@@ -1091,7 +1091,8 @@ const char *url_encode(const char *input) {
 			}
 		}
 
-	str[sizeof(encoded_url_string[0]) - 1] = '\x0';
+	str[sizeof(encoded_url_string[i]) - 1] = '\x0';
+	i = !i;
 
 	return str;
 	}
@@ -1363,7 +1364,7 @@ void strip_html_brackets(char *buffer) {
 	if(buffer == NULL || buffer[0] == '\x0')
 		return;
 
-	/* remove all occurances in string */
+	/* remove all occurrences in string */
 	z = (int)strlen(buffer);
 	for(x = 0, y = 0; x < z; x++) {
 		if(buffer[x] == '<' || buffer[x] == '>')
@@ -2127,7 +2128,7 @@ void strip_splunk_query_terms(char *buffer) {
 	if(buffer == NULL || buffer[0] == '\x0')
 		return;
 
-	/* remove all occurances in string */
+	/* remove all occurrences in string */
 	z = (int)strlen(buffer);
 	for(x = 0, y = 0; x < z; x++) {
 		if(buffer[x] == '\'' || buffer[x] == '\"' || buffer[x] == ';' || buffer[x] == ':' || buffer[x] == ',' || buffer[x] == '-' || buffer[x] == '=')
