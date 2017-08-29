@@ -2,7 +2,19 @@
 Nagios Core 4 Change Log
 ########################
 
-4.3.2 - xxxx-xx-xx
+4.3.3 - 2017-08-12
+------------------
+* xodtemplate.c wrong option-deprecation code warning (alex2grad / John Frickson)
+* On-demand host check always use cached host state (John Frickson)
+* 'á' causes Serivce Status Information to not be displayed (John Frickson)
+* New Macro(s) to generate URL for host / service object (John Frickson)
+* Fix minor map issues (Troy Lea)
+* Fix lockfile issues (Bryan Heden)
+* Switch order of daemon_init and drop_priveleges (Bryan Heden)
+* Add an OpenRC init script (Michael Orlitzky)
+
+
+4.3.2 - 2017-05-09
 ------------------
 FIXED
 * Every 15sec /var/log/messages is flooded with "nagios: set_environment_var" (John Frickson)
