@@ -24,8 +24,8 @@
 
 #include "shared.h"
 
-#define PROGRAM_VERSION "4.3.2"
-#define PROGRAM_MODIFICATION_DATE "2017-05-09"
+#define PROGRAM_VERSION "4.3.3"
+#define PROGRAM_MODIFICATION_DATE "2017-08-12"
 
 NAGIOS_BEGIN_DECL
 
@@ -66,6 +66,7 @@ extern int obsess_over_hosts;
 extern int enable_timing_point;
 
 extern char *config_file_dir;
+extern char *website_url;
 
 #ifdef HAVE_TZNAME
 #ifdef CYGWIN
