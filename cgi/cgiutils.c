@@ -1116,7 +1116,7 @@ static inline char* encode_character(char in, char *outcp, int output_max)
 			strcpy(outcp, entity);
 			outcp += rep_lth;
 		}
-		return outstp;
+		return outcp;
 	}
 
 	if (out_len + 6 >= output_max)
@@ -1205,7 +1205,7 @@ char * html_encode(char *input, int escape_newlines) {
 		}
 
 		/* Special handling for quotes */
-		else if(FALSE == escape_html_tags && ('"' == *inwcp || '\'' == *inwcp)) {
+		else if(FALSE == escape_html_tags && ('"' == *incp || '\'' == *incp)) {
 
 			switch(where_in_tag) {
 
