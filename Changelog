@@ -2,6 +2,55 @@
 Nagios Core 4 Change Log
 ########################
 
+4.4.1 - 2018-06-25
+------------------
+FIXES
+* Revert some macro->kvvec changes causing problems when `enable_environment_macros` was enabled (Bryan Heden)
+* Adjust `process_macro_r` function logic so that it handles macros properly (Bryan Heden)
+* Fix spec file for systemd (Karsten Weiss, Fr3dY, Bryan Heden)
+* Fix bug where `ssize_t` typedef to int on some systems (Bryan Heden)
+
+
+4.4.0 - 2018-06-19
+------------------
+ENHANCEMENTS
+* new status for check dependencies (John Frickson)
+* Allow more flexible requirements for comments (John Frickson)
+* Add a `statusCRITICALACK` class for the status column (John Frickson)
+* CSV output based on groups (all options) (John Frickson)
+* New Macro(s) to generate URL for host / service object to be used in notifications (John Frickson)
+* New Macro(s) to determine if host/service notifications are enabled (#419) (Bryan Heden)
+* New Macro(s) for obtaining the host/service notification periods (#350) (Bryan Heden)
+* enable_page_tour interface option (Bryan Heden)
+* Code cleanups in important sections (Workers, Handling Results) (Bryan Heden)
+* Automatic mail program detection (with same /bin/mail failback) (Bryan Heden)
+* Incorporated [autoconf-macros](https://github.com/NagiosEnterprises/autoconf-macros) into Core (Bryan Heden)
+* Lots of enhancements/additions to configure/make process. (Bryan Heden)
+    * Moved all files to startup/
+    * Added upstart job
+* Added system limit detection (RLIMIT_NPROC) to check for anticipated fork() failures (#434) (Bryan Heden)
+* Added stalking on notifications (`N` or `notifications` option when specifying `stalking_options`) (#342) (Bryan Heden)
+* Added automatic `systemctl daemon-reload` and `initctl reload-configuration` where applicable on `make install-init` (Bryan Heden)
+* Added case-insentive command submission. (#373) (Bryan Heden)
+* Enabled `check_external_commands` by default (Bryan Heden)
+
+FIXES
+* Command line macro detection skips potential macros with no ending dollar sign (Bryan Heden, Jake Omann)
+* Fixed a lockup condition sometimes encountered on shutdown or restart (Aaron Beck)
+* Fixed negative time offset calculations computing incorrectly sometimes (bbeutel)
+* Fixed reloads causing defunct (zombie) processes (#441) (Bryan Heden)
+* Fixed wait3(), wait4() implementations (replaced with waitpid()) (#326) (Bryan Heden)
+* Fixed additive inheritance not testing for duplicates in hosts/services/(+escalations) (#392) (Bryan Heden)
+* Fixed very very (around 600k chars or greater) large plugin output crashing Nagios (#432) (Bryan Heden)
+* Fixed first_notification_delay not beeing calculated from last_hard_state_change (#425) (Christian Zettel)
+* Fixed duplicate downtime ID occuring from downtimes in retention file (#506) (Franz [feisenko])
+* Fixed segfault when navbarsearch was used in status.cgi for something other than a host (#489) (Bryan Heden)
+* Fixed some miscellaneous ./configure issues on Solaris (Bryan Heden, Troy Lea)
+* Fixed "Locate host on map" link (#496) (Troy Lea)
+* Fixed service groups defined with unknown service members (that aren't first in the list) not erroring out (#500) (Bryan Heden)
+* Fixed tac.cgi to have consistent behavior with the other cgis (#481) (Bryan Heden, Matt Capra)
+* Fixed clear_host/service_flapping command logic to broker/notify properly (#525) (Bryan Heden, Karsten Weiss)
+
 
 4.3.4 - 2017-08-24
 ------------------
@@ -15,7 +64,7 @@ Nagios Core 4 Change Log
 ------------------
 * xodtemplate.c wrong option-deprecation code warning (alex2grad / John Frickson)
 * On-demand host check always use cached host state (John Frickson)
-* 'á' causes Serivce Status Information to not be displayed (John Frickson)
+* 'á' causes Service Status Information to not be displayed (John Frickson)
 * New Macro(s) to generate URL for host / service object (John Frickson)
 * Fix minor map issues (Troy Lea)
 * Fix lockfile issues (Bryan Heden)
@@ -25,7 +74,7 @@ Nagios Core 4 Change Log
 
 4.3.2 - 2017-05-09
 ------------------
-FIXED
+FIXES
 * Every 15sec /var/log/messages is flooded with "nagios: set_environment_var" (John Frickson)
 * Changed release date to ISO format (yyyy-mm-dd) (John Frickson)
 * `make all` fails if unzip is not installed (John Frickson)
@@ -410,5 +459,5 @@ FIXES
 
 4.0.0 - 09/20/2013
 ------------------
-See http://nagios.sourceforge.net/docs/nagioscore/4/en/whatsnew.html for a
+See https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/whatsnew.html for a
 list of the changes in Nagios Core 4

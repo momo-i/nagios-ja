@@ -73,17 +73,38 @@ extern struct kvvec * macros_to_kvv(nagios_macros *);
 static const char *wpjob_type_name(unsigned int type)
 {
 	switch (type) {
-	case WPJOB_CHECK: return "CHECK";
-	case WPJOB_NOTIFY: return "NOTIFY";
-	case WPJOB_OCSP: return "OCSP";
-	case WPJOB_OCHP: return "OCHP";
-	case WPJOB_GLOBAL_SVC_EVTHANDLER: return "GLOBAL SERVICE EVENTHANDLER";
-	case WPJOB_SVC_EVTHANDLER: return "SERVICE EVENTHANDLER";
-	case WPJOB_GLOBAL_HOST_EVTHANDLER: return "GLOBAL HOST EVENTHANDLER";
-	case WPJOB_HOST_EVTHANDLER: return "HOST EVENTHANDLER";
-	case WPJOB_CALLBACK: return "CALLBACK";
-	case WPJOB_HOST_PERFDATA: return "HOST PERFDATA";
-	case WPJOB_SVC_PERFDATA: return "SERVICE PERFDATA";
+	case WPJOB_CHECK:
+		return "CHECK";
+
+	case WPJOB_NOTIFY:
+		return "NOTIFY";
+
+	case WPJOB_OCSP:
+		return "OCSP";
+
+	case WPJOB_OCHP:
+		return "OCHP";
+
+	case WPJOB_GLOBAL_SVC_EVTHANDLER:
+		return "GLOBAL SERVICE EVENTHANDLER";
+
+	case WPJOB_SVC_EVTHANDLER:
+		return "SERVICE EVENTHANDLER";
+
+	case WPJOB_GLOBAL_HOST_EVTHANDLER:
+		return "GLOBAL HOST EVENTHANDLER";
+
+	case WPJOB_HOST_EVTHANDLER:
+		return "HOST EVENTHANDLER";
+
+	case WPJOB_CALLBACK:
+		return "CALLBACK";
+
+	case WPJOB_HOST_PERFDATA:
+		return "HOST PERFDATA";
+
+	case WPJOB_SVC_PERFDATA:
+		return "SERVICE PERFDATA";
 	}
 	return "UNKNOWN";
 }
@@ -93,16 +114,21 @@ static void wproc_logdump_buffer(int level, int show, const char *prefix, char *
 	char *ptr, *eol;
 	unsigned int line = 1;
 
-	if (!buf || !*buf)
+	if (!buf || !*buf) {
 		return;
+	}
+
 	for (ptr = buf; ptr && *ptr; ptr = eol ? eol + 1 : NULL) {
-		if ((eol = strchr(ptr, '\n')))
+		if ((eol = strchr(ptr, '\n'))) {
 			*eol = 0;
+		}
 		logit(level, show, "%s line %.02d: %s\n", prefix, line++, ptr);
-		if (eol)
+		if (eol) {
 			*eol = '\n';
-		else
+		}
+		else {
 			break;
+		}
 	}
 }
 
@@ -113,13 +139,17 @@ void wproc_reap(int jobs, int msecs)
 	gettimeofday(&start, NULL);
 
 	while (jobs > 0 && msecs > 0) {
+
 		int inputs = iobroker_poll(nagios_iobs, msecs);
-		if (inputs < 0) return;
+		if (inputs < 0) {
+			return;
+		}
 
 		jobs -= inputs; /* One input is roughly equivalent to one job. */
 
 		struct timeval now;
 		gettimeofday(&now, NULL);
+
 		msecs -= tv_delta_msec(&start, &now);
 		start = now;
 	}
@@ -131,20 +161,24 @@ int wproc_can_spawn(struct load_control *lc)
 	time_t now;
 
 	/* if no load control is enabled, we can safely run this job */
-	if (!(lc->options & LOADCTL_ENABLED))
+	if (!(lc->options & LOADCTL_ENABLED)) {
 		return 1;
+	}
 
 	now = time(NULL);
 	if (lc->last_check + lc->check_interval > now) {
+
 		lc->last_check = now;
 
-		if (getloadavg(lc->load, 3) < 0)
+		if (getloadavg(lc->load, 3) < 0) {
 			return lc->jobs_limit > lc->jobs_running;
+		}
 
 		if (lc->load[0] > lc->backoff_limit) {
 			old = lc->jobs_limit;
 			lc->jobs_limit -= lc->backoff_change;
 		}
+
 		else if (lc->load[0] < lc->rampup_limit) {
 			old = lc->jobs_limit;
 			lc->jobs_limit += lc->rampup_change;
@@ -153,6 +187,7 @@ int wproc_can_spawn(struct load_control *lc)
 		if (lc->jobs_limit > lc->jobs_max) {
 			lc->jobs_limit = lc->jobs_max;
 		}
+
 		else if (lc->jobs_limit < lc->jobs_min) {
 			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Tried to set jobs_limit to %u, below jobs_min (%u)\n",
 				  lc->jobs_limit, lc->jobs_min);
@@ -184,19 +219,28 @@ static struct wproc_job *get_job(struct wproc_worker *wp, int job_id)
 
 static struct wproc_list *get_wproc_list(const char *cmd)
 {
-	struct wproc_list *wp_list;
-	char *cmd_name = NULL, *slash = NULL, *space;
+	struct wproc_list *wp_list = NULL;
+	char *cmd_name             = NULL;
+	char *slash                = NULL;
+	char *space                = NULL;
 
-	if (!specialized_workers)
+	if (!specialized_workers) {
 		return &workers;
+	}
 
 	/* first, look for a specialized worker for this command */
-	if ((space = strchr(cmd, ' ')) != NULL) {
-		int namelen = (unsigned long)space - (unsigned long)cmd;
+	space = strchr(cmd, ' ');
+	if (space != NULL) {
+
+		int namelen = (unsigned long) space - (unsigned long) cmd;
+
 		cmd_name = calloc(1, namelen + 1);
+
 		/* not exactly optimal, but what the hells */
-		if (!cmd_name)
+		if (!cmd_name) {
 			return &workers;
+		}
+
 		memcpy(cmd_name, cmd, namelen);
 		slash = strrchr(cmd_name, '/');
 	}
@@ -208,47 +252,85 @@ static struct wproc_list *get_wproc_list(const char *cmd)
 	if (wp_list != NULL) {
 		log_debug_info(DEBUGL_CHECKS, 1, "Found specialized worker(s) for '%s'", (slash && *slash != '/') ? slash : cmd_name);
 	}
-	if (cmd_name)
+	if (cmd_name) {
 		free(cmd_name);
+	}
 
-	return wp_list ? wp_list : &workers;
+	if (wp_list) {
+		return wp_list;
+	}
+
+	return &workers;
 }
 
 static struct wproc_worker *get_worker(const char *cmd)
 {
-	struct wproc_list *wp_list;
+	struct wproc_list *wp_list = NULL;
 
-	if (!cmd)
+	log_debug_info(DEBUGL_WORKERS, 0, "get_worker()\n");
+
+	if (!cmd) {
+		log_debug_info(DEBUGL_WORKERS, 1, " * cmd is null, bailing\n");
 		return NULL;
+	}
 
 	wp_list = get_wproc_list(cmd);
-	if (!wp_list || !wp_list->wps || !wp_list->len)
+	if (!wp_list) {
+		log_debug_info(DEBUGL_WORKERS, 1, " * wp_list is null, bailing\n");
 		return NULL;
+	}
+
+	if (!wp_list->wps) {
+		log_debug_info(DEBUGL_WORKERS, 1, " * wp_list->wps is null, bailing\n");
+		return NULL;
+	}
+
+	if (!wp_list->len) {
+		log_debug_info(DEBUGL_WORKERS, 2, " * wp_list->len is <= 0, bailing\n");
+		return NULL;
+	}
 
 	return wp_list->wps[wp_list->idx++ % wp_list->len];
 }
 
 static struct wproc_job *create_job(int type, void *arg, time_t timeout, const char *cmd)
 {
-	struct wproc_job *job;
-	struct wproc_worker *wp;
+	struct wproc_job *job   = NULL;
+	struct wproc_worker *wp = NULL;
+	int result              = 0;
+
+	log_debug_info(DEBUGL_WORKERS, 0, "create_job()\n");	
 
 	wp = get_worker(cmd);
-	if (!wp)
+	if (wp == NULL) {
 		return NULL;
+	}
 
 	job = calloc(1, sizeof(*job));
-	if (!job) {
+	if (job == NULL) {
+
 		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Failed to allocate memory for worker job: %s\n", strerror(errno));
 		return NULL;
 	}
 
-	job->wp = wp;
-	job->id = get_job_id(wp);
-	job->type = type;
-	job->arg = arg;
+	job->wp      = wp;
+	job->id      = get_job_id(wp);
+	job->type    = type;
+	job->arg     = arg;
 	job->timeout = timeout;
-	if (fanout_add(wp->jobs, job->id, job) < 0 || !(job->command = strdup(cmd))) {
+
+	result = fanout_add(wp->jobs, job->id, job);
+	if (result < 0) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * Can't add job to wp->jobs, bailing\n");
+		free(job);
+		return NULL;
+	}
+
+	job->command = strdup(cmd);
+	if (job->command == NULL) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * job command can't be null, bailing\n");
 		free(job);
 		return NULL;
 	}
@@ -260,26 +342,48 @@ static void run_job_callback(struct wproc_job *job, struct wproc_result *wpres, 
 {
 	wproc_callback_job *cj;
 
-	if (!job || !job->arg)
+	log_debug_info(DEBUGL_WORKERS, 0, "run_job_callback()\n");
+
+	if (job == NULL) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * job is null, bailing\n");
 		return;
+	}
+
+	if (job->arg == NULL) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * job arg is null, bailing\n");
+		return;
+	}
+
 	cj = (struct wproc_callback_job *)job->arg;
 
-	if (!cj->callback)
+	if (cj->callback == NULL) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * callback_job callback is null, bailing\n");
 		return;
+	}
+
 	cj->callback(wpres, cj->data, val);
 	cj->callback = NULL;
 }
 
 static void destroy_job(struct wproc_job *job)
 {
-	if (!job)
+	if (job == NULL) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * destroy_job -> job is null, bailing\n");
 		return;
+	}
+
+	log_debug_info(DEBUGL_WORKERS, 0, "destroy_job(%d=%s)\n", job->type, wpjob_type_name(job->type));
 
 	switch (job->type) {
 	case WPJOB_CHECK:
 		free_check_result(job->arg);
 		free(job->arg);
 		break;
+
 	case WPJOB_NOTIFY:
 	case WPJOB_OCSP:
 	case WPJOB_OCHP:
@@ -294,20 +398,25 @@ static void destroy_job(struct wproc_job *job)
 	case WPJOB_SVC_PERFDATA:
 		/* these require nothing special */
 		break;
+
 	case WPJOB_CALLBACK:
 		/* call with NULL result to make callback clean things up */
 		run_job_callback(job, NULL, 0);
 		break;
+
 	default:
 		logit(NSLOG_RUNTIME_WARNING, TRUE, "wproc: Unknown job type: %d\n", job->type);
 		break;
 	}
 
 	my_free(job->command);
-	if (job->wp) {
+	if (job->wp != NULL) {
+
+		log_debug_info(DEBUGL_WORKERS, 1, " * removing job->wp\n");
 		fanout_remove(job->wp->jobs, job->id);
 		job->wp->jobs_running--;
 	}
+
 	loadctl.jobs_running--;
 
 	free(job);
@@ -320,8 +429,10 @@ static void fo_destroy_job(void *job)
 
 static int wproc_is_alive(struct wproc_worker *wp)
 {
-	if (!wp || !wp->pid)
+	if (wp == NULL || wp->pid <= 0) {
 		return 0;
+	}
+
 	if (kill(wp->pid, 0) == 0 && iobroker_is_registered(nagios_iobs, wp->sd))
 		return 1;
 	return 0;
@@ -329,18 +440,22 @@ static int wproc_is_alive(struct wproc_worker *wp)
 
 static int wproc_destroy(struct wproc_worker *wp, int flags)
 {
-	int i = 0, force = 0, self;
+	int i     = 0;
+	int force = 0;
+	int self  = 0;
 
-	if (!wp)
+	if (!wp) {
 		return 0;
+	}
 
 	force = !!(flags & WPROC_FORCE);
 
 	self = getpid();
 
 	/* master retains workers through restarts */
-	if (self == nagios_pid && !force)
+	if (self == nagios_pid && !force) {
 		return 0;
+	}
 
 	/* free all memory when either forcing or a worker called us */
 	iocache_destroy(wp->ioc);
@@ -350,8 +465,9 @@ static int wproc_destroy(struct wproc_worker *wp, int flags)
 	wp->jobs = NULL;
 
 	/* workers must never control other workers, so they return early */
-	if (self != nagios_pid)
+	if (self != nagios_pid) {
 		return 0;
+	}
 
 	/* kill(0, SIGKILL) equals suicide, so we avoid it */
 	if (wp->pid) {
@@ -374,39 +490,54 @@ static int remove_specialized(void *data)
 {
 	if (data == to_remove) {
 		return DKHASH_WALK_REMOVE;
-	} else if (to_remove == NULL) {
+	}
+
+	else if (to_remove == NULL) {
+
 		/* remove all specialised workers and their lists */
 		struct wproc_list *h = data;
 		int i;
-		for (i=0;i<h->len;i++) {
+
+		for (i = 0; i < h->len; i++) {
+
 			/* not sure what WPROC_FORCE is actually for.
 			 * Nagios does *not* retain workers across
 			 * restarts, as stated in wproc_destroy?
 			 */
 			wproc_destroy(h->wps[i], WPROC_FORCE);
 		}
+
 		h->len = 0;
 		free(h->wps);
 		free(h);
+
 		return DKHASH_WALK_REMOVE;
 	}
+
 	return 0;
 }
 
 /* remove worker from job assignment list */
 static void remove_worker(struct wproc_worker *worker)
 {
-	unsigned int i, j = 0;
+	unsigned int i         = 0;
+	unsigned int j         = 0;
 	struct wproc_list *wpl = worker->wp_list;
+
 	for (i = 0; i < wpl->len; i++) {
-		if (wpl->wps[i] == worker)
+
+		if (wpl->wps[i] == worker) {
 			continue;
+		}
+
 		wpl->wps[j++] = wpl->wps[i];
 	}
+
 	wpl->len = j;
 
-	if (!specialized_workers || wpl->len)
+	if (specialized_workers == NULL || wpl->len > 0) {
 		return;
+	}
 
 	to_remove = wpl;
 	dkhash_walk_data(specialized_workers, remove_specialized);
@@ -438,22 +569,28 @@ void free_worker_memory(int flags)
 	to_remove = NULL;
 	dkhash_walk_data(specialized_workers, remove_specialized);
 	dkhash_destroy(specialized_workers);
-	specialized_workers = NULL; /* Don't leave pointers to freed memory. */
+
+	/* Don't leave pointers to freed memory. */
+	specialized_workers = NULL;
 }
 
 static int str2timeval(char *str, struct timeval *tv)
 {
-	char *ptr, *ptr2;
+	char *ptr  = NULL;
+	char *ptr2 = NULL;
 
 	tv->tv_sec = strtoul(str, &ptr, 10);
+
 	if (ptr == str) {
 		tv->tv_sec = tv->tv_usec = 0;
 		return -1;
 	}
+
 	if (*ptr == '.' || *ptr == ',') {
 		ptr2 = ptr + 1;
 		tv->tv_usec = strtoul(ptr2, &ptr, 10);
 	}
+
 	return 0;
 }
 
@@ -462,29 +599,32 @@ static int handle_worker_check(wproc_result *wpres, struct wproc_worker *wp, str
 	int result = ERROR;
 	check_result *cr = (check_result *)job->arg;
 
-	memcpy(&cr->rusage, &wpres->rusage, sizeof(wpres->rusage));
-	cr->start_time.tv_sec = wpres->start.tv_sec;
-	cr->start_time.tv_usec = wpres->start.tv_usec;
-	cr->finish_time.tv_sec = wpres->stop.tv_sec;
+	cr->start_time.tv_sec   = wpres->start.tv_sec;
+	cr->start_time.tv_usec  = wpres->start.tv_usec;
+	cr->finish_time.tv_sec  = wpres->stop.tv_sec;
 	cr->finish_time.tv_usec = wpres->stop.tv_usec;
+
 	if (WIFEXITED(wpres->wait_status)) {
 		cr->return_code = WEXITSTATUS(wpres->wait_status);
-	} else {
+	}
+	else {
 		cr->return_code = STATE_UNKNOWN;
 	}
 
 	if (wpres->outstd && *wpres->outstd) {
 		cr->output = strdup(wpres->outstd);
-	} else if (wpres->outerr) {
+	}
+	else if (wpres->outerr) {
 		asprintf(&cr->output, "(No output on stdout) stderr: %s", wpres->outerr);
-	} else {
+	}
+	else {
 		cr->output = NULL;
 	}
 
 	cr->early_timeout = wpres->early_timeout;
-	cr->exited_ok = wpres->exited_ok;
-	cr->engine = NULL;
-	cr->source = wp->name;
+	cr->exited_ok     = wpres->exited_ok;
+	cr->engine        = NULL;
+	cr->source        = wp->name;
 
 	process_check_result(cr);
 	free_check_result(cr);
@@ -554,42 +694,6 @@ static int parse_worker_result(wproc_result *wpres, struct kvvec *kvv)
 		case WPRES_runtime:
 			/* ignored */
 			break;
-		case WPRES_ru_utime:
-			str2timeval(value, &wpres->rusage.ru_utime);
-			break;
-		case WPRES_ru_stime:
-			str2timeval(value, &wpres->rusage.ru_stime);
-			break;
-		case WPRES_ru_minflt:
-			wpres->rusage.ru_minflt = atoi(value);
-			break;
-		case WPRES_ru_majflt:
-			wpres->rusage.ru_majflt = atoi(value);
-			break;
-		case WPRES_ru_nswap:
-			wpres->rusage.ru_nswap = atoi(value);
-			break;
-		case WPRES_ru_inblock:
-			wpres->rusage.ru_inblock = atoi(value);
-			break;
-		case WPRES_ru_oublock:
-			wpres->rusage.ru_oublock = atoi(value);
-			break;
-		case WPRES_ru_msgsnd:
-			wpres->rusage.ru_msgsnd = atoi(value);
-			break;
-		case WPRES_ru_msgrcv:
-			wpres->rusage.ru_msgrcv = atoi(value);
-			break;
-		case WPRES_ru_nsignals:
-			wpres->rusage.ru_nsignals = atoi(value);
-			break;
-		case WPRES_ru_nvcsw:
-			wpres->rusage.ru_nsignals = atoi(value);
-			break;
-		case WPRES_ru_nivcsw:
-			wpres->rusage.ru_nsignals = atoi(value);
-			break;
 
 		default:
 			logit(NSLOG_RUNTIME_WARNING, TRUE, "wproc: Recognized but unhandled result variable: %s=%s\n", key, value);
@@ -622,8 +726,8 @@ static int handle_worker_result(int sd, int events, void *arg)
 	static struct kvvec kvv = KVVEC_INITIALIZER;
 	struct wproc_worker *wp = (struct wproc_worker *)arg;
 
-	if(iocache_capacity(wp->ioc) == 0) {
-		logit(NSLOG_RUNTIME_WARNING, TRUE, "wproc: iocache_capacity() is 0 for worker %s.\n", wp->name);
+	if((ret = iocache_capacity(wp->ioc)) < 0) {
+		logit(NSLOG_RUNTIME_WARNING, TRUE, "wproc: iocache_capacity() is %d for worker %s.\n", ret, wp->name);
 	}
 
 	ret = iocache_read(wp->ioc, wp->sd);
@@ -954,21 +1058,7 @@ static int spawn_core_worker(void)
 	return ret;
 }
 
-
-int init_workers(int desired_workers)
-{
-	specialized_workers = dkhash_create(512);
-	if (!specialized_workers) {
-		logit(NSLOG_RUNTIME_ERROR, TRUE, "wproc: Failed to allocate specialized worker table.\n");
-		return -1;
-	}
-
-	/* Register our query handler before launching workers, so other workers
-	 * can join us whenever they're ready. */
-	if (!qh_register_handler("wproc", "Worker process management and info", 0, wproc_query_handler))
-		logit(NSLOG_INFO_MESSAGE, TRUE, "wproc: Successfully registered manager as @wproc with query handler\n");
-	else
-		logit(NSLOG_RUNTIME_ERROR, TRUE, "wproc: Failed to register manager with query handler\n");
+int get_desired_workers(int desired_workers) {
 
 	if (desired_workers <= 0) {
 		int cpus = online_cpus(); /* Always at least 1 CPU. */
@@ -992,6 +1082,28 @@ int init_workers(int desired_workers)
 			}
 		}
 	}
+
+	return desired_workers;
+}
+
+/* if this function is updated, the function rlimit_problem_detection()
+   must be updated as well */
+int init_workers(int desired_workers)
+{
+	specialized_workers = dkhash_create(512);
+	if (!specialized_workers) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "wproc: Failed to allocate specialized worker table.\n");
+		return -1;
+	}
+
+	/* Register our query handler before launching workers, so other workers
+	 * can join us whenever they're ready. */
+	if (!qh_register_handler("wproc", "Worker process management and info", 0, wproc_query_handler))
+		logit(NSLOG_INFO_MESSAGE, TRUE, "wproc: Successfully registered manager as @wproc with query handler\n");
+	else
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "wproc: Failed to register manager with query handler\n");
+
+	desired_workers = get_desired_workers(desired_workers);
 	wproc_num_workers_desired = desired_workers;
 
 	if (workers_alive() == desired_workers)
@@ -1001,8 +1113,10 @@ int init_workers(int desired_workers)
 	if (desired_workers < (int)workers.len)
 		return -1;
 
-	while (desired_workers-- > 0)
-		spawn_core_worker();
+	while (desired_workers-- > 0) {
+		int worker_pid = spawn_core_worker();
+		log_debug_info(DEBUGL_WORKERS, 2, "Spawned new worker with pid: (%d)\n", worker_pid);
+	}
 
 	return 0;
 }
@@ -1014,21 +1128,33 @@ int init_workers(int desired_workers)
  */
 static int wproc_run_job(struct wproc_job *job, nagios_macros *mac)
 {
-	static struct kvvec kvv = KVVEC_INITIALIZER;
-	struct kvvec_buf *kvvb;
-	struct kvvec *env_kvvp = NULL;
+	static struct kvvec kvv    = KVVEC_INITIALIZER;
+	struct kvvec_buf *kvvb     = NULL;
+	struct kvvec *env_kvvp     = NULL;
 	struct kvvec_buf *env_kvvb = NULL;
-	struct wproc_worker *wp;
-	int ret, result = OK;
-    ssize_t written = 0;
+	struct wproc_worker *wp    = NULL;
+	int ret                    = OK;
+	int result                 = OK;
+	ssize_t written            = 0;
 
-	if (!job || !job->wp)
+	log_debug_info(DEBUGL_WORKERS, 1, "wproc_run_job()\n");
+
+	if (job == NULL) {
+		log_debug_info(DEBUGL_WORKERS, 1, " * failed because job was null\n");
 		return ERROR;
+	}
+
+	if (job->wp == NULL) {
+		log_debug_info(DEBUGL_WORKERS, 1, " * failed because job worker process was null\n");
+		return ERROR;
+	}
 
 	wp = job->wp;
 
-	if (!kvvec_init(&kvv, 4))	/* job_id, type, command and timeout */
+	/* job_id, type, command and timeout */
+	if (!kvvec_init(&kvv, 4)) {
 		return ERROR;
+	}
 
 	kvvec_addkv(&kvv, "job_id", (char *)mkstr("%d", job->id));
 	kvvec_addkv(&kvv, "type", (char *)mkstr("%d", job->type));
@@ -1036,37 +1162,53 @@ static int wproc_run_job(struct wproc_job *job, nagios_macros *mac)
 	kvvec_addkv(&kvv, "timeout", (char *)mkstr("%u", job->timeout));
 
 	/* Add the macro environment variables */
-	if(mac) {
+	if (mac != NULL) {
+
 		env_kvvp = macros_to_kvv(mac);
-		if(NULL != env_kvvp) {
+
+		if (env_kvvp != NULL) {
+
 			env_kvvb = kvvec2buf(env_kvvp, '=', '\n', 0);
-			if(NULL == env_kvvb) {
+
+			if (env_kvvb == NULL) {
 				kvvec_destroy(env_kvvp, KVVEC_FREE_KEYS);
 			}
 			else {
-				kvvec_addkv_wlen(&kvv, "env", strlen("env"), env_kvvb->buf,
-						env_kvvb->buflen);
+				/* no reason to call strlen("env") 
+				  when we know it's 3 characters */
+				kvvec_addkv_wlen(&kvv, "env", 3, env_kvvb->buf, env_kvvb->buflen);
 			}
 		}
 	}
+
 	kvvb = build_kvvec_buf(&kvv);
+
 	/* ret = write(wp->sd, kvvb->buf, kvvb->bufsize); */
 	ret = nwrite(wp->sd, kvvb->buf, kvvb->bufsize, &written);
-	if (ret != (int)kvvb->bufsize) {
-		logit(NSLOG_RUNTIME_ERROR, TRUE, "wproc: '%s' seems to be choked. ret = %d; bufsize = %lu: written = %lu; errno = %d (%s)\n",
-			  wp->name, ret, kvvb->bufsize, written, errno, strerror(errno));
+
+	if (ret != (int) kvvb->bufsize) {
+
+		logit(NSLOG_RUNTIME_ERROR, TRUE, 
+			"wproc: '%s' seems to be choked. ret = %d; bufsize = %lu: written = %lu; errno = %d (%s)\n",
+			wp->name, ret, kvvb->bufsize, (long unsigned int) written, errno, strerror(errno));
 		destroy_job(job);
 		result = ERROR;
+
 	} else {
 		wp->jobs_running++;
 		wp->jobs_started++;
 		loadctl.jobs_running++;
 	}
-	if(NULL != env_kvvp) kvvec_destroy(env_kvvp, KVVEC_FREE_KEYS);
-	if(NULL != env_kvvb) {
+
+	if (env_kvvp != NULL) {
+		kvvec_destroy(env_kvvp, KVVEC_FREE_KEYS);
+	}
+
+	if (env_kvvb != NULL) {
 		free(env_kvvb->buf);
 		free(env_kvvb);
 	}
+
 	free(kvvb->buf);
 	free(kvvb);
 

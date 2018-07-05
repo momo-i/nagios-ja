@@ -39,9 +39,16 @@ INSTALL_OPTS=@INSTALL_OPTS@
 COMMAND_OPTS=@COMMAND_OPTS@
 HTTPD_CONF=@HTTPD_CONF@
 LN_HTTPD_SITES_ENABLED=@LN_HTTPD_SITES_ENABLED@
-INIT_DIR=@init_dir@
+INIT_DIR=@initdir@
 INIT_OPTS=@INIT_OPTS@
 CGICFGDIR=$(CGIDIR)
+NAGIOS_USER=@nagios_user@
+NAGIOS_GRP=@nagios_grp@
+DIST=@dist_type@
+
+SRC_INIT=@src_init@
+INIT_FILE=@initname@
+INIT_TYPE=@init_type@
 
 USE_EVENTBROKER=@USE_EVENTBROKER@
 USE_LIBTAP=@USE_LIBTAP@
@@ -55,9 +62,17 @@ CP=@CP@
 none:
 		@echo "Please supply a command line argument (i.e. 'make all').  Other targets are:"
 		@echo "   nagios cgis contrib modules workers"
-		@echo "   clean"
-		@echo "   install install-base install-cgis install-html install-exfoliation install-config install-init install-commandmode fullinstall"
+		@echo "   test"
+		@echo "   install                          install-base"
+		@echo "   install-cgis                     install-html"
+		@echo "   install-webconf                  install-config"
+		@echo "   install-init                     install-daemoninit" 
+		@echo "   install-commandmode              install-groups-users"
+		@echo "   install-exfoliation              install-classicui"
+		@echo "   install-basic                    install-unstripped"
+		@echo "   fullinstall"
 #		@echo "   uninstall"
+		@echo "   clean"
 
 # FreeBSD make does not support -C option, so we'll use the Apache style... (patch by Stanley Hopcroft 12/27/1999)
 
@@ -82,14 +97,24 @@ all:
 	@echo "*** Compile finished ***"
 	@echo ""
 	@echo "If the main program and CGIs compiled without any errors, you"
-	@echo "can continue with installing Nagios as follows (type 'make'"
-	@echo "without any arguments for a list of all possible options):"
+	@echo "can continue with testing or installing Nagios as follows (type"
+	@echo "'make' without any arguments for a list of all possible options):"
+	@echo ""
+	@echo "  make test"
+	@echo "     - This runs the test suite"
 	@echo ""
 	@echo "  make install"
 	@echo "     - This installs the main program, CGIs, and HTML files"
 	@echo ""
 	@echo "  make install-init"
 	@echo "     - This installs the init script in $(DESTDIR)$(INIT_DIR)"
+	@echo ""
+	@echo "  make install-daemoninit"
+	@echo "     - This will initialize the init script"
+	@echo "       in $(DESTDIR)$(INIT_DIR)"
+	@echo ""
+	@echo "  make install-groups-users"
+	@echo "     - This adds the users and groups if they do not exist"
 	@echo ""
 	@echo "  make install-commandmode"
 	@echo "     - This installs and configures permissions on the"
@@ -183,6 +208,11 @@ clean:
 	cd $(SRC_WORKERS) && $(MAKE) $@
 	rm -f *.cfg core
 	rm -f *~ *.*~ */*~ */*.*~ */*/*.*~
+	rm -f nagioscore.info-file
+	rm -f *.gcno */*.gcno */*/*.gcno
+	rm -f *.gcda */*.gcda */*/*.gcda
+	rm -f *.gcov */*.gcov */*/*.gcov
+	rm -rf coverage-report
 
 distclean: clean
 	cd $(SRC_LIB) && $(MAKE) $@
@@ -197,7 +227,7 @@ distclean: clean
 	cd $(SRC_TTAP) && $(MAKE) $@
 	cd $(SRC_WORKERS) && $(MAKE) $@
 	rm -f sample-config/*.cfg  sample-config/*.conf sample-config/template-object/*.cfg
-	rm -f daemon-init openrc-init pkginfo
+	rm -f daemon-init daemon-service daemon-openrc pkginfo
 	rm -f Makefile subst
 	rm -f config.log config.status config.cache
 	rm -f tags
@@ -221,6 +251,16 @@ tap/src/tap.o:
 
 test-perl: cgis
 	cd t && $(MAKE) test
+
+coverage: test
+	@if ! which lcov >/dev/null 2>&1; then \
+		echo "ERROR: You must install lcov and genhtml first"; \
+	else \
+		lcov -c -d . -o nagioscore.info-file; \
+		genhtml nagioscore.info-file -o coverage-report; \
+		echo "Your coverage report is in coverage-report/index.html"; \
+	fi
+
 
 install-html:
 	cd $(SRC_HTM) && $(MAKE) install
@@ -270,7 +310,6 @@ install-basic:
 	@echo "     - This installs sample config files in $(DESTDIR)$(CFGDIR)"
 	@echo ""
 
-
 install-config:
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(CFGDIR)
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(CFGDIR)/objects
@@ -293,6 +332,9 @@ install-config:
 	@echo "the documentation for more information on how to actually define"
 	@echo "services, hosts, etc. to fit your particular needs."
 	@echo ""
+
+install-groups-users:
+	@autoconf-macros/add_group_user $(DIST) $(NAGIOS_USER) $(NAGIOS_GRP) 1
 
 install-webconf:
 	$(INSTALL) -m 644 sample-config/httpd.conf $(DESTDIR)$(HTTPD_CONF)/nagios.conf
@@ -338,11 +380,32 @@ install-classicui:
 	@echo "NOTE: Use 'make install-exfoliation' to use new Nagios theme";
 	@echo ""
 
-install-init: install-daemoninit
-
-install-daemoninit:
+install-init:
 	$(INSTALL) -m 755 -d $(INIT_OPTS) $(DESTDIR)$(INIT_DIR)
-	$(INSTALL) -m 755 $(INIT_OPTS) daemon-init $(DESTDIR)$(INIT_DIR)/nagios
+	$(INSTALL) -m 755 $(INIT_OPTS) startup/$(SRC_INIT) $(DESTDIR)$(INIT_DIR)/$(INIT_FILE)
+
+install-daemoninit: install-init
+	@if [ x$(INIT_TYPE) = xsysv ]; then \
+		if which chkconfig >/dev/null 2>&1; then \
+			chkconfig --add nagios; \
+		elif which update-rc.d >/dev/null 2>&1; then \
+			update-rc.d nagios defaults; \
+		fi \
+	elif [ x$(INIT_TYPE) = xsystemd ]; then \
+		if which systemctl >/dev/null 2>&1; then \
+			systemctl daemon-reload; \
+			systemctl enable nagios.service; \
+		fi; \
+		chmod 0644 $(INIT_DIR)/$(INIT_FILE); \
+	elif [ x$(INIT_TYPE) = xupstart ]; then \
+		if which initctl >/dev/null 2>&1; then \
+			initctl reload-configuration; \
+		fi \
+	elif [ x$(INIT_TYPE) = xopenrc ]; then \
+		if which rc-update >/dev/null 2>&1; then \
+			rc-update add nagios default; \
+		fi \
+	fi
 
 	@echo ""
 	@echo "*** Init script installed ***"
