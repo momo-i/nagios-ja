@@ -36,6 +36,7 @@ static nagios_macros *mac;
 extern char             nagios_process_info[MAX_INPUT_BUFFER];
 extern int              nagios_process_state;
 extern int              refresh_rate;
+extern int				enable_page_tour;
 
 extern int              buffer_stats[1][3];
 extern int              program_stats[MAX_CHECK_STATS_TYPES][3];
@@ -562,7 +563,7 @@ void document_header(int use_stylesheet) {
 	else if(display_type == DISPLAY_SERVICE_INFO)
 		vidurl = "https://www.youtube.com/embed/f_knwQOS6FI";
 
-	if (vidurl) {
+	if (enable_page_tour == TRUE && vidurl) {
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, JQUERY_JS);
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, NAGFUNCS_JS);
 		printf("<script type='text/javascript'>\n");
@@ -576,7 +577,7 @@ void document_header(int use_stylesheet) {
 		printf("vbox = new vidbox({pos:'lr',vidurl:'%s',text:vboxText,"
 				"vidid:vBoxId});\n", vidurl);
 		printf("});\n</script>\n");
-	}
+		}
 
 	printf("</head>\n");
 
@@ -612,7 +613,7 @@ int process_cgivars(void) {
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 
 		/* do some basic length checking on the variable identifier to prevent buffer overflows */
 		if(strlen(variables[x]) >= MAX_INPUT_BUFFER - 1) {
@@ -1122,7 +1123,7 @@ void show_host_info(void) {
 
 		printf("<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS='command'>\n");
 #ifdef USE_STATUSMAP
-		printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='マップ上のホストの位置を確認' TITLE='マップ上のホストの位置を確認'></td><td CLASS='command'><a href='%s?host=%s'>マップ上のホストの位置を確認</a></td></tr>\n", url_images_path, STATUSMAP_ICON, STATUSMAP_CGI, url_encode(host_name));
+		printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='Locate Host On Map' TITLE='マップ上のホストの位置を確認'></td><td CLASS='command'><a href='%s?host=%s&root=%s'>マップ上のホストの位置を確認</a></td></tr>\n", url_images_path, STATUSMAP_ICON, STATUSMAP_CGI, url_encode(host_name), url_encode(host_name));
 #endif
 		if(temp_hoststatus->checks_enabled == TRUE) {
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストの動作チェックを無効' TITLE='このホストの動作チェックを無効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストの動作チェックを無効</a></td></tr>\n", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_DISABLE_HOST_CHECK, url_encode(host_name));

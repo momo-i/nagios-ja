@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
 	init_shared_cfg_vars(1);
 
 	/* read the CGI configuration file */
-	result = read_cgi_config_file(get_cgi_config_location());
+	result = read_cgi_config_file(get_cgi_config_location(), NULL);
 	if(result == ERROR) {
 		if(mode == CREATE_HTML) {
 			document_header(FALSE);
@@ -1096,7 +1096,7 @@ int process_cgivars(void) {
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 
 		/* do some basic length checking on the variable identifier to prevent buffer overflows */
 		if(strlen(variables[x]) >= MAX_INPUT_BUFFER - 1) {

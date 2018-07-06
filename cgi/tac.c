@@ -66,6 +66,7 @@ extern servicestatus *servicestatus_list;
 
 extern int nagios_process_state;
 
+extern int enable_page_tour;
 
 
 
@@ -86,7 +87,7 @@ int process_cgivars(void);
 authdata current_authdata;
 
 int embedded = FALSE;
-int display_header = FALSE;
+int display_header = TRUE;
 
 hostoutage *hostoutage_list = NULL;
 
@@ -304,17 +305,22 @@ void document_header(int use_stylesheet) {
 		}
 
 	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, JQUERY_JS);
-	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, NAGFUNCS_JS);
 
-	printf("<script type='text/javascript'>\nvar vbox, vBoxId='tac', "
-			"vboxText = '<a href=https://www.nagios.com/tours target=_blank>"
-			"Nagiosコア4のツアー全体を見るにはここをクリック！</a>';\n");
-	printf("$(document).ready(function() {\n"
-			"var user = '%s';\nvBoxId += ';' + user;", current_authdata.username);
-	printf("vbox = new vidbox({pos:'lr',"
-			"vidurl:'https://www.youtube.com/embed/l20YRDhbOfA',text:vboxText,"
-			"vidid:vBoxId});");
-	printf("\n});\n</script>\n");
+	if (enable_page_tour == TRUE) {
+		printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, NAGFUNCS_JS);
+
+		printf("<script type='text/javascript'>\nvar vbox, vBoxId='tac', "
+				"vboxText = '<a href=https://www.nagios.com/tours target=_blank>"
+				"Nagiosコア4のツアー全体を見るにはここをクリック！</a>';\n");
+		printf("$(document).ready(function() {\n"
+				"var user = '%s';\nvBoxId += ';' + user;", current_authdata.username);
+		printf("vbox = new vidbox({pos:'lr',"
+				"vidurl:'https://www.youtube.com/embed/l20YRDhbOfA',text:vboxText,"
+				"vidid:vBoxId});");
+		printf("\n});\n</script>\n");
+		}
+
+
 
 	printf("</HEAD>\n");
 	printf("<BODY CLASS='tac' marginwidth=2 marginheight=2 topmargin=0 leftmargin=0 rightmargin=0>\n");
@@ -348,7 +354,7 @@ int process_cgivars(void) {
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 
 		/* do some basic length checking on the variable identifier to prevent buffer overflows */
 		if(strlen(variables[x]) >= MAX_INPUT_BUFFER - 1) {
@@ -872,8 +878,6 @@ void display_tac_overview(void) {
 
 	/* left column */
 	printf("<td align=left valign=top width=50%%>\n");
-
-	display_info_table("総合監視状況", TRUE, &current_authdata);
 
 	printf("</td>\n");
 

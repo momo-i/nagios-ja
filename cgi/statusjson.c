@@ -769,7 +769,7 @@ int main(void) {
 	reset_cgi_vars();
 
 	/* read the CGI configuration file */
-	result = read_cgi_config_file(get_cgi_config_location());
+	result = read_cgi_config_file(get_cgi_config_location(), NULL);
 	if(result == ERROR) {
 		json_object_append_object(json_root, "result", 
 				json_result(query_time, THISCGI, 
@@ -1284,7 +1284,7 @@ int process_cgivars(json_object *json_root, status_json_cgi_data *cgi_data,
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 		/* We set these each iteration because they could change with each
 			iteration */
 
