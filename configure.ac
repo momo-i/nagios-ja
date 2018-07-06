@@ -10,9 +10,9 @@ AC_PREFIX_DEFAULT(/usr/local/nagios)
 
 PKG_NAME=nagios
 
-PKG_VERSION="4.3.4"
+PKG_VERSION="4.4.1"
 PKG_HOME_URL="https://www.nagios.org/"
-PKG_REL_DATE="2017-08-24"
+PKG_REL_DATE="2018-06-25"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -51,6 +51,50 @@ AC_TYPE_SIZE_T
 AC_TYPE_SIGNAL
 AC_TYPE_GETGROUPS
 
+dnl Get Nagios autoconf-macros
+AC_NAGIOS_GET_OS
+AC_NAGIOS_GET_DISTRIB_TYPE
+AC_NAGIOS_GET_INIT
+AC_NAGIOS_GET_INETD
+AC_NAGIOS_GET_PATHS
+AC_NAGIOS_GET_FILES
+
+dnl We only have these options available so we need to make them work until there are more
+if test "x$src_init" != "xdefault-init" -a \
+        "x$src_init" != "xdefault-service" -a \
+        "x$src_init" != "xopenrc-init" -a \
+        "x$src_init" != "xnewbsd-init" -a \
+        "x$src_init" != "xopenbsd-init" -a \
+        "x$src_init" != "xupstart-init"; then
+
+	src_init="default-init"
+	init_type="sysv"
+	initname="nagios"
+
+	if test "x$initdiroverridden" != "xyes"; then
+		initdir="/etc/init.d"
+	fi
+fi
+
+dnl We need to check for a lock file specified
+dnl And if the built in check didn't work (the N/A)
+dnl then we need to find one!
+if test "x$subsyslockdir" = "xN/A"; then
+	if test -d "/var/run"; then
+		subsyslockdir="/var/run"
+		subsyslockfile="/var/run/$INIT_PROG.lock"
+	else
+		subsyslockdir="/usr/local/nagios/var/"
+		subsyslockfile="/usr/local/nagios/var/$INIT_PROG.lock"
+	fi
+fi
+AC_ARG_WITH(lockfile,
+	AC_HELP_STRING([--with-lockfile=<path>],
+		[sets path for lockfile]),
+	subsyslockfile=$withval,
+	subsyslockfile=$subsyslockfile
+)
+
 
 dnl Check for asprintf() and friends...
 AC_CACHE_CHECK([for va_copy],ac_cv_HAVE_VA_COPY,[
@@ -58,7 +102,7 @@ AC_TRY_LINK([#include <stdarg.h>
 va_list ap1,ap2;], [va_copy(ap1,ap2);],
 ac_cv_HAVE_VA_COPY=yes,
 ac_cv_HAVE_VA_COPY=no)])
-if test x"$ac_cv_HAVE_VA_COPY" = x"yes"; then
+if test "x$ac_cv_HAVE_VA_COPY" = "xyes"; then
     AC_DEFINE(HAVE_VA_COPY,1,[Whether va_copy() is available])
 else    
     AC_CACHE_CHECK([for __va_copy],ac_cv_HAVE___VA_COPY,[
@@ -66,7 +110,7 @@ else
     va_list ap1,ap2;], [__va_copy(ap1,ap2);],
     ac_cv_HAVE___VA_COPY=yes,
     ac_cv_HAVE___VA_COPY=no)])
-    if test x"$ac_cv_HAVE___VA_COPY" = x"yes"; then
+    if test "x$ac_cv_HAVE___VA_COPY" = "xyes"; then
         AC_DEFINE(HAVE___VA_COPY,1,[Whether __va_copy() is available])
     fi
 fi
@@ -103,7 +147,7 @@ void foo(const char *format, ...) {
 main() { foo("hello"); }
 ],
 ac_cv_HAVE_C99_VSNPRINTF=yes,ac_cv_HAVE_C99_VSNPRINTF=no,ac_cv_HAVE_C99_VSNPRINTF=cross)])
-if test x"$ac_cv_HAVE_C99_VSNPRINTF" = x"yes"; then
+if test "x$ac_cv_HAVE_C99_VSNPRINTF" = "xyes"; then
     AC_DEFINE(HAVE_C99_VSNPRINTF,1,[Define if system has C99 compatible vsnprintf])
 fi
 
@@ -113,11 +157,11 @@ AC_SUBST(SNPRINTF_O)
 
 dnl Checks for library functions.
 AC_SEARCH_LIBS([getservbyname],[nsl],
-	[if test "$ac_cv_search_getservbyname" != "none required"; then
+	[if test "x$ac_cv_search_getservbyname" != "xnone required"; then
 		SOCKETLIBS="$SOCKETLIBS -lnsl"
 	fi])
 AC_SEARCH_LIBS([connect],[socket],
-	[if test "$ac_cv_search_connect" != "none required"; then
+	[if test "x$ac_cv_search_connect" != "xnone required"; then
 		SOCKETLIBS="$SOCKETLIBS -lsocket"
 	fi])
 AC_SUBST(SOCKETLIBS)
@@ -139,6 +183,7 @@ AC_SEARCH_LIBS(nanosleep,[rt posix4],,[
 	exit 1
 	])
 
+dnl TODO: host_os needs changed to reflect AC_NAGIOS
 case $host_os in
 *bsd*|darwin*)
 	root_grp=wheel
@@ -153,8 +198,27 @@ AC_SUBST(root_grp)
 INIT_OPTS="-o root -g $root_grp"
 AC_SUBST(INIT_OPTS)
 
+dnl Just enable all of the testing things
+dnl --enable-debugging --enable-coverage --with-this-user
+dnl This is here because if not, the user override doesnt happen
+ENABLE_TESTING=no
+AC_ARG_ENABLE(testing,AC_HELP_STRING([--enable-testing],[DEBUGGING ONLY - Enable testing options]),
+	[ENABLE_TESTING=$enableval])
+
+not_a_user="^^^^^"
+AC_ARG_WITH(this_user,AC_HELP_STRING([--with-this-user],[sets all user/group info for current user running ./configure]),this_user=$USER,this_user=$not_a_user)
+if test "x$ENABLE_TESTING" = "xyes"; then
+	this_user=$USER
+fi
+
 AC_ARG_WITH(nagios_user,AC_HELP_STRING([--with-nagios-user=<user>],[sets user name to run nagios]),nagios_user=$withval,nagios_user=nagios)
 AC_ARG_WITH(nagios_group,AC_HELP_STRING([--with-nagios-group=<grp>],[sets group name to run nagios]),nagios_grp=$withval,nagios_grp=nagios)
+
+if test "x$this_user" != "x$not_a_user"; then
+	nagios_user=$this_user
+	nagios_grp=$this_user
+fi
+
 AC_SUBST(nagios_user)
 AC_SUBST(nagios_grp)
 AC_DEFINE_UNQUOTED(DEFAULT_NAGIOS_USER,"$nagios_user",[user name to run nagios])
@@ -164,6 +228,12 @@ AC_SUBST(INSTALL_OPTS)
 
 AC_ARG_WITH(command_user,AC_HELP_STRING([--with-command-user=<user>],[sets user name for command access]),command_user=$withval,command_user=$nagios_user)
 AC_ARG_WITH(command_group,AC_HELP_STRING([--with-command-group=<grp>],[sets group name for command access]),command_grp=$withval,command_grp=$nagios_grp)
+
+if test "x$this_user" != "x$not_a_user"; then
+	command_user=$this_user
+	command_grp=$this_user
+fi
+
 AC_SUBST(command_user)
 AC_SUBST(command_grp)
 COMMAND_OPTS="-o $command_user -g $command_grp"
@@ -177,14 +247,34 @@ AC_ARG_WITH(mail,
 	MAIL_PROG=$withval,
 	MAIL_PROG=no
 ) 
-if test x$MAIL_PROG = xno; then
+if test "x$MAIL_PROG" = "xno"; then
 	AC_PATH_PROG(MAIL_PROG,mail) 
 fi 
 dnl Fix for systems that don't (yet) have mail/mailx installed...
-if test x$MAIL_PROG = x; then
-	MAIL_PROG="/bin/mail"
+if test "x$MAIL_PROG" = "x"; then
+	if which mail >/dev/null; then
+		MAIL_PROG=`which mail`
+	elif which sendmail >/dev/null; then
+		MAIL_PROG=`which sendmail`
+	else
+		MAIL_PROG="/bin/mail"
+	fi
 fi
 AC_SUBST(MAIL_PROG)
+
+dnl Determine location of the rm binary
+BIN_RM=`which rm`
+if test $? -ne 0; then
+	BIN_RM='/bin/rm'
+fi
+AC_SUBST(BIN_RM)
+
+dnl Determine location of the kill binary
+BIN_KILL=`which kill`
+if test $? -ne 0; then
+	BIN_KILL='/bin/kill'
+fi
+AC_SUBST(BIN_KILL)
 
 dnl Check for location of Apache conf.d directory
 HTTP_CONF=no
@@ -195,19 +285,19 @@ AC_ARG_WITH(httpd_conf,
 	HTTPD_CONF=no
 ) 
 LN_HTTPD_SITES_ENABLED=0
-if test x$HTTPD_CONF = xno; then
-	if test -d /etc/httpd/conf.d; then
+if test "x$HTTPD_CONF" = "xno"; then
+	if test -d "/etc/httpd/conf.d"; then
 		HTTPD_CONF="/etc/httpd/conf.d"
-	elif test -d /etc/apache2/conf.d; then
+	elif test -d "/etc/apache2/conf.d"; then
 		HTTPD_CONF="/etc/apache2/conf.d"
-	elif test -d /etc/apache2/sites-available; then
+	elif test -d "/etc/apache2/sites-available"; then
 		HTTPD_CONF="/etc/apache2/sites-available"
-		if test -d /etc/apache2/sites-enabled; then
+		if test -d "/etc/apache2/sites-enabled"; then
 			LN_HTTPD_SITES_ENABLED=1
 		fi
-	elif test -d /etc/apache2/sites-enabled; then
+	elif test -d "/etc/apache2/sites-enabled"; then
 		HTTPD_CONF="/etc/apache2/sites-enabled"
-	elif test -d /etc/apache/conf.d; then
+	elif test -d "/etc/apache/conf.d"; then
 		HTTPD_CONF="/etc/apache/conf.d"
 	else
 		HTTPD_CONF="/etc/httpd/conf.d"
@@ -215,6 +305,16 @@ if test x$HTTPD_CONF = xno; then
 fi 
 AC_SUBST(HTTPD_CONF)
 AC_SUBST(LN_HTTPD_SITES_ENABLED)
+
+dnl Check if RLIMIT_PROC exists
+AC_TRY_COMPILE([#ifdef __STDC__
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif],
+[struct rlimit rlim;
+int ilim = getrlimit(RLIMIT_NPROC, &rlim);],
+[AC_DEFINE(DETECT_RLIMIT_PROBLEM,1,[System has RLIMIT_PROC]) AC_MSG_RESULT([checking for RLIMIT_PROC... yes])],
+[AC_MSG_RESULT([checking for RLIMIT_PROC... no])])
 
 dnl Location of check result path
 CHECKRESULTDIR=no
@@ -224,12 +324,13 @@ AC_ARG_WITH(checkresult-dir,
 	CHECKRESULTDIR=$withval,
 	CHECKRESULTDIR=no
 ) 
-if test x$CHECKRESULTDIR = xno; then
+if test "x$CHECKRESULTDIR" = "xno"; then
 	CHECKRESULTDIR="$localstatedir/spool/checkresults"
 fi 
 AC_SUBST(CHECKRESULTDIR)
 
 dnl Location of check result path
+dnl TODO: this should be moved to autoconf-macros
 TMPDIR=no
 AC_ARG_WITH(temp-dir,
 	AC_HELP_STRING([--with-temp-dir=<path>],
@@ -237,54 +338,20 @@ AC_ARG_WITH(temp-dir,
 	TMPDIR=$withval,
 	TMPDIR=no
 ) 
-if test x$TMPDIR = xno; then
+if test "x$TMPDIR" = "xno"; then
 	TMPDIR="/tmp"
 fi 
 AC_SUBST(TMPDIR)
 
-dnl Check for location of init scripts
-init_dir=/etc/rc.d/init.d
-if test -d /etc/rc.d/init.d; then
-	init_dir="/etc/rc.d/init.d"
-elif test -d /usr/local/etc/rc.d; then
-	init_dir="/usr/local/etc/rc.d"
-elif test -d /etc/rc.d; then
-	init_dir="/etc/rc.d"
-elif test -d /etc/init.d; then
-	init_dir="/etc/init.d"
-elif test -d /sbin/init.d; then
-	init_dir="/sbin/init.d"
-fi
-
-dnl User can override init script location
-AC_ARG_WITH(init_dir,
-	AC_HELP_STRING([--with-init-dir=<path>],
-		[sets directory to place init script into]),
-	init_dir=$withval
-)
-AC_SUBST(init_dir)
-
-dnl User can override lock file location
-dnl Use the /var/run/ path by default
-dnl and use /run if it is available
-
-default_lockfile_path=/var/run/nagios.lock
-if test -d /run; then
-	default_lockfile_path=/run/nagios.lock
-fi
-
-AC_ARG_WITH(lockfile,
-	AC_HELP_STRING([--with-lockfile=<path>],
-		[sets path for lock file (default: [/var]/run/nagios.lock)]),
-	lockfile=$withval,
-	lockfile=$default_lockfile_path
-)
-AC_SUBST(lockfile)
 
 dnl Determine the library to be used by the iobroker
 
 dnl epoll_*() is linux specific and was added to glibc 2.3.2, so we
 dnl check for 2.4 and use epoll() if we're on that version or later.
+dnl But we still need to set the variable GLIBC_NEWER_2_4 since
+dnl it is used later in calculations perhaps by OSes not linux
+
+GLIBC_NEWER_2_4=0
 
 case $host_os in
 linux*)
@@ -304,7 +371,7 @@ linux*)
 		[GLIBC_NEWER_2_4=1; AC_MSG_RESULT(yes)],
 		[GLIBC_NEWER_2_4=0; AC_MSG_RESULT(no)]
 	)
-	if test $GLIBC_NEWER_2_4 -eq 1; then
+	if test "$GLIBC_NEWER_2_4" -eq 1; then
 		AC_CHECK_HEADER([sys/epoll.h])
 	fi
 	;;
@@ -320,7 +387,7 @@ AC_ARG_WITH(iobroker,
 
 case $IOBROKER_METHOD in
 epoll*)
-	if test $GLIBC_NEWER_2_4 -eq 1 -a x$ac_cv_header_sys_epoll_h = xyes ; then
+	if test "$GLIBC_NEWER_2_4" -eq 1 -a "x$ac_cv_header_sys_epoll_h" = "xyes"; then
 		AC_DEFINE([IOBROKER_USES_EPOLL])
 	else
 		echo "\"epoll\" is not available as an iobroker method."
@@ -329,7 +396,7 @@ epoll*)
 	fi
 	;;
 poll*)
-	if test x$ac_cv_header_sys_poll_h = xyes -o x$ac_cv_header_poll_h = xyes ; then
+	if test "x$ac_cv_header_sys_poll_h" = "xyes" -o "x$ac_cv_header_poll_h" = "xyes"; then
 		AC_DEFINE([IOBROKER_USES_POLL])
 	else
 		echo "\"poll\" is not available as an iobroker method."
@@ -338,7 +405,7 @@ poll*)
 	fi
 	;;
 select*)
-	if test x$ac_cv_header_sys_select_h = xyes ; then
+	if test "x$ac_cv_header_sys_select_h" = "xyes"; then
 		AC_DEFINE([IOBROKER_USES_SELECT])
 	else
 		echo "\"select\" is not available as an iobroker method."
@@ -347,13 +414,13 @@ select*)
 	fi
 	;;
 none*)
-	if test $GLIBC_NEWER_2_4 -eq 1 -a x$ac_cv_header_sys_epoll_h = xyes ; then
+	if test "$GLIBC_NEWER_2_4" -eq 1 -a "x$ac_cv_header_sys_epoll_h" = "xyes"; then
 		AC_DEFINE([IOBROKER_USES_EPOLL])
 		IOBROKER_METHOD="epoll"
-	elif test x$ac_cv_header_sys_poll_h = xyes -o x$ac_cv_header_poll_h = xyes ; then
+	elif test "x$ac_cv_header_sys_poll_h" = "xyes" -o "x$ac_cv_header_poll_h" = "xyes"; then
 		AC_DEFINE([IOBROKER_USES_POLL])
 		IOBROKER_METHOD="poll"
-	elif test x$ac_cv_header_sys_select_h = xyes ; then
+	elif test "x$ac_cv_header_sys_select_h" = "xyes"; then
 		AC_DEFINE([IOBROKER_USES_SELECT])
 		IOBROKER_METHOD="select"
 	else
@@ -362,8 +429,8 @@ none*)
 	fi
 	;;
 *)
-		echo "\"$IOBROKER_METHOD\" is not a valid method for --with-iobroker"
-		exit 1
+	echo "\"$IOBROKER_METHOD\" is not a valid method for --with-iobroker"
+	exit 1
 	;;
 esac
 
@@ -381,7 +448,21 @@ AC_ARG_WITH(gd-inc,
 )
 
 
-TRYGD=yep
+TRYGD=yes
+
+dnl 'NERD' is now disabled by default. enable it for functionality
+NERD=no
+NERD_O=""
+AC_ARG_ENABLE(nerd,
+	AC_HELP_STRING([--enable-nerd],
+		[enables Nagios Event Radio Dispatch (NERD)]),
+	NERD=yes
+)
+if test "x$NERD" = "xyes"; then
+	AC_DEFINE_UNQUOTED(ENABLE_NERD,,[defined if user enabled NERD (radio dispatcher)])
+	NERD_O="nerd.o"
+fi
+AC_SUBST(NERD_O)
 
 dnl 'corewindow' is now disabled. Allow it to be enabled if someone wants it
 COREWINDOW=no
@@ -393,7 +474,7 @@ AC_ARG_ENABLE(corewindow,
 AC_SUBST(COREWINDOW)
 
 dnl statusmap CGI enabled by default, unless users chooses not to use it
-TRYSTATUSMAP=yep
+TRYSTATUSMAP=yes
 AC_ARG_ENABLE(statusmap,
 	AC_HELP_STRING([--disable-statusmap],
 		[disables compilation of statusmap CGI]),
@@ -402,14 +483,14 @@ AC_ARG_ENABLE(statusmap,
 
 
 dnl statuswrl CGI enabled by default, unless users chooses not to use it
-TRYSTATUSWRL=yep
+TRYSTATUSWRL=yes
 AC_ARG_ENABLE(statuswrl,
 	AC_HELP_STRING([--disable-statuswrl],
 		[disables compilation of statuswrl (VRML) CGI]),
 	TRYSTATUSWRL=nope
 )
 
-if test x$TRYSTATUSWRL = xyep; then
+if test "x$TRYSTATUSWRL" = "xyes"; then
 	AC_DEFINE_UNQUOTED(USE_STATUSWRL,,[statuswrl CGI enabled by default, unless users chooses not to use it])
 	CGIEXTRAS="$CGIEXTRAS statuswrl.cgi"
 fi
@@ -464,7 +545,7 @@ char $2();
 
 
 dnl Should we try and detect the GD libs?
-if test x$TRYGD = xyep; then
+if test "x$TRYGD" = "xyes"; then
 
 	dnl libiconv is required on some systems - tack it on if found
 	AC_CHECK_LIB(iconv,main,ICONV=-liconv,)
@@ -473,36 +554,36 @@ if test x$TRYGD = xyep; then
 
 	dnl GD > 1.8.3 requires the TrueType library to be present as well, so test for that first...
 	JMD_CHECK_LIB_ORDER(gd,gdImagePng,1,[
-			GDLIBFOUND=yep
+			GDLIBFOUND=yes
 			GDLIBS="-lgd -lttf -lpng -ljpeg -lz -lm"
 			],:,[-lttf -lpng -ljpeg -lz -lm])
  
 	dnl GD > 1.8.1 requires the jpeg library to be present as well, so test for that...
-	if test x$GDLIBFOUND = x; then
+	if test "x$GDLIBFOUND" = "x"; then
 		JMD_CHECK_LIB_ORDER(gd,gdImagePng,2,[
-			GDLIBFOUND=yep
+			GDLIBFOUND=yes
 			GDLIBS="-lgd $ICONV -lpng -ljpeg -lz -lm"
         		],:,[$ICONV -lpng -ljpeg -lz -lm])
 	fi
 
 	dnl If we failed the first test, try without jpeg library
-	if test x$GDLIBFOUND = x; then
+	if test "x$GDLIBFOUND" = "x"; then
 		JMD_CHECK_LIB_ORDER(gd,gdImagePng,3,[
-			GDLIBFOUND=yep
+			GDLIBFOUND=yes
 			GDLIBS="-lgd $ICONV -lz -lm -lpng"
 		        ],:,[$ICONV -lz -lm -lpng])
 	fi
 
 	dnl We failed again, so try a different library ordering (without jpeg libs)
-	if test x$GDLIBFOUND = x; then
+	if test "x$GDLIBFOUND" = "x"; then
 		JMD_CHECK_LIB_ORDER(gd,gdImagePng,4,[
-			GDLIBFOUND=yep
+			GDLIBFOUND=yes
 			GDLIBS="-lgd $ICONV -lpng -lz -lm"
 	        	],:,[$ICONV -lpng -lz -lm])
 	fi
 
 	dnl Did we find the necessary GD libraries?
-	if test x$GDLIBFOUND = x; then
+	if test "x$GDLIBFOUND" = "x"; then
 		echo ""
 		echo ""
 		echo "*** GD, PNG, and/or JPEG libraries could not be located... *********"
@@ -538,8 +619,9 @@ if test x$TRYGD = xyep; then
 
 	dnl We found the GD lib!
 	else
-		echo "GD library was found!"
-		if test x$TRYSTATUSMAP = xyep; then
+		AC_MSG_CHECKING([for GD library])
+		AC_MSG_RESULT([yes])
+		if test "x$TRYSTATUSMAP" = "xyes"; then
 			AC_DEFINE_UNQUOTED(USE_STATUSMAP,,[defined if the user chose to include status map])
 			CGIEXTRAS="$CGIEXTRAS statusmap.cgi"
 			AC_CHECK_LIB(gd,gdImageCreateTrueColor,
@@ -579,7 +661,7 @@ AC_ARG_ENABLE(nanosleep,
 	USE_NANOSLEEP=$enableval,
 	USE_NANOSLEEP=yes
 )
-if test x$USE_NANOSLEEP = xyes; then
+if test "x$USE_NANOSLEEP" = "xyes"; then
 	AC_DEFINE_UNQUOTED(USE_NANOSLEEP,,[enables use of nanosleep (instead of sleep)])
 fi
 
@@ -592,24 +674,24 @@ AC_ARG_ENABLE(event-broker,
 )
 
 BROKER_LDFLAGS=""
-BROKERLIBS="";
-some_dl_found="no";
-if test x$USE_EVENTBROKER = xyes; then
+BROKERLIBS=""
+some_dl_found=no
+if test "x$USE_EVENTBROKER" = "xyes"; then
 
 	dnl Which loader library should we use? libtdl or dl?
 	dnl Hopefully this will be portable and not give us headaches...
 	AC_CHECK_HEADER(ltdl.h,[
 		AC_CHECK_LIB(ltdl,lt_dlinit,[
 			AC_DEFINE(HAVE_LTDL_H,,[Which loader library should we use? libtdl or dl?])
-			some_dl_found="yes"
+			some_dl_found=yes
 			BROKERLIBS="$BROKERLIBS -lltdl"
 			])
 	        ])
-	if test "x$some_dl_found" != xyes; then
+	if test "x$some_dl_found" != "xyes"; then
 	AC_CHECK_HEADER(dlfcn.h,[
 		AC_CHECK_LIB(dl,dlopen,[
 			AC_DEFINE(HAVE_DLFCN_H,,[Which loader library should we use? libtdl or dl?])
-			some_dl_found="yes"
+			some_dl_found=yes
 			BROKERLIBS="$BROKERLIBS -ldl"
 			])
 	        ])
@@ -646,7 +728,7 @@ if test x$USE_EVENTBROKER = xyes; then
 	esac
 	AC_SUBST(BROKER_LDFLAGS)
 	AC_SUBST(BROKERLIBS)
-	test "x$BROKER_LDFLAGS" != x && AC_MSG_RESULT([$BROKER_LDFLAGS])
+	test "x$BROKER_LDFLAGS" != "x" && AC_MSG_RESULT([$BROKER_LDFLAGS])
 
 
 	dnl - Modified version from www.erlang.org
@@ -712,7 +794,7 @@ AC_ARG_ENABLE(cygwin,
 		[enables building under the CYGWIN environment]),
 	[cygwin=$enableval]
 )
-if test x$cygwin = xyes; then
+if test "x$cygwin" = "xyes"; then
 	CFLAGS="${CFLAGS} -DCYGWIN" 
 	nagios_name=nagios.exe;
 	nagiostats_name=nagiostats.exe;
@@ -732,7 +814,21 @@ dnl Find traceroute
 AC_PATH_PROG(PATH_TO_TRACEROUTE,traceroute)
 AC_DEFINE_UNQUOTED(TRACEROUTE_COMMAND,"$PATH_TO_TRACEROUTE",[traceroute command to use])
 
+dnl Enable debugging?
+ENABLE_DEBUGGING=no
+AC_ARG_ENABLE(debugging,AC_HELP_STRING([--enable-debugging],[DEBUGGING ONLY - Enable some debugging for Nagios Core]),
+	[ENABLE_DEBUGGING=$enableval])
+if test "x$ENABLE_DEBUGGING" = "xyes" -o "x$ENABLE_TESTING" = "xyes"; then
+	CFLAGS="${CFLAGS} -O0 -ggdb3 -g3"
+fi
 
+dnl Enable coverage?
+ENABLE_COVERAGE=no
+AC_ARG_ENABLE(coverage,AC_HELP_STRING([--enable-coverage],[DEBUGGING ONLY - Enable coverage reports (use with debugging)]),
+	[ENABLE_COVERAGE=$enableval])
+if test "x$ENABLE_COVERAGE" = "xyes" -o "x$ENABLE_TESTING" = "xyes"; then
+	CFLAGS="${CFLAGS} -fprofile-arcs -ftest-coverage"
+fi
 
 dnl Package directory for Solaris pkgmk (and other OSs, eventually)
 dnl VERSION=`grep 1.0 include/common.h | cut -d ' ' -f 3 | sed 's/"//g'`
@@ -768,7 +864,7 @@ AC_ARG_ENABLE(libtap,
 
 # Disabled for moment
 # If not local, check if we can use the system one
-#if test "$enable_libtap" != "yes" ; then
+#if test "$enable_libtap" != "yes"; then
 #        dnl Check for libtap, to run perl-like tests
 #        AC_CHECK_LIB(tap, plan_tests,
 #                enable_libtap="yes"
@@ -776,7 +872,7 @@ AC_ARG_ENABLE(libtap,
 #fi
 
 # Finally, define tests if we use libtap
-if test "$enable_libtap" = "yes" ; then
+if test "x$enable_libtap" = "xyes" -o "x$ENABLE_TESTING" = "xyes"; then
 	AC_CONFIG_SUBDIRS([tap])
 	USE_LIBTAP=yes
 else
@@ -788,7 +884,6 @@ AC_SUBST(USE_LIBTAP)
 AC_SUBST(CGIEXTRAS)
 AC_SUBST(GDLIBS)
 AC_SUBST(BASEEXTRALIBS)
-AC_SUBST(INITDIR)
 AC_SUBST(USE_EVENTBROKER)
 
 AC_PATH_PROG(PERL,perl)
@@ -801,11 +896,34 @@ if test -z "$UNZIP"; then
 	AC_MSG_ERROR([Cannot continue without unzip!])
 fi
 
-AC_OUTPUT(Makefile lib/Makefile subst pkginfo base/Makefile common/Makefile contrib/Makefile cgi/Makefile html/Makefile module/Makefile worker/Makefile worker/ping/Makefile xdata/Makefile daemon-init openrc-init t/Makefile t-tap/Makefile)
+dnl Need this here because of removing it from autoconf-macros
+eval sbindir=$sbindir
 
+AC_OUTPUT([
+	Makefile
+	lib/Makefile
+	base/Makefile
+	common/Makefile
+	contrib/Makefile
+	cgi/Makefile
+	html/Makefile
+	module/Makefile
+	worker/Makefile
+	worker/ping/Makefile
+	xdata/Makefile
+	subst
+	pkginfo
+	startup/openrc-init
+	startup/default-init
+	startup/default-service
+	startup/upstart-init
+	t/Makefile 
+	t-tap/Makefile
+])
 
 perl subst include/locations.h
 perl subst html/config.inc.php
+dnl perl subst daemon-service
 
 
 echo ""
@@ -828,6 +946,16 @@ perl subst sample-config/template-object/printer.cfg
 perl subst sample-config/template-object/switch.cfg
 
 
+incdir=`eval echo $includedir`
+if test "x$incdir" = "x$prefix/include"; then
+	includedir=$prefix/include/nagios
+fi
+
+if test "x$USE_EVENTBROKER" != "xyes"; then
+	USE_EVENTBROKER=no
+fi
+
+
 dnl Review options
 echo ""
 echo ""
@@ -840,20 +968,12 @@ echo " -------------------------"
 AC_MSG_RESULT([        Nagios executable:  $nagios_name])
 AC_MSG_RESULT([        Nagios user/group:  $nagios_user,$nagios_grp])
 AC_MSG_RESULT([       Command user/group:  $command_user,$command_grp])
-if test x$USE_EVENTBROKER = xyes; then
-AC_MSG_RESULT([             Event Broker:  yes])
-else
-AC_MSG_RESULT([             Event Broker:  no])
-fi
+AC_MSG_RESULT([             Event Broker:  $USE_EVENTBROKER])
 AC_MSG_RESULT([        Install \${prefix}:  $prefix])
-incdir=`eval echo $includedir`
-if test x$incdir = x$prefix/include; then
-	includedir=$prefix/include/nagios
-fi
 AC_MSG_RESULT([    Install \${includedir}:  $includedir])
-AC_MSG_RESULT([                Lock file:  $lockfile])
+AC_MSG_RESULT([                Lock file:  $subsyslockfile])
 AC_MSG_RESULT([   Check result directory:  $CHECKRESULTDIR])
-AC_MSG_RESULT([           Init directory:  $init_dir])
+AC_MSG_RESULT([           Init directory:  $initdir])
 AC_MSG_RESULT([  Apache conf.d directory:  $HTTPD_CONF])
 AC_MSG_RESULT([             Mail program:  $MAIL_PROG])
 AC_MSG_RESULT([                  Host OS:  $host_os])
