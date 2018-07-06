@@ -88,6 +88,7 @@ int             service_status_has_been_read = FALSE;
 int             program_status_has_been_read = FALSE;
 
 int             refresh_rate = DEFAULT_REFRESH_RATE;
+int				enable_page_tour = TRUE;
 int				result_limit = 100;
 
 int             escape_html_tags = FALSE;
@@ -188,6 +189,8 @@ void reset_cgi_vars(void) {
 
 	refresh_rate = DEFAULT_REFRESH_RATE;
 
+	enable_page_tour = TRUE;
+
 	default_statusmap_layout_method = 0;
 	default_statusmap_layout_method = 0;
 
@@ -271,7 +274,7 @@ const char *get_cmd_file_location(void) {
 
 
 /*read the CGI configuration file */
-int read_cgi_config_file(const char *filename) {
+int read_cgi_config_file(const char *filename, read_config_callback callback) {
 	char *input = NULL;
 	mmapfile *thefile;
 	char *var = NULL;
@@ -316,6 +319,9 @@ int read_cgi_config_file(const char *filename) {
 
 		else if(!strcmp(var, "refresh_rate"))
 			refresh_rate = atoi(val);
+
+		else if(!strcmp(var, "enable_page_tour"))
+			enable_page_tour = (atoi(val) > 0) ? TRUE : FALSE;
 
 		/* page limit added 2/1/2012 -MG */
 		else if(!strcmp(var, "result_limit"))
@@ -445,6 +451,8 @@ int read_cgi_config_file(const char *filename) {
 			ack_no_send = (atoi(val) > 0) ? TRUE : FALSE;
 		else if(!strcmp(var, "tac_cgi_hard_only"))
 			tac_cgi_hard_only = (atoi(val) > 0) ? TRUE : FALSE;
+		else if (callback)
+			(*callback)(var,val);
 		else if(!strcmp(var, "ttf_file")) {
 			strncpy(ttf_file, val, sizeof(ttf_file));
 			ttf_file[sizeof(ttf_file)-1] = '\x0';
@@ -702,7 +710,7 @@ void cgi_init(void (*doc_header)(int), void (*doc_footer)(void), int object_opti
 	init_shared_cfg_vars(1);
 
 	/* read the CGI configuration file */
-	result = read_cgi_config_file(get_cgi_config_location());
+	result = read_cgi_config_file(get_cgi_config_location(), NULL);
 	if(result == ERROR) {
 		doc_header(FALSE);
 		cgi_config_file_error(get_cgi_config_location());

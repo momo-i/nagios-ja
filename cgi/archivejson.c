@@ -628,7 +628,7 @@ int main(void) {
 	reset_cgi_vars();
 
 	/* read the CGI configuration file */
-	result = read_cgi_config_file(get_cgi_config_location());
+	result = read_cgi_config_file(get_cgi_config_location(), NULL);
 	if(result == ERROR) {
 		json_object_append_object(json_root, "result", 
 				json_result(query_time, THISCGI, 
@@ -1073,7 +1073,7 @@ int process_cgivars(json_object *json_root, archive_json_cgi_data *cgi_data,
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 		/* We set these each iteration because they could change with each
 			iteration */
 
@@ -3281,7 +3281,7 @@ int get_initial_downtime_state(au_linked_list *log_entries, time_t start_time,
 				return initial_state;
 				}
 			else {
-				/* If we dont' have a downtime state yet, the first downtime
+				/* If we don't have a downtime state yet, the first downtime
 					state we encounter will be opposite the initial downtime
 					state */
 				if(AU_LOGTYPE_NOTIFICATION == current_log_entry->entry_type) {

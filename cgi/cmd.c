@@ -29,8 +29,6 @@
 #include "../include/cgiauth.h"
 #include "../include/getcgi.h"
 
-extern const char *extcmd_get_name(int id);
-
 extern char main_config_file[MAX_FILENAME_LENGTH];
 extern char url_html_path[MAX_FILENAME_LENGTH];
 extern char url_images_path[MAX_FILENAME_LENGTH];
@@ -98,10 +96,12 @@ authdata current_authdata;
 void show_command_help(int);
 void request_command_data(int);
 void commit_command_data(int);
+int print_comment_field(int cmd_id);
 int commit_command(int);
 int write_command_to_file(char *);
 void clean_comment_data(char *);
 
+void cgicfg_callback(const char*, const char*);
 void document_header(int);
 void document_footer(void);
 int process_cgivars(void);
@@ -124,7 +124,7 @@ int main(void) {
 	reset_cgi_vars();
 
 	/* read the CGI configuration file */
-	result = read_cgi_config_file(get_cgi_config_location());
+	result = read_cgi_config_file(get_cgi_config_location(), cgicfg_callback);
 	if(result == ERROR) {
 		document_header(FALSE);
 		if(content_type == WML_CONTENT)
@@ -254,6 +254,29 @@ int main(void) {
 	return OK;
 	}
 
+void cgicfg_callback(const char *var, const char *val)
+{
+	struct nagios_extcmd	*ecmd;
+	const char				*cp = val;
+
+	if (strncmp(var, "CMT_", 4))
+		return;
+
+	ecmd = extcmd_get_command_name(&var[4]);
+	if (!ecmd)
+		return;
+
+	if (!isdigit(*val))
+		return;
+
+	ecmd->cmt_opt = atoi(val);
+	while (isdigit(*cp) || *cp == ',' || *cp == ' ' || *cp == '\t')
+		++cp;
+	if (!*cp)
+		return;
+	ecmd->default_comment = strdup(cp);
+	strip_html_brackets(ecmd->default_comment);
+}
 
 
 void document_header(int use_stylesheet) {
@@ -325,7 +348,7 @@ int process_cgivars(void) {
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 
 		/* do some basic length checking on the variable identifier to prevent buffer overflows */
 		if(strlen(variables[x]) >= MAX_INPUT_BUFFER - 1) {
@@ -1003,12 +1026,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxItem'>再起動後も%s保持させる:</td><td><b>", (cmd == CMD_ACKNOWLEDGE_HOST_PROBLEM) ? "コメントを" : "");
 			printf("<INPUT TYPE='checkbox' NAME='persistent' %s>", (cmd == CMD_ACKNOWLEDGE_HOST_PROBLEM) ? "" : "CHECKED");
 			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>作成者:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
-			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>コメント:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment_data));
-			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 		case CMD_ADD_SVC_COMMENT:
@@ -1029,12 +1047,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxItem'>再起動後も%s保持させる:</td><td><b>", (cmd == CMD_ACKNOWLEDGE_SVC_PROBLEM) ? "コメントを" : "");
 			printf("<INPUT TYPE='checkbox' NAME='persistent' %s>", (cmd == CMD_ACKNOWLEDGE_SVC_PROBLEM) ? "" : "CHECKED");
 			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>作成者:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
-			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>コメント:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment_data));
-			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 		case CMD_DEL_HOST_COMMENT:
@@ -1051,6 +1064,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxRequiredItem'>通知を遅らせる時間(現在からの分):</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='not_dly' VALUE='%d'>", notification_delay);
 			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 		case CMD_DELAY_SVC_NOTIFICATION:
@@ -1062,6 +1076,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxRequiredItem'>通知を遅らせる時間(現在からの分):</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='not_dly' VALUE='%d'>", notification_delay);
 			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 		case CMD_SCHEDULE_SVC_CHECK:
@@ -1080,6 +1095,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxRequiredItem'>チェック時刻:</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='start_time' VALUE='%s'>", buffer);
 			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			printf("<tr><td CLASS='optBoxItem'>強制的にチェック:</td><td><b>");
 			printf("<INPUT TYPE='checkbox' NAME='force_check' %s>", (force_check == TRUE) ? "CHECKED" : "");
 			printf("</b></td></tr>\n");
@@ -1106,6 +1122,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxRequiredItem'>サービス名:</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='service' VALUE='%s'>", escape_string(service_desc));
 			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 		case CMD_ENABLE_HOST_SVC_CHECKS:
@@ -1132,6 +1149,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxRequiredItem'>ホスト名:</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='host' VALUE='%s'>", escape_string(host_name));
 			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			if(cmd == CMD_ENABLE_HOST_SVC_CHECKS || cmd == CMD_DISABLE_HOST_SVC_CHECKS || cmd == CMD_ENABLE_HOST_SVC_NOTIFICATIONS || cmd == CMD_DISABLE_HOST_SVC_NOTIFICATIONS) {
 				printf("<tr><td CLASS='optBoxItem'>同時にホストも%sにする:</td><td><b>", (cmd == CMD_ENABLE_HOST_SVC_CHECKS || cmd == CMD_ENABLE_HOST_SVC_NOTIFICATIONS) ? "有効" : "無効");
 				printf("<INPUT TYPE='checkbox' NAME='ahas'>");
@@ -1166,7 +1184,8 @@ void request_command_data(int cmd) {
 		case CMD_STOP_ACCEPTING_PASSIVE_HOST_CHECKS:
 		case CMD_START_OBSESSING_OVER_HOST_CHECKS:
 		case CMD_STOP_OBSESSING_OVER_HOST_CHECKS:
-			printf("<tr><td CLASS='optBoxItem' colspan=2>このコマンドにはオプションはありません。<BR>'発行'ボタンを押してコマンドを送信してください</td></tr>");
+			if (print_comment_field(cmd) == FALSE)
+				printf("<tr><td CLASS='optBoxItem' colspan=2>このコマンドにはオプションはありません。<BR>'発行'ボタンを押してコマンドを送信してください</td></tr>");
 			break;
 
 		case CMD_PROCESS_HOST_CHECK_RESULT:
@@ -1213,12 +1232,7 @@ void request_command_data(int cmd) {
 				printf("<tr><td CLASS='optBoxRequiredItem'>サービス名:</td><td><b>");
 				printf("<INPUT TYPE='TEXT' NAME='service' VALUE='%s'>", escape_string(service_desc));
 				}
-			printf("<tr><td CLASS='optBoxRequiredItem'>作成者:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
-			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>コメント:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment_data));
-			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 
 			printf("<tr><td CLASS='optBoxItem'><br></td></tr>\n");
 
@@ -1302,6 +1316,7 @@ void request_command_data(int cmd) {
 				printf("<INPUT TYPE='checkbox' NAME='ahas'>");
 				printf("</b></td></tr>\n");
 				}
+			print_comment_field(cmd);
 			break;
 
 		case CMD_ENABLE_SERVICEGROUP_SVC_NOTIFICATIONS:
@@ -1318,6 +1333,7 @@ void request_command_data(int cmd) {
 				printf("<INPUT TYPE='checkbox' NAME='ahas'>");
 				printf("</b></td></tr>\n");
 				}
+			print_comment_field(cmd);
 			break;
 
 		case CMD_DEL_HOST_DOWNTIME:
@@ -1325,6 +1341,7 @@ void request_command_data(int cmd) {
 			printf("<tr><td CLASS='optBoxRequiredItem'>ダウンタイム ID:</td><td><b>");
 			printf("<INPUT TYPE='TEXT' NAME='down_id' VALUE='%lu'>", downtime_id);
 			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 
@@ -1343,12 +1360,7 @@ void request_command_data(int cmd) {
 				printf("<INPUT TYPE='TEXT' NAME='servicegroup' VALUE='%s'>", escape_string(servicegroup_name));
 				printf("</b></td></tr>\n");
 				}
-			printf("<tr><td CLASS='optBoxRequiredItem'>作成者:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
-			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>コメント:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment_data));
-			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			time(&t);
 			get_time_string(&t, buffer, sizeof(buffer) - 1, SHORT_DATE_TIME);
 			printf("<tr><td CLASS='optBoxRequiredItem'>開始時刻:</td><td><b>");
@@ -1401,12 +1413,7 @@ void request_command_data(int cmd) {
 			printf("<INPUT TYPE='checkbox' NAME='broadcast_notification' ");
 			printf("</b></td></tr>\n");
 
-			printf("<tr><td CLASS='optBoxRequiredItem'>作成者:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
-			printf("</b></td></tr>\n");
-			printf("<tr><td CLASS='optBoxRequiredItem'>コメント:</td><td><b>");
-			printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment_data));
-			printf("</b></td></tr>\n");
+			print_comment_field(cmd);
 			break;
 
 		default:
@@ -1442,6 +1449,33 @@ void request_command_data(int cmd) {
 	}
 
 
+int print_comment_field(int cmd_id)
+{
+	char					*reqtext = "optBoxItem";
+	char					*comment = comment_data;
+	struct nagios_extcmd	*ecmd = extcmd_get_command_id(cmd_id);
+
+	if (!ecmd || ecmd->cmt_opt == 0)
+		return FALSE;
+
+	if (ecmd->cmt_opt == 2)
+		reqtext = "optBoxRequiredItem";
+
+	if (!comment || !*comment) {
+		if (ecmd->default_comment)
+			comment = ecmd->default_comment;
+	}
+
+	printf("<tr><td CLASS='%s'>Author (Your Name):</td><td><b>", reqtext);
+	printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
+	printf("</b></td></tr>\n");
+	printf("<tr><td CLASS='%s'>Comment:</td><td><b>", reqtext);
+	printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment));
+	printf("</b></td></tr>\n");
+	return TRUE;
+}
+
+
 void commit_command_data(int cmd) {
 	char *error_string = NULL;
 	int result = OK;
@@ -1454,6 +1488,7 @@ void commit_command_data(int cmd) {
 	servicegroup *temp_servicegroup = NULL;
 	contact *temp_contact = NULL;
 
+	struct nagios_extcmd *ecmd = extcmd_get_command_id(cmd);
 
 	/* get authentication information */
 	get_authentication_information(&current_authdata);
@@ -1461,57 +1496,46 @@ void commit_command_data(int cmd) {
 	/* get name to use for author */
 	if(lock_author_names == TRUE) {
 		temp_contact = find_contact(current_authdata.username);
-		if(temp_contact != NULL && temp_contact->alias != NULL)
+		if(temp_contact != NULL && temp_contact->alias != NULL) {
 			comment_author = temp_contact->alias;
-		else
+		}
+		else {
 			comment_author = current_authdata.username;
 		}
+	}
+
+	if (ecmd->cmt_opt == 2 && *comment_data == '\0') {
+		if(!error_string) {
+			error_string = strdup("コメントが入力されていません");
+		}
+	}
+	clean_comment_data(comment_data);
+	if (*comment_data != '\0' && *comment_author == '\0') {
+		if(!error_string) {
+			error_string = strdup("作成者が入力されていません");
+		}
+	}
+	clean_comment_data(comment_author);
 
 	switch(cmd) {
 		case CMD_ADD_HOST_COMMENT:
 		case CMD_ACKNOWLEDGE_HOST_PROBLEM:
 
-			/* make sure we have author name, and comment data... */
-			if(!strcmp(comment_author, "")) {
-				if(!error_string)
-					error_string = strdup("作成者が入力されていません");
-				}
-			if(!strcmp(comment_data, "")) {
-				if(!error_string)
-					error_string = strdup("コメントが入力されていません");
-				}
-
-			/* clean up the comment data */
-			clean_comment_data(comment_author);
-			clean_comment_data(comment_data);
-
 			/* see if the user is authorized to issue a command... */
 			temp_host = find_host(host_name);
-			if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE)
+			if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE) {
 				authorized = TRUE;
+			}
 			break;
 
 		case CMD_ADD_SVC_COMMENT:
 		case CMD_ACKNOWLEDGE_SVC_PROBLEM:
 
-			/* make sure we have author name, and comment data... */
-			if(!strcmp(comment_author, "")) {
-				if(!error_string)
-					error_string = strdup("作成者が入力されていません");
-				}
-			if(!strcmp(comment_data, "")) {
-				if(!error_string)
-					error_string = strdup("コメントが入力されていません");
-				}
-
-			/* clean up the comment data */
-			clean_comment_data(comment_author);
-			clean_comment_data(comment_data);
-
 			/* see if the user is authorized to issue a command... */
 			temp_service = find_service(host_name, service_desc);
-			if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE)
+			if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE) {
 				authorized = TRUE;
+			}
 			break;
 
 		case CMD_DEL_HOST_COMMENT:
@@ -1519,27 +1543,32 @@ void commit_command_data(int cmd) {
 
 			/* check the sanity of the comment id */
 			if(comment_id == 0) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("コメントIDは0にできません");
 				}
+			}
 
 			/* find the comment */
-			if(cmd == CMD_DEL_HOST_COMMENT)
+			if(cmd == CMD_DEL_HOST_COMMENT) {
 				temp_comment = find_host_comment(comment_id);
-			else
+			}
+			else {
 				temp_comment = find_service_comment(comment_id);
+			}
 
 			/* see if the user is authorized to issue a command... */
 			if(cmd == CMD_DEL_HOST_COMMENT && temp_comment != NULL) {
 				temp_host = find_host(temp_comment->host_name);
-				if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE)
+				if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE) {
 					authorized = TRUE;
 				}
+			}
 			if(cmd == CMD_DEL_SVC_COMMENT && temp_comment != NULL) {
 				temp_service = find_service(temp_comment->host_name, temp_comment->service_description);
-				if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE)
+				if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE) {
 					authorized = TRUE;
 				}
+			}
 
 			/* free comment data */
 			free_comment_data();
@@ -1551,27 +1580,32 @@ void commit_command_data(int cmd) {
 
 			/* check the sanity of the downtime id */
 			if(downtime_id == 0) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("ダウンタイムIDは0にできません");
 				}
+			}
 
 			/* find the downtime entry */
-			if(cmd == CMD_DEL_HOST_DOWNTIME)
+			if(cmd == CMD_DEL_HOST_DOWNTIME) {
 				temp_downtime = find_host_downtime(downtime_id);
-			else
+			}
+			else {
 				temp_downtime = find_service_downtime(downtime_id);
+			}
 
 			/* see if the user is authorized to issue a command... */
 			if(cmd == CMD_DEL_HOST_DOWNTIME && temp_downtime != NULL) {
 				temp_host = find_host(temp_downtime->host_name);
-				if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE)
+				if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE) {
 					authorized = TRUE;
 				}
+			}
 			if(cmd == CMD_DEL_SVC_DOWNTIME && temp_downtime != NULL) {
 				temp_service = find_service(temp_downtime->host_name, temp_downtime->service_description);
-				if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE)
+				if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE) {
 					authorized = TRUE;
 				}
+			}
 
 			/* free downtime data */
 			free_downtime_data();
@@ -1598,52 +1632,39 @@ void commit_command_data(int cmd) {
 		case CMD_STOP_OBSESSING_OVER_SVC:
 		case CMD_CLEAR_SVC_FLAPPING_STATE:
 
-			/* make sure we have author name and comment data... */
-			if(cmd == CMD_SCHEDULE_SVC_DOWNTIME) {
-				if(!strcmp(comment_data, "")) {
-					if(!error_string)
-						error_string = strdup("コメントが入力されていません");
-					}
-				else if(!strcmp(comment_author, "")) {
-					if(!error_string)
-						error_string = strdup("作成者が入力されていません");
-					}
-				}
-
 			/* see if the user is authorized to issue a command... */
 			temp_service = find_service(host_name, service_desc);
-			if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE)
+			if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE) {
 				authorized = TRUE;
+			}
 
 			/* make sure we have passive check info (if necessary) */
 			if(cmd == CMD_PROCESS_SERVICE_CHECK_RESULT && !strcmp(plugin_output, "")) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("プラグイン出力は空にできません");
 				}
+			}
 
 			/* make sure we have a notification delay (if necessary) */
 			if(cmd == CMD_DELAY_SVC_NOTIFICATION && notification_delay <= 0) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("通知の遅延は0よりも大きくしなければなりません");
 				}
-
-			/* clean up the comment data if scheduling downtime */
-			if(cmd == CMD_SCHEDULE_SVC_DOWNTIME) {
-				clean_comment_data(comment_author);
-				clean_comment_data(comment_data);
-				}
+			}
 
 			/* make sure we have check time (if necessary) */
 			if(cmd == CMD_SCHEDULE_SVC_CHECK && start_time == (time_t)0) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("開始時間が不正な形式が送信されたか、0以外のものでなければなりません。");
 				}
+			}
 
 			/* make sure we have start/end times for downtime (if necessary) */
 			if(cmd == CMD_SCHEDULE_SVC_DOWNTIME && (start_time == (time_t)0 || end_time == (time_t)0 || end_time < start_time)) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("開始または終了時間が不正です");
 				}
+			}
 
 			break;
 
@@ -1671,8 +1692,9 @@ void commit_command_data(int cmd) {
 		case CMD_STOP_OBSESSING_OVER_HOST_CHECKS:
 
 			/* see if the user is authorized to issue a command... */
-			if(is_authorized_for_system_commands(&current_authdata) == TRUE)
+			if(is_authorized_for_system_commands(&current_authdata) == TRUE) {
 				authorized = TRUE;
+			}
 			break;
 
 		case CMD_ENABLE_HOST_SVC_CHECKS:
@@ -1703,52 +1725,39 @@ void commit_command_data(int cmd) {
 		case CMD_STOP_OBSESSING_OVER_HOST:
 		case CMD_CLEAR_HOST_FLAPPING_STATE:
 
-			/* make sure we have author name and comment data... */
-			if(cmd == CMD_SCHEDULE_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOST_SVC_DOWNTIME) {
-				if(!strcmp(comment_data, "")) {
-					if(!error_string)
-						error_string = strdup("コメントが入力されていません");
-					}
-				else if(!strcmp(comment_author, "")) {
-					if(!error_string)
-						error_string = strdup("作成者が入力されていません");
-					}
-				}
-
 			/* see if the user is authorized to issue a command... */
 			temp_host = find_host(host_name);
-			if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE)
+			if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE) {
 				authorized = TRUE;
-
-			/* clean up the comment data if scheduling downtime */
-			if(cmd == CMD_SCHEDULE_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOST_SVC_DOWNTIME) {
-				clean_comment_data(comment_author);
-				clean_comment_data(comment_data);
-				}
+			}
 
 			/* make sure we have a notification delay (if necessary) */
 			if(cmd == CMD_DELAY_HOST_NOTIFICATION && notification_delay <= 0) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("通知の遅延は0以上でなければなりません");
 				}
+			}
 
 			/* make sure we have start/end times for downtime (if necessary) */
 			if((cmd == CMD_SCHEDULE_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOST_SVC_DOWNTIME) && (start_time == (time_t)0 || end_time == (time_t)0 || start_time > end_time)) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("開始または終了時間が不正です");
 				}
+			}
 
 			/* make sure we have check time (if necessary) */
 			if((cmd == CMD_SCHEDULE_HOST_CHECK || cmd == CMD_SCHEDULE_HOST_SVC_CHECKS) && start_time == (time_t)0) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("開始時間は不正な形式で送信されたか、0以外のものでなければなりません。");
 				}
+			}
 
 			/* make sure we have passive check info (if necessary) */
 			if(cmd == CMD_PROCESS_HOST_CHECK_RESULT && !strcmp(plugin_output, "")) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("プラグイン出力は空にできません");
 				}
+			}
 
 			break;
 
@@ -1761,34 +1770,18 @@ void commit_command_data(int cmd) {
 		case CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME:
 		case CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME:
 
-			/* make sure we have author and comment data */
-			if(cmd == CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME) {
-				if(!strcmp(comment_data, "")) {
-					if(!error_string)
-						error_string = strdup("コメントが入力されていません");
-					}
-				else if(!strcmp(comment_author, "")) {
-					if(!error_string)
-						error_string = strdup("作成者が入力されていません");
-					}
-				}
-
 			/* make sure we have start/end times for downtime */
 			if((cmd == CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME) && (start_time == (time_t)0 || end_time == (time_t)0 || start_time > end_time)) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("開始または終了時間が不正です");
 				}
+			}
 
 			/* see if the user is authorized to issue a command... */
 			temp_hostgroup = find_hostgroup(hostgroup_name);
-			if(is_authorized_for_hostgroup_commands(temp_hostgroup, &current_authdata) == TRUE)
+			if(is_authorized_for_hostgroup_commands(temp_hostgroup, &current_authdata) == TRUE) {
 				authorized = TRUE;
-
-			/* clean up the comment data if scheduling downtime */
-			if(cmd == CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME || cmd == CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME) {
-				clean_comment_data(comment_author);
-				clean_comment_data(comment_data);
-				}
+			}
 
 			break;
 
@@ -1801,67 +1794,52 @@ void commit_command_data(int cmd) {
 		case CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME:
 		case CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME:
 
-			/* make sure we have author and comment data */
-			if(cmd == CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME || cmd == CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME) {
-				if(!strcmp(comment_data, "")) {
-					if(!error_string)
-						error_string = strdup("コメントが入力されていません");
-					}
-				else if(!strcmp(comment_author, "")) {
-					if(!error_string)
-						error_string = strdup("作成者が入力されていません");
-					}
-				}
-
 			/* make sure we have start/end times for downtime */
 			if((cmd == CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME || cmd == CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME) && (start_time == (time_t)0 || end_time == (time_t)0 || start_time > end_time)) {
-				if(!error_string)
+				if(!error_string) {
 					error_string = strdup("開始または終了時間が不正です");
 				}
+			}
 
 			/* see if the user is authorized to issue a command... */
 
 			temp_servicegroup = find_servicegroup(servicegroup_name);
-			if(is_authorized_for_servicegroup_commands(temp_servicegroup, &current_authdata) == TRUE)
+			if(is_authorized_for_servicegroup_commands(temp_servicegroup, &current_authdata) == TRUE) {
 				authorized = TRUE;
+			}
 
 			break;
 
 		case CMD_SEND_CUSTOM_HOST_NOTIFICATION:
 		case CMD_SEND_CUSTOM_SVC_NOTIFICATION:
 
-			/* make sure we have author and comment data */
-			if(!strcmp(comment_data, "")) {
-				if(!error_string)
-					error_string = strdup("コメントが入力されていません");
-				}
-			else if(!strcmp(comment_author, "")) {
-				if(!error_string)
-					error_string = strdup("作成者が入力されていません");
-				}
-
 			/* see if the user is authorized to issue a command... */
 			if(cmd == CMD_SEND_CUSTOM_HOST_NOTIFICATION) {
 				temp_host = find_host(host_name);
-				if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE)
+				if(is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE) {
 					authorized = TRUE;
 				}
+			}
 			else {
 				temp_service = find_service(host_name, service_desc);
-				if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE)
+				if(is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE) {
 					authorized = TRUE;
 				}
+			}
 			break;
 
 		default:
-			if(!error_string) error_string = strdup("コマンドの実行中にエラーが発生しました！");
+			if(!error_string) {
+				error_string = strdup("コマンドの実行中にエラーが発生しました！");
+			}
 		}
 
 
 	/* to be safe, we are going to REQUIRE that the authentication functionality is enabled... */
 	if(use_authentication == FALSE) {
-		if(content_type == WML_CONTENT)
+		if(content_type == WML_CONTENT) {
 			printf("<p>エラー: CGIの認証機能が無効になっています。</p>\n");
+		}
 		else {
 			printf("<P>\n");
 			printf("<DIV CLASS='errorMessage'>実行できません。</DIV><br>");
@@ -1872,42 +1850,45 @@ void commit_command_data(int cmd) {
 			printf("<strong>HTMLドキュメントの CGI認証機能の項目を熟読してから認証機能の設定を行ってください。</strong>\n");
 			printf("</DIV>\n");
 			printf("</P>\n");
-			}
 		}
+	}
 
 	/* the user is not authorized to issue the given command */
 	else if(authorized == FALSE) {
-		if(content_type == WML_CONTENT)
+		if(content_type == WML_CONTENT) {
 			printf("<p>エラー: このコマンドを発行する権限がありません。</p>\n");
+		}
 		else {
 			printf("<P><DIV CLASS='errorMessage'>このコマンドを発行する権限がありません。</DIV></P>\n");
 			printf("<P><DIV CLASS='errorDescription'>HTMLドキュメントの CGI認証機能の項目を熟読してから認証機能の設定を行ってください。<BR><BR>\n");
 			printf("<A HREF='javascript:window.history.go(-2)'>元のページへ戻る</A></DIV></P>\n");
-			}
 		}
+	}
 
 	/* some error occurred (data was probably missing) */
 	else if(error_string) {
-		if(content_type == WML_CONTENT)
+		if(content_type == WML_CONTENT) {
 			printf("<p>%s</p>\n", error_string);
+		}
 		else {
 			printf("<P><DIV CLASS='errorMessage'>%s</DIV></P>\n", error_string);
 			free(error_string);
 			printf("<P><DIV CLASS='errorDescription'>入力に誤りが無いか<A HREF='javascript:window.history.go(-1)'>戻って</A>確認してください。<BR>\n");
 			printf("<A HREF='javascript:window.history.go(-2)'>元のページへ戻る</A></DIV></P>\n");
-			}
 		}
+	}
 
 	/* if Nagios isn't checking external commands, don't do anything... */
 	else if(check_external_commands == FALSE) {
-		if(content_type == WML_CONTENT)
+		if(content_type == WML_CONTENT) {
 			printf("<p>エラー: Nagiosが外部コマンドをチェックできないためコマンド発行できませんでした。</p>\n");
+		}
 		else {
 			printf("<P><DIV CLASS='errorMessage'>Nagiosが外部コマンドをチェックできないためコマンド発行できませんでした。</DIV></P>\n");
 			printf("<P><DIV CLASS='errorDescription'>外部コマンド使い方についてドキュメントを読んでください。<BR><BR>\n");
 			printf("<A HREF='javascript:window.history.go(-2)'>元のページへ戻る</A></DIV></P>\n");
-			}
 		}
+	}
 
 	/* everything looks okay, so let's go ahead and commit the command... */
 	else {
@@ -1916,26 +1897,28 @@ void commit_command_data(int cmd) {
 		result = commit_command(cmd);
 
 		if(result == OK) {
-			if(content_type == WML_CONTENT)
+			if(content_type == WML_CONTENT) {
 				printf("<p>コマンドを正常に受け付けました。</p>\n");
+			}
 			else {
 				printf("<P><DIV CLASS='infoMessage'>コマンドを正常に受け付けました。<BR><BR>\n");
 				printf("注)コマンドが実行されるまではしばらく時間がかかります。<BR><BR>\n");
 				printf("<A HREF='javascript:window.history.go(-2)'>了解</A></DIV></P>");
-				}
 			}
+		}
 		else {
-			if(content_type == WML_CONTENT)
+			if(content_type == WML_CONTENT) {
 				printf("<p>コマンドを処理する際にエラーが発生しました。</p>\n");
+			}
 			else {
 				printf("<P><DIV CLASS='errorMessage'>コマンドを処理する際にエラーが発生しました。<BR><BR>\n");
 				printf("<A HREF='javascript:window.history.go(-2)'>元のページへ戻る</A></DIV></P>\n");
-				}
 			}
 		}
-
-	return;
 	}
+
+	my_free(error_string);
+}
 
 __attribute__((format(printf, 2, 3)))
 static int cmd_submitf(int id, const char *fmt, ...) {
@@ -1966,6 +1949,13 @@ static int cmd_submitf(int id, const char *fmt, ...) {
 		if(len2 < 0 || len >= sizeof(cmd))
 			return ERROR;
 		}
+
+	if (*comment_data != '\0') {
+		len2 = snprintf(cmd + len, sizeof(cmd) - len, ";%s;%s", comment_author, comment_data);
+		len += len2;
+		if(len2 < 0 || len >= sizeof(cmd))
+			return ERROR;
+	}
 
 	cmd[len] = 0; /* 0 <= len < sizeof(cmd) */
 	return write_command_to_file(cmd);
@@ -2069,11 +2059,11 @@ int commit_command(int cmd) {
 			break;
 
 		case CMD_ADD_HOST_COMMENT:
-			result = cmd_submitf(cmd, "%s;%d;%s;%s", host_name, persistent_comment, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%d", host_name, persistent_comment);
 			break;
 
 		case CMD_ADD_SVC_COMMENT:
-			result = cmd_submitf(cmd, "%s;%s;%d;%s;%s", host_name, service_desc, persistent_comment, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%s;%d", host_name, service_desc, persistent_comment);
 			break;
 
 		case CMD_DEL_HOST_COMMENT:
@@ -2135,11 +2125,11 @@ int commit_command(int cmd) {
 			break;
 
 		case CMD_ACKNOWLEDGE_HOST_PROBLEM:
-			result = cmd_submitf(cmd, "%s;%d;%d;%d;%s;%s", host_name, (sticky_ack == TRUE) ? ACKNOWLEDGEMENT_STICKY : ACKNOWLEDGEMENT_NORMAL, send_notification, persistent_comment, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%d;%d;%d", host_name, (sticky_ack == TRUE) ? ACKNOWLEDGEMENT_STICKY : ACKNOWLEDGEMENT_NORMAL, send_notification, persistent_comment);
 			break;
 
 		case CMD_ACKNOWLEDGE_SVC_PROBLEM:
-			result = cmd_submitf(cmd, "%s;%s;%d;%d;%d;%s;%s", host_name, service_desc, (sticky_ack == TRUE) ? ACKNOWLEDGEMENT_STICKY : ACKNOWLEDGEMENT_NORMAL, send_notification, persistent_comment, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%s;%d;%d;%d", host_name, service_desc, (sticky_ack == TRUE) ? ACKNOWLEDGEMENT_STICKY : ACKNOWLEDGEMENT_NORMAL, send_notification, persistent_comment);
 			break;
 
 		case CMD_PROCESS_SERVICE_CHECK_RESULT:
@@ -2156,15 +2146,15 @@ int commit_command(int cmd) {
 			else if(child_options == 2)
 				cmd = CMD_SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME;
 
-			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;%lu;%lu;%s;%s", host_name, start_time, end_time, fixed, triggered_by, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;%lu;%lu", host_name, start_time, end_time, fixed, triggered_by, duration);
 			break;
 
 		case CMD_SCHEDULE_HOST_SVC_DOWNTIME:
-			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;%lu;%lu;%s;%s", host_name, start_time, end_time, fixed, triggered_by, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;%lu;%lu", host_name, start_time, end_time, fixed, triggered_by, duration);
 			break;
 
 		case CMD_SCHEDULE_SVC_DOWNTIME:
-			result = cmd_submitf(cmd, "%s;%s;%lu;%lu;%d;%lu;%lu;%s;%s", host_name, service_desc, start_time, end_time, fixed, triggered_by, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%s;%lu;%lu;%d;%lu;%lu", host_name, service_desc, start_time, end_time, fixed, triggered_by, duration);
 			break;
 
 		case CMD_DEL_HOST_DOWNTIME:
@@ -2179,11 +2169,11 @@ int commit_command(int cmd) {
 			break;
 
 		case CMD_SEND_CUSTOM_HOST_NOTIFICATION:
-			result = cmd_submitf(cmd, "%s;%d;%s;%s", host_name, (force_notification | broadcast_notification), comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%d", host_name, (force_notification | broadcast_notification));
 			break;
 
 		case CMD_SEND_CUSTOM_SVC_NOTIFICATION:
-			result = cmd_submitf(cmd, "%s;%s;%d;%s;%s", host_name, service_desc, (force_notification | broadcast_notification), comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%s;%d", host_name, service_desc, (force_notification | broadcast_notification));
 			break;
 
 
@@ -2213,13 +2203,13 @@ int commit_command(int cmd) {
 			break;
 
 		case CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME:
-			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu;%s;%s", hostgroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu", hostgroup_name, start_time, end_time, fixed, duration);
 			break;
 
 		case CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME:
-			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu;%s;%s", hostgroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu", hostgroup_name, start_time, end_time, fixed, duration);
 			if(affect_host_and_services == TRUE)
-				result |= cmd_submitf(CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME, "%s;%lu;%lu;%d;0;%lu;%s;%s", hostgroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+				result |= cmd_submitf(CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME, "%s;%lu;%lu;%d;0;%lu", hostgroup_name, start_time, end_time, fixed, duration);
 			break;
 
 
@@ -2249,13 +2239,13 @@ int commit_command(int cmd) {
 			break;
 
 		case CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME:
-			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu;%s;%s", servicegroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu", servicegroup_name, start_time, end_time, fixed, duration);
 			break;
 
 		case CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME:
-			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu;%s;%s", servicegroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+			result = cmd_submitf(cmd, "%s;%lu;%lu;%d;0;%lu", servicegroup_name, start_time, end_time, fixed, duration);
 			if(affect_host_and_services == TRUE)
-				result |= cmd_submitf(CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME, "%s;%lu;%lu;%d;0;%lu;%s;%s", servicegroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+				result |= cmd_submitf(CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME, "%s;%lu;%lu;%d;0;%lu", servicegroup_name, start_time, end_time, fixed, duration);
 			break;
 
 		default:
@@ -2328,6 +2318,9 @@ int write_command_to_file(char *cmd) {
 void clean_comment_data(char *buffer) {
 	int x;
 	int y;
+
+	if (!buffer || !*buffer)
+		return;
 
 	y = (int)strlen(buffer);
 

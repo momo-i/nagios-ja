@@ -767,14 +767,12 @@ int main(int argc, char **argv) {
 		printf("<input type='text' name='backtrack' size='2' maxlength='2' value='%d'>\n", backtrack_archives);
 		printf("</td></tr>\n");
 
-		if((display_type == DISPLAY_HOST_AVAIL && show_all_hosts == TRUE) || (display_type == DISPLAY_SERVICE_AVAIL && show_all_services == TRUE)) {
-			printf("<tr>");
-			printf("<td valign=top class='reportSelectSubTitle'>CSV形式で出力する:</td>\n");
-			printf("<td valign=top class='reportSelectItem'>");
-			printf("<input type='checkbox' name='csvoutput' value=''>\n");
-			printf("</td>\n");
-			printf("</tr>\n");
-			}
+		printf("<tr>");
+		printf("<td valign=top class='reportSelectSubTitle'>CSV形式で出力する:</td>\n");
+		printf("<td valign=top class='reportSelectItem'>");
+		printf("<input type='checkbox' name='csvoutput' value=''>\n");
+		printf("</td>\n");
+		printf("</tr>\n");
 
 		printf("<tr><td></td><td align=left class='dateSelectItem'><input type='submit' value='稼働レポートを作成'></td></tr>\n");
 
@@ -1044,7 +1042,8 @@ void document_header(int use_stylesheet) {
 	if(output_format == HTML_OUTPUT)
 		printf("Content-type: text/html; charset=utf-8\r\n\r\n");
 	else {
-		printf("Content-type: text/csv\r\n\r\n");
+		printf("Content-type: text/csv\r\n");
+		printf("Content-Disposition: attachment; filename=\"avail.csv\"\r\n\r\n");
 		return;
 		}
 
@@ -1102,7 +1101,7 @@ int process_cgivars(void) {
 
 	variables = getcgivars();
 
-	for(x = 0; variables[x] != NULL; x++) {
+	for(x = 0; variables[x]; x++) {
 
 		/* do some basic length checking on the variable identifier to prevent buffer overflows */
 		if(strlen(variables[x]) >= MAX_INPUT_BUFFER - 1) {
@@ -3590,7 +3589,8 @@ void display_specific_servicegroup_availability(servicegroup *sg) {
 	int odd = 1;
 	host *temp_host;
 	service *temp_service;
-	char last_host[MAX_INPUT_BUFFER];
+	/* Initialize to empty string for initial strcmp() below */
+	char last_host[MAX_INPUT_BUFFER] = { 0 };
 
 	if(sg == NULL)
 		return;
