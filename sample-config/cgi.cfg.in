@@ -56,11 +56,10 @@ use_pending_states=1
 
 
 
-
 # AUTHENTICATION USAGE
-# This option controls whether or not the CGIs will use any 
+# This option controls whether or not the CGIs will use any
 # authentication when displaying host and service information, as
-# well as committing commands to Nagios for processing.  
+# well as committing commands to Nagios for processing.
 #
 # Read the HTML documentation to learn how the authorization works!
 #
@@ -78,14 +77,12 @@ use_authentication=1
 
 
 
-
 # x509 CERT AUTHENTICATION
 # When enabled, this option allows you to use x509 cert (SSL)
 # authentication in the CGIs.  This is an advanced option and should
 # not be enabled unless you know what you're doing.
 
 use_ssl_authentication=0
-
 
 
 
@@ -102,7 +99,7 @@ use_ssl_authentication=0
 # access to the CGIs has been authenticated in some manner!  If you
 # define this variable, anyone who has not authenticated to the web
 # server will inherit all rights you assign to this user!
- 
+
 #default_user_name=guest
 
 
@@ -152,7 +149,6 @@ authorized_for_system_commands=nagiosadmin
 # you choose to not use authorization). You may use an asterisk (*)
 # to authorize any user who has authenticated to the web server.
 
-
 authorized_for_all_services=nagiosadmin
 authorized_for_all_hosts=nagiosadmin
 
@@ -161,9 +157,9 @@ authorized_for_all_hosts=nagiosadmin
 # GLOBAL HOST/SERVICE COMMAND ACCESS
 # These two options are comma-delimited lists of all usernames that
 # can issue host or service related commands via the command
-# CGI (cmd.cgi) for all hosts and services that are being monitored. 
-# By default, users can only issue commands for hosts or services 
-# that they are contacts for (unless you you choose to not use 
+# CGI (cmd.cgi) for all hosts and services that are being monitored.
+# By default, users can only issue commands for hosts or services
+# that they are contacts for (unless you you choose to not use
 # authorization).  You may use an asterisk (*) to authorize any
 # user who has authenticated to the web server.
 
@@ -182,9 +178,8 @@ authorized_for_all_host_commands=nagiosadmin
 
 
 
-
 # STATUSMAP BACKGROUND IMAGE
-# This option allows you to specify an image to be used as a 
+# This option allows you to specify an image to be used as a
 # background in the statusmap CGI.  It is assumed that the image
 # resides in the HTML images path (i.e. /usr/local/nagios/share/images).
 # This path is automatically determined by appending "/images"
@@ -198,17 +193,15 @@ authorized_for_all_host_commands=nagiosadmin
 
 
 
-
 # STATUSMAP TRANSPARENCY INDEX COLOR
 # These options set the r,g,b values of the background color used the statusmap CGI,
 # so normal browsers that can't show real png transparency set the desired color as
-# a background color instead (to make it look pretty).  
+# a background color instead (to make it look pretty).
 # Defaults to white: (R,G,B) = (255,255,255).
 
 #color_transparency_index_r=255
 #color_transparency_index_g=255
 #color_transparency_index_b=255
-
 
 
 
@@ -257,7 +250,7 @@ default_statuswrl_layout=4
 
 
 # STATUSWRL INCLUDE
-# This option allows you to include your own objects in the 
+# This option allows you to include your own objects in the
 # generated VRML world.  It is assumed that the file
 # resides in the HTML path (i.e. /usr/local/nagios/share).
 
@@ -283,17 +276,27 @@ ping_syntax=/bin/ping -n -U -c 5 $HOSTADDRESS$
 
 # REFRESH RATE
 # This option allows you to specify the refresh rate in seconds
-# of various CGIs (status, statusmap, extinfo, and outages).  
+# of various CGIs (status, statusmap, extinfo, and outages).
 
 refresh_rate=90
 
+
+
+# PAGE TOUR
+# Enable page tour for helpful tips and tricks on various pages
+
+#enable_page_tour=1
+
+
+
 # DEFAULT PAGE LIMIT
-# This option allows you to specify the default number of results 
+# This option allows you to specify the default number of results
 # displayed on the status.cgi.  This number can be adjusted from
 # within the UI after the initial page load. Setting this to 0
-# will show all results.  
+# will show all results.
 
 result_limit=100
+
 
 
 # ESCAPE HTML TAGS
@@ -302,7 +305,6 @@ result_limit=100
 # your plugin output will not be able to contain clickable links.
 
 escape_html_tags=1
-
 
 
 
@@ -333,7 +335,7 @@ escape_html_tags=1
 
 
 # URL TARGET FRAMES
-# These options determine the target frames in which notes and 
+# These options determine the target frames in which notes and
 # action URLs will open.
 
 action_url_target=_blank
@@ -341,16 +343,14 @@ notes_url_target=_blank
 
 
 
-
 # LOCK AUTHOR NAMES OPTION
-# This option determines whether users can change the author name 
-# when submitting comments, scheduling downtime.  If disabled, the 
+# This option determines whether users can change the author name
+# when submitting comments, scheduling downtime.  If disabled, the
 # author names will be locked into their contact name, as defined in Nagios.
 # Values: 0 = allow editing author names
 #         1 = lock author names (disallow editing)
 
 lock_author_names=1
-
 
 
 
@@ -368,11 +368,8 @@ lock_author_names=1
 
 #enable_splunk_integration=1
 
-
 # This option should be the URL used to access your instance of Splunk
-
 #splunk_url=http://127.0.0.1:8000/
-
 
 
 
@@ -387,16 +384,42 @@ navbar_search_for_aliases=1
 
 
 
-
-
 # DEFAULTS FOR CHECKBOXES FOR ACKNOWLEDGEMENTS
-# Enabling ack_no_sticky will default the "Sticky Acknowledgement" to 
+# Enabling ack_no_sticky will default the "Sticky Acknowledgement" to
 # be unchecked.
-# Enabling ack_no_send will default the "Send Notification" to 
+# Enabling ack_no_send will default the "Send Notification" to
 # be unchecked.
 
 #ack_no_sticky=0
 #ack_no_send=0
+
+
+
+# SHOW ONLY HARD STATES IS TACTICAL OVERVIEW
+# This option controls whether only HARD states are counted on the
+# Tactical Overview, or if both HARD and SOFT states are counted.
+# Set to 1 to show only HARD states. Defaults to 0 (HARD+SOFT).
+
+#tac_cgi_hard_only=0
+
+
+
+# COMMAND COMMENTS
+# These options control whether or not comments are required, optional,
+# or not allowed for specific commands. The format for each line is:
+#    cmd-name=req,def-comment
+#
+#    cmd-name     is "CMT_" plus a command such as ADD_HOST_COMMENT
+#    req          0 = not allowed, 1 = optional, 2 = required
+#    def-comment  optional default comment that will be put in the input field
+#
+# The following examples override the default comment requirements in
+# some way.
+
+#CMT_ADD_HOST_COMMENT=1
+#CMT_ACKNOWLEDGE_HOST_PROBLEM=2,"Problem is being looked into"
+#CMT_SCHEDULE_SVC_CHECK=1
+#CMT_SCHEDULE_HOST_DOWNTIME=0
 
 # TRUE TYPE FONT FILE (JAPANESE FONT ONLY)
 # The font file used for the text of the image outputted by GD

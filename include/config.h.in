@@ -29,6 +29,12 @@
 /* Event broker integration */
 #undef USE_EVENT_BROKER
 
+/* NERD / radio dispatch usage */
+#undef ENABLE_NERD
+
+/* check for RLIMIT_PROC */
+#undef DETECT_RLIMIT_PROBLEM
+
 /* commands used by CGIs */
 #undef TRACEROUTE_COMMAND
 #undef PING_COMMAND

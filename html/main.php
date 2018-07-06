@@ -1,8 +1,8 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
 
-$this_version = '4.3.4';
-$this_year = '2017';
+$this_version = '4.4.1';
+$this_year = '2018';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -14,20 +14,25 @@ $this_year = '2017';
 <title>Nagios Core 日本語化</title>
 <link rel="stylesheet" type="text/css" href="stylesheets/common.css?<?php echo $this_version; ?>" />
 <link rel="stylesheet" type="text/css" href="stylesheets/nag_funcs.css?<?php echo $this_version; ?>" />
-<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="js/nag_funcs.js"></script>
 
 <script type='text/javascript'>
-	var vbox, cookie;
-	var vBoxId = "main";
-	var vboxText = "<a href=https://www.nagios.com/tours target=_blank> " +
-					"Nagiosコア4のツアー全体を見るにはここをクリック！</a>";
-	$(document).ready(function() {
+	var cookie;
+	<?php if ($cfg["enable_page_tour"]) { ?>
+		var vbox;
+		var vBoxId = "main";
+		var vboxText = "<a href=https://www.nagios.com/tours target=_blank> " +
+						"Nagiosコア4のツアー全体を見るにはここをクリック！</a>";
+	<?php } ?>
+		$(document).ready(function() {
 		var user = "<?php echo $_SERVER['REMOTE_USER']; ?>";
 
-		vBoxId += ";" + user;
-		vbox = new vidbox({pos:'lr',vidurl:'https://www.youtube.com/embed/2hVBAet-XpY',
-							text:vboxText,vidid:vBoxId});
+		<?php if ($cfg["enable_page_tour"]) { ?>
+			vBoxId += ";" + user;
+			vbox = new vidbox({pos:'lr',vidurl:'https://www.youtube.com/embed/2hVBAet-XpY',
+								text:vboxText,vidid:vBoxId});
+		<?php } ?>
 		loadRemoteFeed( // Our top banner splash.
 			'#splashbox0-contents', 'corebanner', 1,
 			'', processBannerItem, ''
@@ -140,7 +145,7 @@ $this_year = '2017';
 <div id="currentversioninfo">
 	<div class="product">Nagios<sup><span style="font-size: small;">&reg;</span></sup> Core<sup><span style="font-size: small;">&trade;</span></sup> 日本語化</div>
 	<div class="version">バージョン <?php echo $this_version; ?></div>
-	<div class="releasedate">2017年8月24日</div>
+	<div class="releasedate">2018年6月25日</div>
 	<div class="checkforupdates"><a href="https://www.nagios.org/checkforupdates/?version=<?php echo $this_version; ?>&amp;product=nagioscore" target="_blank">更新のチェック</a></div>
 </div>
 
@@ -206,7 +211,7 @@ $this_year = '2017';
 		</div>
 
 	</div><!-- end splashrow1 -->
-	
+
 	<div id="splashrow2">
 
 		<div id="splashbox4" class="splashbox splashbox-clear"><!-- latest news feed -->
@@ -240,7 +245,7 @@ $this_year = '2017';
 		<a href="https://www.nagios.org/" target="_blank"><img src="images/weblogo1.png" width="102" height="47" border="0" style="padding: 0 40px 0 40px;" title="Nagios.org" /></a>
 		<a href="http://sourceforge.net/projects/nagios" target="_blank"><img src="images/sflogo.png" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 	</div>
-</div> 
+</div>
 
 
 </body>

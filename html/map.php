@@ -4,7 +4,7 @@
 <?php
 	include_once(dirname(__FILE__).'/includes/utils.inc.php');
 	get_update_information();
-?>   
+?>
 
 	<head>
 		<meta charset="utf-8"/>
@@ -27,6 +27,7 @@
 		if ($layout > 10 || $layout < 0)
 			$layout = 6;
 	}
+
 	/* This allows a user supplied layout */
 	if (
 		filter_input(INPUT_GET, 'layout', FILTER_VALIDATE_INT) === 0 ||
@@ -40,16 +41,16 @@
 
 	if ($layout == 4)
 		$layout = 6;
-?>   
+?>
 		<script type="text/javascript">
 		map_layout=<?php echo $layout; ?>;
 		</script>
 		<title>Nagios Map</title>
 		<link type="image/ico" rel="shortcut icon" href="images/favicon.ico"/>
 		<link type="text/css" rel="stylesheet"
-				href="bootstrap-3.3.0/css/bootstrap.min.css">
+				href="bootstrap-3.3.7/css/bootstrap.min.css">
 		<link type="text/css" rel="stylesheet"
-				href="bootstrap-3.3.0/css/bootstrap-theme.min.css">
+				href="bootstrap-3.3.7/css/bootstrap-theme.min.css">
 		<link type='text/css' rel='stylesheet' href='stylesheets/common.css'/>
 		<link type='text/css' rel='stylesheet' href='stylesheets/map.css'/>
 		<link type='text/css' rel='stylesheet' href='stylesheets/map-directive.css'/>
@@ -58,31 +59,33 @@
 		<script type="text/javascript"
 				src="angularjs/angular-1.3.9/angular.min.js"></script>
 		<script type="text/javascript"
-				src="angularjs/ui-bootstrap-tpls-0.12.0.min.js"></script>
+				src="angularjs/ui-bootstrap-tpls-0.14.3.min.js"></script>
 		<script type="text/javascript"
-				src="angularjs/ui-utils-0.2.1/ui-utils.js"></script>
+				src="angularjs/ui-utils-0.2.3/ui-utils.js"></script>
 		<script type="text/javascript" src="spin/spin.min.js"></script>
 		<script type="text/javascript" src="js/map.js"></script>
 		<script type="text/javascript" src="js/map-directive.js"></script>
 		<script type="text/javascript" src="js/map-form.js"></script>
 		<script type="text/javascript" src="js/nagios-decorations.js"></script>
 		<script type="text/javascript" src="js/nagios-time.js"></script>
-		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
 		<script type="text/javascript" src="js/nag_funcs.js"></script>
 
-		<script type='text/javascript'>
-			var vbox;
-			var vBoxId = "map";
-			var vboxText = "<a href=https://www.nagios.com/tours target=_blank>" +
-						"Nagiosコア4のツアー全体を見るにはここをクリック！</a>";
-			$(document).ready(function() {
-				var user = "<?php echo $_SERVER['REMOTE_USER']; ?>";
+		<?php if ($cfg["enable_page_tour"]) { ?>
+			<script type='text/javascript'>
+				var vbox;
+				var vBoxId = "map";
+				var vboxText = "<a href=https://www.nagios.com/tours target=_blank>" +
+							"Click here to watch the entire Nagios Core 4 Tour!</a>";
+				$(document).ready(function() {
+					var user = "<?php echo $_SERVER['REMOTE_USER']; ?>";
 
-				vBoxId += ";" + user;
-				vbox = new vidbox({pos:'lr',vidurl:'https://www.youtube.com/embed/leaRdb3BElI',
-									text:vboxText,vidid:vBoxId});
-			});
-		</script>
+					vBoxId += ";" + user;
+					vbox = new vidbox({pos:'lr',vidurl:'https://www.youtube.com/embed/leaRdb3BElI',
+										text:vboxText,vidid:vBoxId});
+				});
+			</script>
+		<?php } ?>
 
 	</head>
 	<body ng-controller="mapCtrl" <?php echo $img; ?>>
@@ -93,7 +96,7 @@
 					update-interval="10"
 					last-update="lastUpdate"
 					initial-state="collapsed"
-					collapsable="true"
+					collapsible="true"
 					include-partial="map-links.html">
 			</div>
 		</div>

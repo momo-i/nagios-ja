@@ -1084,10 +1084,7 @@ angular.module("mapApp")
 						});
 					}
 
-					// If the node has no children and the host list
-					// does, create the property and initialize it
-					if (!node.hasOwnProperty("children") ||
-							node.children == null) {
+					if (!node.hasOwnProperty("children") || node.children == null) {
 						node.children = new Array;
 					}
 
