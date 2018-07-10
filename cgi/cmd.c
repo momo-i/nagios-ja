@@ -1466,10 +1466,10 @@ int print_comment_field(int cmd_id)
 			comment = ecmd->default_comment;
 	}
 
-	printf("<tr><td CLASS='%s'>Author (Your Name):</td><td><b>", reqtext);
+	printf("<tr><td CLASS='%s'>作成者:</td><td><b>", reqtext);
 	printf("<INPUT TYPE='TEXT' NAME='com_author' VALUE='%s' %s>", escape_string(comment_author), (lock_author_names == TRUE) ? "READONLY DISABLED" : "");
 	printf("</b></td></tr>\n");
-	printf("<tr><td CLASS='%s'>Comment:</td><td><b>", reqtext);
+	printf("<tr><td CLASS='%s'>コメント:</td><td><b>", reqtext);
 	printf("<INPUT TYPE='TEXT' NAME='com_data' VALUE='%s' SIZE=40>", escape_string(comment));
 	printf("</b></td></tr>\n");
 	return TRUE;
