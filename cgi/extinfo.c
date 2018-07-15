@@ -722,7 +722,7 @@ void show_process_info(void) {
 	char date_time[MAX_DATETIME_LENGTH];
 	time_t current_time;
 	unsigned long run_time;
-	char run_time_string[24];
+	char run_time_string[240];
 	int days = 0;
 	int hours = 0;
 	int minutes = 0;
