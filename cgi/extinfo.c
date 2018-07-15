@@ -747,7 +747,7 @@ void show_process_info(void) {
 	char date_time[MAX_DATETIME_LENGTH];
 	time_t current_time;
 	unsigned long run_time;
-	char run_time_string[24];
+	char run_time_string[240];
 	int days = 0;
 	int hours = 0;
 	int minutes = 0;
@@ -1123,7 +1123,7 @@ void show_host_info(void) {
 
 		printf("<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS='command'>\n");
 #ifdef USE_STATUSMAP
-		printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='Locate Host On Map' TITLE='マップ上のホストの位置を確認'></td><td CLASS='command'><a href='%s?host=%s&root=%s'>マップ上のホストの位置を確認</a></td></tr>\n", url_images_path, STATUSMAP_ICON, STATUSMAP_CGI, url_encode(host_name), url_encode(host_name));
+		printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='マップ上のホストの位置を確認' TITLE='マップ上のホストの位置を確認'></td><td CLASS='command'><a href='%s?host=%s&root=%s'>マップ上のホストの位置を確認</a></td></tr>\n", url_images_path, STATUSMAP_ICON, STATUSMAP_CGI, url_encode(host_name), url_encode(host_name));
 #endif
 		if(temp_hoststatus->checks_enabled == TRUE) {
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストの動作チェックを無効' TITLE='このホストの動作チェックを無効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストの動作チェックを無効</a></td></tr>\n", url_images_path, DISABLED_ICON, COMMAND_CGI, CMD_DISABLE_HOST_CHECK, url_encode(host_name));
@@ -1156,7 +1156,7 @@ void show_host_info(void) {
 		else
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='このホストの通知を有効' TITLE='このホストの通知を有効'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>このホストの通知を有効</a></td></tr>\n", url_images_path, ENABLED_ICON, COMMAND_CGI, CMD_ENABLE_HOST_NOTIFICATIONS, url_encode(host_name));
 
-		printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='今すぐ通知する' TITLE='今すぐ通知する'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>Send custom host notification</a></td></tr>\n", url_images_path, NOTIFICATION_ICON, COMMAND_CGI, CMD_SEND_CUSTOM_HOST_NOTIFICATION, url_encode(host_name));
+		printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='今すぐ通知する' TITLE='今すぐ通知する'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>今すぐ通知する</a></td></tr>\n", url_images_path, NOTIFICATION_ICON, COMMAND_CGI, CMD_SEND_CUSTOM_HOST_NOTIFICATION, url_encode(host_name));
 
 		if(temp_hoststatus->status != SD_HOST_UP)
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='次のホスト通知を遅らせる' TITLE='次のホスト通知を遅らせる'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>次のホスト通知を遅らせる</a></td></tr>\n", url_images_path, DELAY_ICON, COMMAND_CGI, CMD_DELAY_HOST_NOTIFICATION, url_encode(host_name));
