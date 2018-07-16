@@ -37,7 +37,7 @@ while($iteration <= $iterations_max) {
 	my $start = time;
 	$output = `NAGIOS_CGI_CONFIG=etc/cgi-with-generated-status.cfg REQUEST_METHOD=GET REMOTE_USER=nagiosadmin QUERY_STRING="host=host1" $status_cgi`;
 	my $duration = time-$start;
-	like( $output, "/This service has $num_comments comments associated with it/", "Found $num_comments comments in HTML output from status.dat. Took $duration seconds" );
+	like( $output, "/このサービスには $num_comments 個のコメントがあります/", "Found $num_comments comments in HTML output from status.dat. Took $duration seconds" );
 
 	# This test is invalid - the comments displayed are in the order they are read
 	# As the test status.dat generator is in a random order, the output will also be in the same
