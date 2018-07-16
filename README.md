@@ -15,7 +15,7 @@ CGIプログラムは現在のステータス、履歴、などをWebインタ�
 Nagiosのホームページ https://www.nagios.org を訪れてください。
 
 
-[Features](https://www.nagios.org/about/features/)
+[機能](https://www.nagios.org/about/features/)
 -----------------------------------------------
 * Monitoring of network services (via SMTP, POP3, HTTP, PING, etc).
 * Monitoring of host resources (processor load, disk usage, etc.).
@@ -32,7 +32,7 @@ Nagiosのホームページ https://www.nagios.org を訪れてください。
   notification and problem history, log file, etc.
 
 
-Changes
+変更履歴
 -------
 See the
 [Changelog](https://raw.githubusercontent.com/NagiosEnterprises/nagioscore/master/Changelog)
@@ -41,15 +41,15 @@ for a summary of important changes and fixes, or the
 for more detail.
 
 
-Download
+ダウンロード
 --------
-Latest releases can be downloaded from https://www.nagios.org/download/
+最新版は https://www.nagios.org/download/ からダウンロードできます。日本語化パッチについては https://ftp.momo-i.org/pub/security/nagios/patches/ からダウンロードできます。
 
 
-Installation
+インストール方法
 ------------
-[Quickstart installation guides](http://nagios.sourceforge.net/docs/nagioscore/4/en/quickstart.html)
-are available to help you get Nagios up and monitoring.
+[クイックスタートインストールガイド](http://nagios.sourceforge.net/docs/nagioscore/4/en/quickstart.html)
+はNagiosの起動や監視に役立ちます。
 
 
 Documentation & Support
