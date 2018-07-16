@@ -1,18 +1,18 @@
-Nagios 4.x
+Nagios 4.x 日本語化
 ==========
 
 ![Nagios!](https://www.nagios.com/wp-content/uploads/2015/05/Nagios-Black-500x124.png)
 
-[![Build Status](https://travis-ci.org/NagiosEnterprises/nagioscore.svg?branch=master)](https://travis-ci.org/NagiosEnterprises/nagioscore)
+[![Build Status](https://travis-ci.org/momo-i/nagios-ja.svg?branch=master)](https://travis-ci.org/momo-i/nagios-ja)
 
 
-Nagios is a host/service/network monitoring program written in C and
-released under the GNU General Public License, version 2. CGI programs
-are included to allow you to view the current status, history, etc via
-a web interface if you so desire.
+NagiosはC言語で書かれたホスト/サービス/ネットワークプログラムで、
+GNU一般公衆利用許諾契約書、バージョン2の下でリリースされています。
+CGIプログラムは現在のステータス、履歴、などをWebインターフェースを
+通じてみることができるようになっています。
 
-Visit the Nagios homepage at https://www.nagios.org for documentation,
-new releases, bug reports, information on discussion forums, and more.
+ドキュメント、新規リリース、バグレポート、掲示板の情報などは
+Nagiosのホームページ https://www.nagios.org を訪れてください。
 
 
 [Features](https://www.nagios.org/about/features/)
