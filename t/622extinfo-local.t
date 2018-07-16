@@ -19,8 +19,8 @@ my $remote_user = "REMOTE_USER=nagiosadmin";
 plan tests => 2;
 
 $output = `NAGIOS_CGI_CONFIG=etc/cgi.cfg REQUEST_METHOD=GET $remote_user $extinfo_cgi`;
-like( $output, "/Process Information/", "extinfo.cgi without params show the process information" );
+like( $output, "/プロセス情報/", "extinfo.cgi without params show the process information" );
 
 $output = `NAGIOS_CGI_CONFIG=etc/cgi.cfg REQUEST_METHOD=GET $remote_user QUERY_STRING='&type=1&host=host1' $extinfo_cgi`;
-like( $output, "/Schedule downtime for all services on this host/", "extinfo.cgi allows us to set downtime for a host and all of his services" );
+like( $output, "/このホスト上の全サービスのダウンタイムをスケジュール/", "extinfo.cgi allows us to set downtime for a host and all of his services" );
 
