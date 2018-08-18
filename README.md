@@ -17,10 +17,9 @@ Nagiosのホームページ https://www.nagios.org を訪れてください。
 
 [機能](https://www.nagios.org/about/features/)
 -----------------------------------------------
-* Monitoring of network services (via SMTP, POP3, HTTP, PING, etc).
-* Monitoring of host resources (processor load, disk usage, etc.).
-* A plugin interface to allow for user-developed service monitoring
-  methods.
+* SMTP、POP3、HTTP、PINGなどを経由したネットワークサービスの監視
+* CPU負荷、ディスr九使用率などのホストリソースの監視
+* ユーザが開発したサービス監視方法を許可するインターフェースプラグイン
 * Ability to define network host hierarchy using "parent" hosts,
   allowing detection of and distinction between hosts that are down
   and those that are unreachable.
