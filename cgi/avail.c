@@ -2049,7 +2049,6 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 			}
 		}
 	}
-
 	/* no report timeperiod was selected (assume 24x7) */
 	else {
 		/* calculate time in this state */
