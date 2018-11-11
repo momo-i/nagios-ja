@@ -1997,6 +1997,7 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 
 	/* MickeM - attempt to handle the current time_period (if any) */
 	if (current_timeperiod != NULL) {
+
 		t = localtime((time_t *)&start_time);
 		state_duration = 0;
 
@@ -2009,6 +2010,7 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 		weekday        = t->tm_wday;
 
 		while (midnight_today < end_time) {
+
 			temp_duration = 0;
 			temp_end = min(86400, end_time - midnight_today);
 			temp_start = 0;
@@ -2040,6 +2042,7 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 #endif
 				}
 			}
+
 			state_duration += temp_duration;
 			temp_start = 0;
 			midnight_today += 86400;
@@ -2329,6 +2332,7 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 
 	/* temp_as now points to first event to possibly "break" this chunk */
 	for (; temp_as != NULL; temp_as = temp_as->next) {
+
 		count++;
 		last = temp_as;
 
@@ -2339,6 +2343,7 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 				}
 				else {
 					compute_subject_downtime_part_times(start_time, last->time_stamp, part_subject_state, subject);
+				}
 			}
 			temp_before = temp_as;
 			saved_status = temp_as->entry_type;
@@ -2362,6 +2367,7 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 				}
 				else {
 					compute_subject_downtime_part_times(saved_stamp, end_time, saved_status, subject);
+				}
 			}
 			else {
 				if (saved_stamp < start_time) {
@@ -2378,6 +2384,7 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 			if (saved_stamp < start_time) {
 				saved_stamp = start_time;
 			}
+
 		}
 	}
 
@@ -2460,7 +2467,6 @@ void compute_subject_downtime_part_times(time_t start_time, time_t end_time, int
 /* convert current host state to archived state value */
 int convert_host_state_to_archived_state(int current_status)
 {
-
 	if (current_status == SD_HOST_UP) {
 		return AS_HOST_UP;
 	}
@@ -2512,6 +2518,7 @@ void create_subject_list(void)
 
 		/* we're only displaying a specific host (and summaries for all services associated with it) */
 		if (show_all_hosts == FALSE) {
+
 			add_subject(HOST_SUBJECT, host_name, NULL);
 			for (temp_service = service_list; temp_service != NULL; temp_service = temp_service->next) {
 				if (!strcmp(temp_service->host_name, host_name)) {
@@ -2522,6 +2529,7 @@ void create_subject_list(void)
 
 		/* we're displaying all hosts */
 		else {
+
 			for (temp_host = host_list; temp_host != NULL; temp_host = temp_host->next) {
 				add_subject(HOST_SUBJECT, temp_host->name, NULL);
 			}
@@ -2549,6 +2557,7 @@ void create_subject_list(void)
 
 		/* we're displaying all hostgroups */
 		if (show_all_hostgroups == TRUE) {
+
 			for (temp_hostgroup = hostgroup_list; temp_hostgroup != NULL; temp_hostgroup = temp_hostgroup->next) {
 				for (temp_hgmember = temp_hostgroup->members; temp_hgmember != NULL; temp_hgmember = temp_hgmember->next) {
 					add_subject(HOST_SUBJECT, temp_hgmember->host_name, NULL);
@@ -3328,7 +3337,6 @@ void write_log_entries(avail_subject *subject)
 	int seconds                               = 0;
 	int odd                                   = 0;
 
-
 	if (output_format != HTML_OUTPUT) {
 		return;
 	}
@@ -3365,7 +3373,6 @@ void write_log_entries(avail_subject *subject)
 
 		add_archived_state(temp_sd->entry_type, AS_NO_DATA, temp_sd->time_stamp, entry_type, subject);
 	}
-
 
 	printf("<BR><BR>\n");
 	printf("<DIV ALIGN=CENTER CLASS='dataTitle'>%sログの内容:</DIV>\n", (subject->type == HOST_SUBJECT) ? "ホスト" : "サービス");
@@ -3855,6 +3862,7 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 		printf("<TH CLASS='data'>停止率<BR>(DOWN)</TH>");
 		printf("<TH CLASS='data'>未到達率<BR>(UNREACHABLE)</TH>");
 		printf("<TH CLASS='data'>未確定率<BR>(UNDETERMINED)</TH></TR>\n");
+	}
 
 	for (temp_subject = subject_list; temp_subject != NULL; temp_subject = temp_subject->next) {
 
@@ -3936,7 +3944,6 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 			odd = 1;
 			bgclass = "Even";
 		}
-
 		printf("<tr CLASS='data%s'><td CLASS='data%s'>平均値</td>", bgclass, bgclass);
 		printf("<td CLASS='hostUP'>%2.3f%% (%2.3f%%)</td>", average_percent_time_up, average_percent_time_up_known);
 		printf("<td CLASS='hostDOWN'>%2.3f%% (%2.3f%%)</td>", average_percent_time_down, average_percent_time_down_known);
@@ -4090,7 +4097,6 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 
 		printf("</table>\n");
 		printf("</DIV>\n");
-
 	}
 }
 
@@ -4148,6 +4154,7 @@ void display_host_availability(void)
 	double percent_time_down_unscheduled_known        = 0.0;
 	double percent_time_unreachable_scheduled_known   = 0.0;
 	double percent_time_unreachable_unscheduled_known = 0.0;
+
 	char time_up_scheduled_string[48]                 = { 0 };
 	char time_up_unscheduled_string[48]               = { 0 };
 	char time_down_scheduled_string[48]               = { 0 };
@@ -4301,10 +4308,11 @@ void display_host_availability(void)
 				percent_time_unreachable_known = (double) (((double) temp_subject->time_unreachable * 100.0) / (double) time_determinate);
 				percent_time_unreachable_scheduled_known = (double) (((double) temp_subject->scheduled_time_unreachable * 100.0) / (double) time_determinate);
 				percent_time_unreachable_unscheduled_known = percent_time_unreachable_known - percent_time_unreachable_scheduled_known;
-				}
 			}
+		}
 
 		if (output_format == HTML_OUTPUT) {
+
 			printf("<DIV ALIGN=CENTER CLASS='dataTitle'>ホスト稼働状況:</DIV>\n");
 
 #ifdef USE_TRENDS
@@ -4715,7 +4723,7 @@ void display_host_availability(void)
 			printf("</DIV>\n");
 		}
 	}
-
+}
 
 /* display service availability */
 void display_service_availability(void)
