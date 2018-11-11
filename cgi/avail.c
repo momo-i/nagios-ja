@@ -3632,7 +3632,7 @@ void display_specific_hostgroup_availability(hostgroup *hg)
 		printf("<TR><TH CLASS='data'>ホスト名</TH>");
 		printf("<TH CLASS='data'>稼働率<BR>(UP)</TH>");
 		printf("<TH CLASS='data'>停止率<BR>(DOWN)</TH>");
-		printf('"<TH CLASS='data'>未到達率<BR>(UNREACHABLE)</TH>");
+		printf("<TH CLASS='data'>未到達率<BR>(UNREACHABLE)</TH>");
 		printf("<TH CLASS='data'>未確定率<BR>(UNDETERMINED)</TH></TR>\n");
 	}
 
