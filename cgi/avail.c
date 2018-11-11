@@ -2039,8 +2039,8 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 #ifdef DEBUG
 				else {
 					printf("<li>一致しなかった時間: %ld -> %ld<br>\n", start, end);
-#endif
 				}
+#endif
 			}
 
 			state_duration += temp_duration;
