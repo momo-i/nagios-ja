@@ -136,6 +136,16 @@ angular.module("mapApp")
 				// Force layout information
 				var forceLayout = new Object;
 
+				// Watch for noresize update
+				$scope.$watch("noresize", function() {
+					$scope.allowResize = $scope.noresize == "false";
+					if ($scope.allowResize) {
+						d3.select("#resize-handle").style("visibility", "visible");
+					} else {
+						d3.select("#resize-handle").style("visibility", "hidden");
+					}
+				})
+
 				// Watch for changes on the reload value
 				$scope.$watch("reload", function(newValue) {
 
@@ -918,6 +928,11 @@ angular.module("mapApp")
 				// Re-parent the tree with a new root
 				var reparentTree = function(node) {
 
+					// Fix root nodes with no parent nodes
+					if (parent === undefined) {
+						return true;
+					}
+
 					// The specified node becomes the new node and all
 					// it's children remain in place relative to it
 					var newTree = node;
@@ -1091,14 +1106,13 @@ angular.module("mapApp")
 					// Next add any hosts in the list as children
 					// of the node, if they're not already
 					hosts.forEach(function(e) {
-						var childIndex = findElement(node.children, e,
-								function(list, index) {
-									return list[index].hostInfo.name;
-								});
+						var childIndex = node.children.findIndex(function(s) {
+							return s.hostInfo.name === e;
+						});
 								
 						if ($scope.hostList[e]) {
 
-							if (childIndex == null) {
+							if (childIndex === -1) {
 
 								// Create the node object
 								var hostNode = new Object;
@@ -1272,7 +1286,8 @@ angular.module("mapApp")
 
 					// Reparent the tree to specified root host
 					if ($scope.hostList.hasOwnProperty($scope.root) &&
-							($scope.rootNode != $scope.hostTree)) {
+						($scope.rootNode != $scope.hostTree) &&
+						$scope.hostList[$scope.root].hasOwnProperty("hostNodes")) {
 						reparentTree($scope.hostList[$scope.root].hostNodes[0]);
 					}
 
@@ -1668,7 +1683,7 @@ angular.module("mapApp")
 							$scope.hostList[host].serviceStatusJSON[service] =
 								json.data.servicelist[host][service];
 						}
-						if (serviceStatUpdated) {
+						if ($scope.hostList[host].hasOwnProperty("g") && serviceStatUpdated) {
 							$scope.hostList[host].g.forEach(function(e, i, a) {
 								updateNode(e);
 							});
@@ -1841,6 +1856,14 @@ angular.module("mapApp")
 
 				// Update the map
 				var updateMap = function(source, reparent) {
+
+					// Update config variables before updating the map
+					$scope.showText = $scope.notext == "false";
+					$scope.showLinks = $scope.nolinks == "false";
+					$scope.showPopups = $scope.nopopups == "false";
+					$scope.allowResize = $scope.noresize == "false";
+					$scope.showIcons = $scope.noicons == "false";
+
 					reparent = reparent || false;
 					switch($scope.layout) {
 					case layouts.UserSupplied.index:
