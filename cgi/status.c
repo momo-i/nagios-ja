@@ -221,8 +221,26 @@ int main(void) {
 	document_header(TRUE);
 
 	/* if a navbar search was performed, find the host by name, address or partial name */
-	if(navbar_search == TRUE) {
-		if(host_name != NULL && NULL != strstr(host_name, "*")) {
+	if(navbar_search == TRUE && host_name != NULL) {
+
+		/* Remove trailing spaces from host_name */
+		len = strlen(host_name);
+		for (i = len - 1; i >= 0; i--) {
+			if (!isspace(host_name[i])) {
+				host_name[i+1] = '\0';
+				break;
+			}
+		}
+
+		/* Remove leading spaces from host_name */
+		for (i = 0; i < len; i++) {
+			if (!isspace(host_name[i])) {
+				break;
+			}
+		}
+		strcpy(host_name, host_name + i);
+
+		if(NULL != strstr(host_name, "*")) {
 			/* allocate for 3 extra chars, ^, $ and \0 */
 			host_filter = malloc(sizeof(char) * (strlen(host_name) * 2 + 3));
 			len = strlen(host_name);
@@ -238,7 +256,7 @@ int main(void) {
 			host_filter[regex_i++] = '$';
 			host_filter[regex_i] = '\0';
 			}
-		else if (host_name != NULL) {
+		else {
 			if((temp_host = find_host(host_name)) == NULL) {
 				for(temp_host = host_list; temp_host != NULL; temp_host = temp_host->next) {
 					if(is_authorized_for_host(temp_host, &current_authdata) == FALSE)
@@ -1623,7 +1641,7 @@ void show_service_detail(void) {
 		/* get the host status information */
 		temp_hoststatus = find_hoststatus(temp_service->host_name);
 
-		/* see if we should display services for hosts with tis type of status */
+		/* see if we should display services for hosts with this type of status */
 		if(!(host_status_types & temp_hoststatus->status))
 			continue;
 
@@ -1814,8 +1832,11 @@ void show_service_detail(void) {
 				if(temp_hoststatus->notifications_enabled == FALSE) {
 					printf("<td ALIGN=center valign=center><a href='%s?type=%d&host=%s'><IMG SRC='%s%s' border=0 WIDTH=%d HEIGHT=%d ALT='このホストの通知機能は無効になっています' TITLE='このホストの通知機能は無効になっています'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, NOTIFICATIONS_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 					}
-				if(temp_hoststatus->checks_enabled == FALSE) {
-					printf("<td ALIGN=center valign=center><a href='%s?type=%d&host=%s'><IMG SRC='%s%s' border=0 WIDTH=%d HEIGHT=%d ALT='このホストのチェックは無効になってます'd TITLE='このホストのチェックは無効になってます'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+				if(temp_hoststatus->checks_enabled == FALSE && temp_hoststatus->accept_passive_checks == FALSE) {
+					printf("<td ALIGN=center valign=center><a href='%s?type=%d&host=%s'><IMG SRC='%s%s' border=0 WIDTH=%d HEIGHT=%d ALT='このホストのアクティブ/パッシブチェックは無効になってます' TITLE='このホストのチェックは無効になってます'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+					}
+				else if (temp_hoststatus->checks_enabled == FALSE) {
+					printf("<td ALIGN=center valign=center><a href='%s?type=%d&host=%s'><IMG SRC='%s%s' border=0 WIDTH=%d HEIGHT=%d ALT='このホストのチェックは無効になってます - パッシブチェックのみ許可されています' TITLE='このホストのチェックは無効になってます'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, PASSIVE_ONLY_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 					}
 				if(temp_hoststatus->is_flapping == TRUE) {
 					printf("<td ALIGN=center valign=center><a href='%s?type=%d&host=%s'><IMG SRC='%s%s' border=0 WIDTH=%d HEIGHT=%d ALT='このホストは状態がフラップしてます' TITLE='このホストは状態がフラップしてます'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, FLAPPING_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);

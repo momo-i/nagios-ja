@@ -1377,6 +1377,34 @@ void get_next_valid_time(time_t pref_time, time_t *valid_time, timeperiod *tperi
 	_get_next_valid_time(pref_time, valid_time, tperiod);
 	}
 
+/* Given the next valid time in a timeperiod, the timeperiod itself, and the normal rescheduling window, */
+/* return the next check time */
+time_t reschedule_within_timeperiod(time_t starting_valid_time, timeperiod* check_period_ptr, time_t check_window) {
+
+	log_debug_info(DEBUGL_FUNCTIONS, 0, "reschedule_within_timeperiod");
+
+	/* First, find the next time that is outside the timeperiod */
+	time_t ending_valid_time;
+	_get_next_invalid_time(starting_valid_time, &ending_valid_time, check_period_ptr);
+
+	/* _get_next_invalid_time returns the first invalid minute. The maximum allowable should be a minute earlier */
+	ending_valid_time -= 60;
+
+	/* Determine whether the next invalid time or the outside of the check_window is closer */
+	time_t max_nudge = ending_valid_time - starting_valid_time;
+
+	/* max_nudge will be less than zero when there's no 'invalid' time */
+	/* Otherwise, use the closest of the two times to reschedule the check */
+	if (max_nudge <= 0 || max_nudge > check_window) {
+		log_debug_info(DEBUGL_CHECKS, 0, "Using raw check_window instead of timeperiod for scheduling \n");
+		max_nudge = check_window;
+		}
+
+	/* Reschedule within the smaller range */
+
+	return starting_valid_time + ranged_urand(0, max_nudge);
+	}
+
 
 /* tests if a date range covers just a single day */
 int is_daterange_single_day(daterange *dr) {
@@ -1561,6 +1589,7 @@ time_t get_next_log_rotation_time(void) {
 	struct tm *t, tm_s;
 	int is_dst_now = FALSE;
 	time_t run_time;
+	int expected_mday;
 
 	time(&current_time);
 	t = localtime_r(&current_time, &tm_s);
@@ -1594,8 +1623,6 @@ time_t get_next_log_rotation_time(void) {
 
 	if(is_dst_now == TRUE && t->tm_isdst == 0)
 		run_time += 3600;
-	else if(is_dst_now == FALSE && t->tm_isdst > 0)
-		run_time -= 3600;
 
 	return run_time;
 	}
@@ -2024,11 +2051,6 @@ int daemon_init(void)
 	val = fcntl(lockfile, F_GETFD, 0);
 	val |= FD_CLOEXEC;
 	fcntl(lockfile, F_SETFD, val);
-
-#ifdef USE_EVENT_BROKER
-	/* send program data to broker */
-	broker_program_state(NEBTYPE_PROCESS_DAEMONIZE, NEBFLAG_NONE, NEBATTR_NONE, NULL);
-#endif
 
 	return OK;
 }

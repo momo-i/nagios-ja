@@ -29,7 +29,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: nagios
-Version: 4.4.3
+Version: 4.4.5
 Release: 2%{?dist}
 License: GPL
 Group: Applications/System
@@ -120,6 +120,7 @@ CFLAGS="%{mycflags} %{myXcflags}" LDFLAGS="$CFLAGS" %configure \
     --with-checkresult-dir="%{_localstatedir}/nagios/spool/checkresults" \
     --sbindir="%{_libdir}/nagios/cgi" \
     --sysconfdir="%{_sysconfdir}/nagios" \
+    --with-cgibindir="%{_libdir}/nagios/cgi" \
     --with-cgiurl="/nagios/cgi-bin" \
     --with-command-user="apache" \
     --with-command-group="apache" \
@@ -294,6 +295,9 @@ fi
 
 
 %changelog
+* Wed Jan 16 2019 Jake Omann <jomann@nagios.com> 4.4.3
+- Updated configure to use --with-cgibindir since cgis are no longer placed in sbindir
+
 * Wed Jun 20 2018 Bryan Heden <bheden@nagios.com> 4.4.1
 - Updated for systemd inclusion - (Karsten Weiss and Fr3dY #535, #537)
 

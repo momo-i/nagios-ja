@@ -1841,6 +1841,9 @@ void compute_subject_availability(avail_subject *subject, time_t current_time) {
 #ifdef DEBUG
 	printf("--- BEGINNING/MIDDLE SECTION ---<BR>\n");
 #endif
+#ifdef DEBUG2
+	printf("<pre>");
+#endif
 
 	/**********************************/
 	/*    BEGINNING/MIDDLE SECTION    */
@@ -1918,6 +1921,9 @@ void compute_subject_availability(avail_subject *subject, time_t current_time) {
 #ifdef DEBUG
 	printf("--- END SECTION ---<BR>\n");
 #endif
+#ifdef DEBUG2
+	printf("</pre>");
+#endif
 
 	/**********************************/
 	/*           END SECTION          */
@@ -1968,15 +1974,15 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 	unsigned long start          = 0L;
 	unsigned long end            = 0L;
 
-#ifdef DEBUG
+#ifdef DEBUG2
 	if (subject->type == HOST_SUBJECT) {
-		printf("ホスト '%s'...\n", subject->host_name);
+		printf("\nホスト '%s'...\n", subject->host_name);
 	}
 	else {
-		printf("ホスト '%s' 上の '%s' サービス\n", subject->host_name, subject->service_description);
+		printf("\nホスト '%s' 上の '%s' サービス\n", subject->host_name, subject->service_description);
 	}
 
-	printf("%s の %lu から %lu (%lu 秒間)までの %d->%d を計算<br>\n", (subject->type == HOST_SUBJECT) ? "ホスト" : "サービス", start_time, end_time, (end_time-start_time), first_state, last_state);
+	printf("\n%s の %lu から %lu (%lu 秒間)までの %d->%d を計算<br>\n", (subject->type == HOST_SUBJECT) ? "ホスト" : "サービス", start_time, end_time, (end_time-start_time), first_state, last_state);
 #endif
 
 	/* clip times if necessary */
@@ -2098,6 +2104,7 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 			}
 		}
 		else {
+			as->processed_state = AS_NO_DATA;
 			return;
 		}
 	}
@@ -2108,6 +2115,10 @@ void compute_subject_availability_times(int first_state, int last_state, time_t 
 
 	/* save "processed state" info */
 	as->processed_state = start_state;
+
+#ifdef DEBUG2
+	printf("PROCESSED_STATE: %d\n", start_state);
+#endif
 
 #ifdef DEBUG
 	printf("無視する時間: 開始=%lu, 終了=%lu\n", start_time, end_time);
@@ -2162,6 +2173,7 @@ void compute_subject_downtime(avail_subject *subject, time_t current_time)
 	int process_chunk          = FALSE;
 
 #ifdef DEBUG2
+	printf("<pre>");
 	printf("COMPUTE_SUBJECT_DOWNTIME\n");
 #endif
 
@@ -2255,6 +2267,10 @@ void compute_subject_downtime(avail_subject *subject, time_t current_time)
 			compute_subject_downtime_times(start_time, end_time, subject, temp_sd);
 		}
 	}
+
+#ifdef DEBUG2
+	printf("</pre>");
+#endif
 }
 
 
@@ -2271,7 +2287,7 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 	archived_state *last        = NULL;
 
 #ifdef DEBUG2
-	printf("<P><b>ENTERING COMPUTE_SUBJECT_DOWNTIME_TIMES: start=%lu, end=%lu, t1=%lu, t2=%lu </b></P>", start_time, end_time, t1, t2);
+	printf("\n<b>ENTERING COMPUTE_SUBJECT_DOWNTIME_TIMES: start=%lu, end=%lu, t1=%lu, t2=%lu </b>", start_time, end_time, t1, t2);
 #endif
 
 	/* times are weird, so bail out... */
@@ -2285,25 +2301,25 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 	/* find starting point in archived state list */
 	if (sd == NULL) {
 #ifdef DEBUG2
-		printf("<P>TEMP_AS=SUBJECT->AS_LIST </P>");
+		printf("TEMP_AS=SUBJECT->AS_LIST\n");
 #endif
 		temp_as = subject->as_list;
 	}
 	else if (sd->misc_ptr == NULL) {
 #ifdef DEBUG2
-		printf("<P>TEMP_AS=SUBJECT->AS_LIST</P>");
+		printf("TEMP_AS=SUBJECT->AS_LIST\n");
 #endif
 		temp_as = subject->as_list;
 	}
 	else if (sd->misc_ptr->next == NULL) {
 #ifdef DEBUG2
-		printf("<P>TEMP_AS=SD->MISC_PTR</P>");
+		printf("TEMP_AS=SD->MISC_PTR\n");
 #endif
 		temp_as = sd->misc_ptr;
 	}
 	else {
 #ifdef DEBUG2
-		printf("<P>TEMP_AS=SD->MISC_PTR->NEXT</P>");
+		printf("TEMP_AS=SD->MISC_PTR->NEXT\n");
 #endif
 		temp_as = sd->misc_ptr->next;
 	}
@@ -2314,20 +2330,21 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 	}
 	else if (temp_as->processed_state == AS_PROGRAM_START || temp_as->processed_state == AS_PROGRAM_END || temp_as->processed_state == AS_NO_DATA) {
 #ifdef DEBUG2
-		printf("<P>ENTRY TYPE #1: %d</P>", temp_as->entry_type);
+		printf("ENTRY TYPE #1: %d\n", temp_as->entry_type);
 #endif
 		part_subject_state = AS_NO_DATA;
 	}
 	else {
 #ifdef DEBUG2
-		printf("<P>ENTRY TYPE #2: %d</P>", temp_as->entry_type);
+		printf("ENTRY TYPE #2: %d\n", temp_as->entry_type);
+		printf("STATE: %d\n", temp_as->processed_state);
 #endif
 		part_subject_state = temp_as->processed_state;
 	}
 
 #ifdef DEBUG2
-	printf("<P>TEMP_AS=%s</P>", (temp_as == NULL) ? "NULL" : "Not NULL");
-	printf("<P>SD=%s</P>", (sd == NULL) ? "NULL" : "Not NULL");
+	printf("TEMP_AS=%s\n", (temp_as == NULL) ? "NULL" : "Not NULL");
+	printf("SD=%s\n\n", (sd == NULL) ? "NULL" : "Not NULL");
 #endif
 
 	/* temp_as now points to first event to possibly "break" this chunk */
@@ -2359,6 +2376,11 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 
 		/* if status changed, we have to calculate */
 		if (saved_status != temp_as->entry_type) {
+
+			/* accommodate status for program start/end */
+			if (saved_status == AS_PROGRAM_START || saved_status == AS_PROGRAM_END) {
+				saved_status = temp_as->processed_state;
+			}
 
 			/* is outside schedule time, use end schdule downtime */
 			if (temp_as->time_stamp > end_time) {
@@ -2393,12 +2415,18 @@ void compute_subject_downtime_times(time_t start_time, time_t end_time, avail_su
 		compute_subject_downtime_part_times(start_time, end_time, part_subject_state, subject);
 	}
 	else {
-		/* is outside scheduled time, use end schdule downtime */
-		if (last->time_stamp > end_time) {
+		/* is outside scheduled time, or at the end of the log, so fake the end of scheduled downtime */
+#ifdef DEBUG2
+		printf("<b>LAST ENTRY TYPE: %d</b>\n", last->entry_type);
+#endif
+		if (last->entry_type == AS_PROGRAM_START || last->entry_type == AS_PROGRAM_END) {
+			/* if we are NOT assuming initial states, then we do not want to add this data into the downtime */
+			if (last->entry_type == AS_PROGRAM_START && assume_initial_states == FALSE) {
+				return;
+			}
+			compute_subject_downtime_part_times(saved_stamp, end_time, part_subject_state, subject);
+		} else {
 			compute_subject_downtime_part_times(saved_stamp, end_time, saved_status, subject);
-		}
-		else {
-			compute_subject_downtime_part_times(saved_stamp, last->time_stamp, saved_status, subject);
 		}
 	}
 }
@@ -3518,7 +3546,13 @@ void write_log_entries(avail_subject *subject)
 		if (temp_as->next == NULL) {
 			get_time_string(&t2, end_date_time, sizeof(end_date_time) - 1, SHORT_DATE_TIME);
 			get_time_breakdown((time_t)(t2 - temp_as->time_stamp), &days, &hours, &minutes, &seconds);
-			snprintf(duration, sizeof(duration) - 1, "%d日間と %d時間 %d分 %d秒", days, hours, minutes, seconds);
+
+			/* show blank event duration if the end time is past the start time */
+			if ((t2 - temp_as->time_stamp) > end_date_time) {
+				snprintf(duration, sizeof(duration), "");
+			} else {
+				snprintf(duration, sizeof(duration) - 1, "%dd %dh %dm %ds+", days, hours, minutes, seconds);
+			}
 		}
 		else {
 			get_time_string(&(temp_as->next->time_stamp), end_date_time, sizeof(end_date_time) - 1, SHORT_DATE_TIME);
@@ -4347,8 +4381,8 @@ void display_host_availability(void)
 			printf("<td CLASS='hostUP' rowspan=3>稼働<br>(UP)</td>");
 			printf("<td CLASS='dataEven'>未計画</td>");
 			printf("<td CLASS='dataEven'>%s</td>", time_up_unscheduled_string);
-			printf("<td CLASS='dataEven'>%2.3f%%</td>", percent_time_up);
-			printf("<td class='dataEven'>%2.3f%%</td></tr>\n", percent_time_up_known);
+			printf("<td CLASS='dataEven'>%2.3f%%</td>", percent_time_up_unscheduled);
+			printf("<td class='dataEven'>%2.3f%%</td></tr>\n", percent_time_up_unscheduled_known);
 			printf("<tr CLASS='dataEven'>");
 			printf("<td CLASS='dataEven'>計画</td>");
 			printf("<td CLASS='dataEven'>%s</td>", time_up_scheduled_string);
