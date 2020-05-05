@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# 
+# ステータスswmlのチェック
 # Checks for statuswml.cgi
 
 use warnings;
@@ -24,14 +24,14 @@ plan tests => 5;
 
 $output = `NAGIOS_CGI_CONFIG=etc/cgi.cfg REQUEST_METHOD=GET QUERY_STRING="ping=127.0.0.1%3Becho+this+should+not+get+here" $statuswml`;
 unlike( $output, "/this should not get here/", "Check that security error does not exist" );
-like( $output, qr%<p>Invalid host name/ip</p>% );
+like( $output, qr%<p>不正なホスト名/IP</p>% );
 
 $output = `NAGIOS_CGI_CONFIG=etc/cgi.cfg REQUEST_METHOD=GET QUERY_STRING="traceroute=127.0.0.1%3Becho+this+should+not+get+here" $statuswml`;
 unlike( $output, "/this should not get here/", "Check that security error does not exist" );
-like( $output, qr%<p>Invalid host name/ip</p>% );
+like( $output, qr%<p>不正なホスト名/IP</p>% );
 
 $output = `NAGIOS_CGI_CONFIG=etc/cgi.cfg REQUEST_METHOD=GET QUERY_STRING="ping=127.0.0.1" $statuswml`;
-like( $output, qr%<b>Results For Ping Of 127.0.0.1:</b><br/>%, "Works correctly for valid address for ping" );
+like( $output, qr%<b>127.0.0.1へのPing結果:</b><br/>%, "Works correctly for valid address for ping" );
 
 # Don't run this test below, because it actually invokes traceroute
 #$output = `NAGIOS_CGI_CONFIG=etc/cgi.cfg REQUEST_METHOD=GET QUERY_STRING="traceroute=127.0.0.1" $statuswml`;
