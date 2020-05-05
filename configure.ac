@@ -10,9 +10,9 @@ AC_PREFIX_DEFAULT(/usr/local/nagios)
 
 PKG_NAME=nagios
 
-PKG_VERSION="4.4.5"
+PKG_VERSION="4.4.6"
 PKG_HOME_URL="https://www.nagios.org/"
-PKG_REL_DATE="2019-08-20"
+PKG_REL_DATE="2020-04-28"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -459,7 +459,7 @@ AC_ARG_ENABLE(nerd,
 	NERD=yes
 )
 if test "x$NERD" = "xyes"; then
-	AC_DEFINE_UNQUOTED(ENABLE_NERD,,[defined if user enabled NERD (radio dispatcher)])
+	AC_DEFINE(ENABLE_NERD,1,[defined if user enabled NERD (radio dispatcher)])
 	NERD_O="nerd.o"
 fi
 AC_SUBST(NERD_O)
@@ -923,6 +923,9 @@ AC_OUTPUT([
 
 perl subst include/locations.h
 perl subst html/config.inc.php
+perl subst html/js/histogram.js
+perl subst html/js/map.js
+perl subst html/js/trends.js
 dnl perl subst daemon-service
 
 
