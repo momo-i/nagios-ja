@@ -3548,8 +3548,8 @@ void write_log_entries(avail_subject *subject)
 			get_time_breakdown((time_t)(t2 - temp_as->time_stamp), &days, &hours, &minutes, &seconds);
 
 			/* show blank event duration if the end time is past the start time */
-			if ((t2 - temp_as->time_stamp) > end_date_time) {
-				snprintf(duration, sizeof(duration), "");
+			if ((t2 - temp_as->time_stamp) > atoi(end_date_time)) {
+				*duration = '\0';
 			} else {
 				snprintf(duration, sizeof(duration) - 1, "%dd %dh %dm %ds+", days, hours, minutes, seconds);
 			}
@@ -3560,14 +3560,8 @@ void write_log_entries(avail_subject *subject)
 			snprintf(duration, sizeof(duration) - 1, "%d日間と %d時間 %d分 %d秒", days, hours, minutes, seconds);
 		}
 
-		if (odd) {
-			bgclass = "Odd";
-			odd = 0;
-		}
-		else {
-			bgclass = "Even";
-			odd = 1;
-		}
+		bgclass = odd ? "Odd" : "Even";
+		odd = odd ? 0 : 1;
 
 		printf("<tr class='logEntries%s'>", bgclass);
 		printf("<td class='logEntries%s'>%s</td>", bgclass, start_date_time);
@@ -3713,14 +3707,8 @@ void display_specific_hostgroup_availability(hostgroup *hg)
 			}
 		}
 
-		if (odd) {
-			odd = 0;
-			bgclass = "Odd";
-		}
-		else {
-			odd = 1;
-			bgclass = "Even";
-		}
+		bgclass = odd ? "Odd" : "Even";
+		odd = odd ? 0 : 1;
 
 		if (output_format == HTML_OUTPUT) {
 
@@ -3760,14 +3748,9 @@ void display_specific_hostgroup_availability(hostgroup *hg)
 
 	/* average statistics */
 	if (output_format == HTML_OUTPUT) {
-		if (odd) {
-			odd = 0;
-			bgclass = "Odd";
-		}
-		else {
-			odd = 1;
-			bgclass = "Even";
-		}
+		bgclass = odd ? "Odd" : "Even";
+		odd = odd ? 0 : 1;
+
 		printf("<tr CLASS='data%s'><td CLASS='data%s'>平均値</td>", bgclass, bgclass);
 		printf("<td CLASS='hostUP'>%2.3f%% (%2.3f%%)</td>", average_percent_time_up, average_percent_time_up_known);
 		printf("<td CLASS='hostDOWN'>%2.3f%% (%2.3f%%)</td>", average_percent_time_down, average_percent_time_down_known);
@@ -3942,14 +3925,8 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 		}
 
 		if (output_format == HTML_OUTPUT) {
-			if (odd) {
-				odd = 0;
-				bgclass = "Odd";
-			}
-			else {
-				odd = 1;
-				bgclass = "Even";
-			}
+			bgclass = odd ? "Odd" : "Even";
+			odd = odd ? 0 : 1;
 
 			printf("<tr CLASS='data%s'><td CLASS='data%s'>", bgclass, bgclass);
 			host_report_url(temp_subject->host_name, temp_subject->host_name);
@@ -3970,14 +3947,9 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 
 	/* average statistics */
 	if (output_format == HTML_OUTPUT) {
-		if (odd) {
-			odd = 0;
-			bgclass = "Odd";
-		}
-		else {
-			odd = 1;
-			bgclass = "Even";
-		}
+		bgclass = odd ? "Odd" : "Even";
+		odd = odd ? 0 : 1;
+
 		printf("<tr CLASS='data%s'><td CLASS='data%s'>平均値</td>", bgclass, bgclass);
 		printf("<td CLASS='hostUP'>%2.3f%% (%2.3f%%)</td>", average_percent_time_up, average_percent_time_up_known);
 		printf("<td CLASS='hostDOWN'>%2.3f%% (%2.3f%%)</td>", average_percent_time_down, average_percent_time_down_known);
@@ -4055,14 +4027,8 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 		}
 
 		if (output_format == HTML_OUTPUT) {
-			if (odd) {
-				odd = 0;
-				bgclass = "Odd";
-			}
-			else {
-				odd = 1;
-				bgclass = "Even";
-			}
+			bgclass = odd ? "Odd" : "Even";
+			odd = odd ? 0 : 1;
 
 			printf("<tr CLASS='data%s'><td CLASS='data%s'>", bgclass, bgclass);
 			if (strcmp(temp_subject->host_name, last_host)) {
@@ -4113,14 +4079,8 @@ void display_specific_servicegroup_availability(servicegroup *sg)
 
 	if (output_format == HTML_OUTPUT) {
 		/* display average stats */
-		if (odd) {
-			odd = 0;
-			bgclass = "Odd";
-		}
-		else {
-			odd = 1;
-			bgclass = "Even";
-		}
+		bgclass = odd ? "Odd" : "Even";
+		odd = odd ? 0 : 1;
 
 		printf("<tr CLASS='data%s'><td CLASS='data%s' colspan='2'>平均値</td>", bgclass, bgclass);
 		printf("<td CLASS='serviceOK'>%2.3f%% (%2.3f%%)</td>", average_percent_time_ok, average_percent_time_ok_known);
@@ -4483,14 +4443,8 @@ void display_host_availability(void)
 
 				current_subject++;
 
-				if (odd) {
-					odd = 0;
-					bgclass = "Odd";
-				}
-				else {
-					odd = 1;
-					bgclass = "Even";
-				}
+				bgclass = odd ? "Odd" : "Even";
+				odd = odd ? 0 : 1;
 
 				/* reset variables */
 				percent_time_ok             = 0.0;
@@ -4542,14 +4496,8 @@ void display_host_availability(void)
 			}
 
 			/* display average stats */
-			if (odd) {
-				odd = 0;
-				bgclass = "Odd";
-			}
-			else {
-				odd = 1;
-				bgclass = "Even";
-			}
+			bgclass = odd ? "Odd" : "Even";
+			odd = odd ? 0 : 1;
 
 			printf("<tr CLASS='data%s'><td CLASS='data%s'>平均値</td>", bgclass, bgclass);
 			printf("<td CLASS='serviceOK'>%2.3f%% (%2.3f%%)</td>", average_percent_time_ok, average_percent_time_ok_known);
@@ -4690,14 +4638,8 @@ void display_host_availability(void)
 
 			if (output_format == HTML_OUTPUT) {
 
-				if (odd) {
-					odd = 0;
-					bgclass = "Odd";
-				}
-				else {
-					odd = 1;
-					bgclass = "Even";
-				}
+				bgclass = odd ? "Odd" : "Even";
+				odd = odd ? 0 : 1;
 
 				printf("<tr CLASS='data%s'><td CLASS='data%s'>", bgclass, bgclass);
 				host_report_url(temp_subject->host_name, temp_subject->host_name);
@@ -4738,14 +4680,8 @@ void display_host_availability(void)
 		if (output_format == HTML_OUTPUT) {
 
 			/* average statistics */
-			if (odd) {
-				odd = 0;
-				bgclass = "Odd";
-			}
-			else {
-				odd = 1;
-				bgclass = "Even";
-			}
+			bgclass = odd ? "Odd" : "Even";
+			odd = odd ? 0 : 1;
 
 			printf("<tr CLASS='data%s'><td CLASS='data%s'>平均値</td>", bgclass, bgclass);
 			printf("<td CLASS='hostUP'>%2.3f%% (%2.3f%%)</td>", average_percent_time_up, average_percent_time_up_known);
@@ -5228,14 +5164,8 @@ void display_service_availability(void)
 
 			if (output_format == HTML_OUTPUT) {
 
-				if (odd) {
-					odd = 0;
-					bgclass = "Odd";
-					}
-				else {
-					odd = 1;
-					bgclass = "Even";
-					}
+				bgclass = odd ? "Odd" : "Even";
+				odd = odd ? 0 : 1;
 
 				printf("<tr CLASS='data%s'><td CLASS='data%s'>", bgclass, bgclass);
 				if (strcmp(temp_subject->host_name, last_host)) {
@@ -5298,14 +5228,8 @@ void display_service_availability(void)
 		if (output_format == HTML_OUTPUT) {
 
 			/* average statistics */
-			if (odd) {
-				odd = 0;
-				bgclass = "Odd";
-			}
-			else {
-				odd = 1;
-				bgclass = "Even";
-			}
+			bgclass = odd ? "Odd" : "Even";
+			odd = odd ? 0 : 1;
 
 			printf("<tr CLASS='data%s'><td CLASS='data%s' colspan='2'>平均値</td>", bgclass, bgclass);
 			printf("<td CLASS='serviceOK'>%2.3f%% (%2.3f%%)</td>", average_percent_time_ok, average_percent_time_ok_known);
