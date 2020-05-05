@@ -928,11 +928,6 @@ angular.module("mapApp")
 				// Re-parent the tree with a new root
 				var reparentTree = function(node) {
 
-					// Fix root nodes with no parent nodes
-					if (parent === undefined) {
-						return true;
-					}
-
 					// The specified node becomes the new node and all
 					// it's children remain in place relative to it
 					var newTree = node;
@@ -942,6 +937,11 @@ angular.module("mapApp")
 					while (!(currentNode === $scope.hostTree)) {
 						// First record the parent node of the current node
 						var parent = currentNode.parent;
+
+						// Fix root nodes with no parent nodes
+						if (parent === undefined) {
+							return true;
+						}
 
 						// Next remove the current node as a child of
 						// the parent node
@@ -1106,9 +1106,13 @@ angular.module("mapApp")
 					// Next add any hosts in the list as children
 					// of the node, if they're not already
 					hosts.forEach(function(e) {
-						var childIndex = node.children.findIndex(function(s) {
-							return s.hostInfo.name === e;
-						});
+						var childIndex = -1;
+						for (let i = 0; i < node.children.length; i++) {
+							if (node.children[i].hostInfo.name === e) {
+								childIndex = i;
+								break;
+							}
+						}
 								
 						if ($scope.hostList[e]) {
 
