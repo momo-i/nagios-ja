@@ -1490,7 +1490,7 @@ int handle_async_service_check_result(service *svc, check_result *cr)
 	}
 
 	if (svc->current_attempt >= svc->max_attempts &&
-		(svc->current_state != new_last_hard_state || svc->state_type == SOFT_STATE)) {
+		(svc->current_state != new_last_hard_state || (svc->state_type == SOFT_STATE && svc->current_state != STATE_OK))) {
 
 		log_debug_info(DEBUGL_CHECKS, 2, "Service had a HARD STATE CHANGE!!\n");
         
@@ -1610,9 +1610,6 @@ int handle_async_service_check_result(service *svc, check_result *cr)
 	}
 
 	if (handle_event == TRUE) {
-
-		log_debug_info(DEBUGL_CHECKS, 0, "IS TIME FOR HANDLE THE SERVICE KTHX");
-		debug_async_service(svc, cr);
 		handle_service_event(svc);
 	}
 
