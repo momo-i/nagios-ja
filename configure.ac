@@ -10,9 +10,9 @@ AC_PREFIX_DEFAULT(/usr/local/nagios)
 
 PKG_NAME=nagios
 
-PKG_VERSION="4.4.6"
+PKG_VERSION="4.4.7"
 PKG_HOME_URL="https://www.nagios.org/"
-PKG_REL_DATE="2020-04-28"
+PKG_REL_DATE="2022-04-14"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -176,6 +176,25 @@ AC_TRY_COMPILE([#include <stdlib.h>
 [AC_DEFINE(SOCKET_SIZE_TYPE, size_t, [typedef for socket size]) AC_MSG_RESULT(size_t)],
 [AC_DEFINE(SOCKET_SIZE_TYPE, int, [typedef for socket size]) AC_MSG_RESULT(int)])
 
+
+dnl Does user want to check for SSL?
+AC_ARG_ENABLE([ssl],
+	AS_HELP_STRING([--disable-ssl],[disables native SSL support @<:@default=check@:>@]),[
+	if test x$enableval = xyes; then
+		check_for_ssl=yes
+	else
+		check_for_ssl=no
+	fi
+	],check_for_ssl=yes)
+
+need_dh=no
+
+dnl Optional SSL library and include paths
+if test x$check_for_ssl = xyes; then
+	# need_dh should only be set for NRPE
+	#need_dh=yes
+	AC_NAGIOS_GET_SSL
+fi
 
 dnl Solaris needs rt or posix4 libraries for nanosleep()
 AC_SEARCH_LIBS(nanosleep,[rt posix4],,[
