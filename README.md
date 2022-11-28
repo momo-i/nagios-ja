@@ -1,25 +1,26 @@
-Nagios 4.x 日本語化
+Nagios 4.x
 ==========
 
 ![Nagios!](https://www.nagios.com/wp-content/uploads/2015/05/Nagios-Black-500x124.png)
 
-[![Build Status](https://travis-ci.org/momo-i/nagios-ja.svg?branch=master)](https://travis-ci.org/momo-i/nagios-ja)
+[![Build Status](https://travis-ci.org/NagiosEnterprises/nagioscore.svg?branch=master)](https://travis-ci.org/NagiosEnterprises/nagioscore)
 
 
-NagiosはC言語で書かれたホスト/サービス/ネットワークプログラムで、
-GNU一般公衆利用許諾契約書、バージョン2の下でリリースされています。
-CGIプログラムは現在のステータス、履歴、などをWebインターフェースを
-通じてみることができるようになっています。
+Nagios is a host/service/network monitoring program written in C and
+released under the GNU General Public License, version 2. CGI programs
+are included to allow you to view the current status, history, etc via
+a web interface if you so desire.
 
-ドキュメント、新規リリース、バグレポート、掲示板の情報などは
-Nagiosのホームページ https://www.nagios.org を訪れてください。
+Visit the Nagios homepage at https://www.nagios.org for documentation,
+new releases, bug reports, information on discussion forums, and more.
 
 
-[機能](https://www.nagios.org/about/features/)
+[Features](https://www.nagios.org/about/features/)
 -----------------------------------------------
-* SMTP、POP3、HTTP、PINGなどを経由したネットワークサービスの監視
-* CPU負荷、ディスr九使用率などのホストリソースの監視
-* ユーザが開発したサービス監視方法を許可するインターフェースプラグイン
+* Monitoring of network services (via SMTP, POP3, HTTP, PING, etc).
+* Monitoring of host resources (processor load, disk usage, etc.).
+* A plugin interface to allow for user-developed service monitoring
+  methods.
 * Ability to define network host hierarchy using "parent" hosts,
   allowing detection of and distinction between hosts that are down
   and those that are unreachable.
@@ -31,7 +32,7 @@ Nagiosのホームページ https://www.nagios.org を訪れてください。
   notification and problem history, log file, etc.
 
 
-変更履歴
+Changes
 -------
 See the
 [Changelog](https://raw.githubusercontent.com/NagiosEnterprises/nagioscore/master/Changelog)
@@ -40,15 +41,15 @@ for a summary of important changes and fixes, or the
 for more detail.
 
 
-ダウンロード
+Download
 --------
-最新版は https://www.nagios.org/download/ からダウンロードできます。日本語化パッチについては https://ftp.momo-i.org/pub/security/nagios/patches/ からダウンロードできます。
+Latest releases can be downloaded from https://www.nagios.org/download/
 
 
-インストール方法
+Installation
 ------------
-[クイックスタートインストールガイド](http://nagios.sourceforge.net/docs/nagioscore/4/en/quickstart.html)
-はNagiosの起動や監視に役立ちます。
+[Quickstart installation guides](http://nagios.sourceforge.net/docs/nagioscore/4/en/quickstart.html)
+are available to help you get Nagios up and monitoring.
 
 
 Documentation & Support
@@ -64,8 +65,7 @@ Contributing
 The Nagios source code is hosted on GitHub:
 https://github.com/NagiosEnterprises/nagioscore
 
-Do you have an idea or feature request to make Nagios better? Join or start a
-discussion on the [Nagios Core Development forum](https://support.nagios.com/forum/viewforum.php?f=34).
+Do you have an idea or feature request to make Nagios better? 
 Bugs can be reported by [opening an issue on GitHub](https://github.com/NagiosEnterprises/nagioscore/issues/new).
 If you have identified a security related issue in Nagios, please contact
 security@nagios.com.

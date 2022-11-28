@@ -1350,11 +1350,11 @@ int read_resource_file(char *resource_file) {
 
 		current_line = thefile->current_line;
 
-		/* skip blank lines and comments */
-		if(input[0] == '#' || input[0] == '\x0' || input[0] == '\n' || input[0] == '\r')
-			continue;
-
 		strip(input);
+
+		/* skip blank lines and comments */
+		if(input[0] == '\x0' || input[0] == '#')
+			continue;
 
 		/* get the variable name */
 		if((temp_ptr = my_strtok_with_free(input, "=", FALSE)) == NULL) {
@@ -2035,7 +2035,7 @@ int pre_flight_object_check(int *w, int *e) {
  * parents.
  */
 /*
- * same as dfs_host_path, but we flip the the tree and traverse it
+ * same as dfs_host_path, but we flip the tree and traverse it
  * backwards, since core Nagios doesn't need the child pointer at
  * later stages.
  */

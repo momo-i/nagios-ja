@@ -2,6 +2,21 @@
 Nagios Core 4 Change Log
 ########################
 
+4.4.7 - 2022-04-14
+------------------
+FIXES 
+* Fixed checkboxes in jsonquery.html (#778) (Rfferrao87)
+* Added SSL support for version update check (Sebastian Wolf)
+* Note: NEB modules using the priority/scheduling queues in libnagios may need to update headers due to symbol conflicts with OpenSSL.
+* Fixed XSS in homepage when displaying update check results (Sebastian Wolf)
+* Fixed allocation error in getcgi.c (#820) (Ariadne Conill)
+* Fixed Error: NULL variable for lines of spaces in resource.cfg (#814) (Ralf Herrmann)
+* Fixed crash when handling large check output (#825, #828) (Kilvador)
+* Update packaging instructions for RPM/EPEL (#850) (T.J. Yang)
+* Include packaging instructions for DEB (#842) (Catfriend1)
+* Fixed CGI object processing when names end in \ (#819) (Sebastian Wolf)
+* $SERVICEPROBLEMID$ now accessible when notifications are sent (#688) (Sebastian Wolf)
+
 4.4.6 - 2020-04-28
 ------------------
 FIXES
@@ -9,7 +24,7 @@ FIXES
 * Fixed duplicate properties appearing in statusjson.cgi (#718) (Sebastian Wolf)
 * Fixed NERD not building when enabled in ./configure (#723) (Sebastian Wolf)
 * Fixed build process when using GCC 10 (#721) (Michael Orlitzky)
-* Fixed postauth vulnerabilities in histogram.js, map.js, trends.js (CVE-2020-1408) (Thanks UraSec Team) (Sebastian Wolf)
+* Fixed postauth vulnerabilities in histogram.js, map.js, trends.js (CVE-2020-13977) (Thanks UraSec Team) (Sebastian Wolf)
 * When using systemd, configuration will be verified before reloading (#715) (tatref)
 * Fixed HARD OK states triggering on the maximum check attempt (#757) (Sebastian Wolf)
 
@@ -70,9 +85,9 @@ FIXES
 * Fixed passive checks sending recovery email when host was previously UP (#552) (Scott Wilkerson)
 * Fixed flapping comments duplication on nagios reload (#554) (Christian Jung)
 * Fix for CVE-2018-13441, CVE-2018-13458, CVE-2018-13457 null pointer dereference (Trevor McDonald)
-* Fixed syntax error in file: default-init.in (#558) (Christian Zettel)
+* Fixed syntax error in file: default-init.in (#558) (ccztux)
 * Reset current notification number and state flags when the host recovers, reset all service variables when they recover fixes (#557) (Scott Wilkerson)
-* Fixed wrong counting of service status totals when showing servicegroup details (#548) (Christian Zettel, Bryan Heden)
+* Fixed wrong counting of service status totals when showing servicegroup details (#548) (ccztux, Bryan Heden)
 * Fixed avail.cgi not printing CSV output when checkbox is checked (for any type: host/service/hostgroup/servicegroup) (#570) (Bryan Heden)
 * Fixed nagios not logging SOFT state changes after 1 (Scott Wilkerson)
 
@@ -117,7 +132,7 @@ FIXES
 * Fixed wait3(), wait4() implementations (replaced with waitpid()) (#326) (Bryan Heden)
 * Fixed additive inheritance not testing for duplicates in hosts/services/(+escalations) (#392) (Bryan Heden)
 * Fixed very very (around 600k chars or greater) large plugin output crashing Nagios (#432) (Bryan Heden)
-* Fixed first_notification_delay not beeing calculated from last_hard_state_change (#425) (Christian Zettel)
+* Fixed first_notification_delay not beeing calculated from last_hard_state_change (#425) (ccztux)
 * Fixed duplicate downtime ID occuring from downtimes in retention file (#506) (Franz [feisenko])
 * Fixed segfault when navbarsearch was used in status.cgi for something other than a host (#489) (Bryan Heden)
 * Fixed some miscellaneous ./configure issues on Solaris (Bryan Heden, Troy Lea)
