@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/includes/utils.inc.php');
 
-$this_version = '4.4.7';
+$this_version = '4.4.8';
 $this_year = '2022';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -145,7 +145,7 @@ $this_year = '2022';
 <div id="currentversioninfo">
 	<div class="product">Nagios<sup><span style="font-size: small;">&reg;</span></sup> Core<sup><span style="font-size: small;">&trade;</span></sup> 日本語化</div>
 	<div class="version">バージョン <?php echo $this_version; ?></div>
-	<div class="releasedate">2022年4月14日</div>
+	<div class="releasedate">2022年10月4日</div>
 	<div class="checkforupdates"><a href="https://www.nagios.org/checkforupdates/?version=<?php echo $this_version; ?>&amp;product=nagioscore" target="_blank">更新のチェック</a></div>
 </div>
 
@@ -197,6 +197,8 @@ $this_year = '2022';
 				<li><a href="https://go.nagios.com/nagioscore/certification" target="_blank">認定</a></li>
 			</ul>
 		</div>
+
+
 
 		<div id="splashbox2" class="splashbox">
 			<h2>クイックリンク</h2>

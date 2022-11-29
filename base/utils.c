@@ -3379,8 +3379,8 @@ int query_update_api(void) {
 	}
 
 #ifdef HAVE_SSL
-	SSL *ssl;
-	SSL_CTX *ctx;
+	SSL *ssl = NULL;
+	SSL_CTX *ctx = NULL;
 
 	int result = my_ssl_connect(api_server, 443, &sd, &ssl, &ctx, 2);
 	if(sd > 0 && result != ERROR) {
@@ -3395,7 +3395,9 @@ int query_update_api(void) {
 
 		/* close connection */
 		SSL_free(ssl);
+#if OPENSSL_VERSION_NUMBER < 0x10100000
 		SSL_CTX_free(ctx);
+#endif
 		close(sd);
 #else 
 	my_tcp_connect(api_server, 80, &sd, 2);
