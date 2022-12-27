@@ -3,80 +3,80 @@ Nagios 4.x
 
 ![Nagios!](https://www.nagios.com/wp-content/uploads/2015/05/Nagios-Black-500x124.png)
 
-[![Build Status](https://travis-ci.org/NagiosEnterprises/nagioscore.svg?branch=master)](https://travis-ci.org/NagiosEnterprises/nagioscore)
+[![ビルド状況](https://travis-ci.org/NagiosEnterprises/nagioscore.svg?branch=master)](https://travis-ci.org/NagiosEnterprises/nagioscore)
 
 
-Nagios is a host/service/network monitoring program written in C and
-released under the GNU General Public License, version 2. CGI programs
-are included to allow you to view the current status, history, etc via
-a web interface if you so desire.
+Nagiosは、Cで書かれたホスト/サービス/ネットワーク監視プログラムであり、GNU General Public License version 2でリリースされています。
+GNU General Public License, version 2の下でリリースされています。CGIプログラム
+現在の状態、履歴などを見ることができるようにCGIプログラムが含まれています。
+CGIプログラムが含まれており、希望に応じてウェブインタフェースで現在の状態、履歴などを見ることができます。
 
-Visit the Nagios homepage at https://www.nagios.org for documentation,
-new releases, bug reports, information on discussion forums, and more.
+ドキュメントはNagiosのホームページ https://www.nagios.org をご覧ください。
+新しいリリース、バグレポート、ディスカッションフォーラムの情報、および多く。
 
 
-[Features](https://www.nagios.org/about/features/)
+[機能紹介](https://www.nagios.org/about/features/)
 -----------------------------------------------
-* Monitoring of network services (via SMTP, POP3, HTTP, PING, etc).
-* Monitoring of host resources (processor load, disk usage, etc.).
-* A plugin interface to allow for user-developed service monitoring
-  methods.
-* Ability to define network host hierarchy using "parent" hosts,
-  allowing detection of and distinction between hosts that are down
-  and those that are unreachable.
-* Notifications when problems occur and get resolved (via email,
-  pager, or user-defined method).
-* Ability to define event handlers for proactive problem resolution.
-* Automatic log file rotation/archiving.
-* Optional web interface for viewing current network status,
-  notification and problem history, log file, etc.
+* ネットワークサービスの監視（SMTP、POP3、HTTP、PINGなどによる）。
+* ホストリソースの監視（プロセッサ負荷、ディスク使用量など）。
+* ユーザが開発したサービス監視方法を可能にするプラグイン・インターフェイス
+  メソッドを提供します。
+* 親」ホストを用いたネットワークホスト階層を定義する機能。
+  ダウンしているホストと到達不能なホストの検出と区別が可能。
+  と到達不能なホストを検出し区別することができます。
+* 問題発生時および解決時の通知（電子メール、ページャー、またはユーザー定義による
+  問題発生時および解決時の通知（電子メール、ページャー、またはユーザー定義の方法）。
+* 積極的な問題解決のためのイベントハンドラ定義機能
+* ログファイルの自動ローテーション/アーカイブ。
+* 現在のネットワーク・ステータスを表示するためのオプションの Web インターフェース。
+  現在のネットワーク状況、通知や問題の履歴、ログファイルなどを表示するためのオプションの Web インターフェース。
 
 
-Changes
+変更履歴
 -------
-See the
+重要な変更と修正の要約は
 [Changelog](https://raw.githubusercontent.com/NagiosEnterprises/nagioscore/master/Changelog)
-for a summary of important changes and fixes, or the
-[commit history](https://github.com/NagiosEnterprises/nagioscore/commits/master)
-for more detail.
+を、より詳細な情報は
+[コミット履歴](https://github.com/NagiosEnterprises/nagioscore/commits/master)
+をご覧ください。
 
 
-Download
+ダウンロード
 --------
-Latest releases can be downloaded from https://www.nagios.org/download/
+最新のリリースは、https://www.nagios.org/download/ からダウンロードできます。
 
 
-Installation
+インストール方法
 ------------
-[Quickstart installation guides](http://nagios.sourceforge.net/docs/nagioscore/4/en/quickstart.html)
-are available to help you get Nagios up and monitoring.
+[クイックスタート インストール ガイド](http://nagios.sourceforge.net/docs/nagioscore/4/en/quickstart.html)
+は、Nagiosの立ち上げと監視を支援するために利用可能です。
 
 
-Documentation & Support
+ドキュメントとサポート
 -----------------------
-* [User Guide](http://nagios.sourceforge.net/docs/nagioscore/4/en/)
-* [Nagios Core Documentation Library](https://library.nagios.com/library/products/nagioscore/)
-* [Support Forums](https://support.nagios.com/forum/viewforum.php?f=7)
-* [Additional Support Resources](https://www.nagios.org/support/)
+* [ユーザーガイド](http://nagios.sourceforge.net/docs/nagioscore/4/en/)
+* [Nagiosコア ドキュメントライブラリ](https://library.nagios.com/library/products/nagioscore/)
+* [サポートフォーラム](https://support.nagios.com/forum/viewforum.php?f=7)
+* [追加のサポートリソース](https://www.nagios.org/support/)
 
 
-Contributing
+貢献
 ------------
-The Nagios source code is hosted on GitHub:
+Nagiosのソースコードは、GitHubで公開されています：
 https://github.com/NagiosEnterprises/nagioscore
 
-Do you have an idea or feature request to make Nagios better? 
-Bugs can be reported by [opening an issue on GitHub](https://github.com/NagiosEnterprises/nagioscore/issues/new).
-If you have identified a security related issue in Nagios, please contact
-security@nagios.com.
+Nagiosをより良くするためのアイデアや機能要求がありますか？
+バグは[GitHubで課題を開く](https://github.com/NagiosEnterprises/nagioscore/issues/new)によって報告することができます。
+もし、Nagiosでセキュリティ関連の問題を発見した場合、連絡してください。
+security@nagios.com
 
-Patches and GitHub pull requests are welcome. Pull requests on GitHub
-link commits in version control to review and discussion of the
-changes, helping to show how and why changes were made, in addition to
-who was involved.
+パッチやGitHubでのプルリクエストを歓迎します。GitHubでのプルリクエスト
+は、バージョン管理下のコミットに対して、その変更についてのレビューや議論を行うためのリンクです。
+誰が関わったかだけでなく、どのように、そしてなぜ変更が行われたかを示すのに役立ちます。
+誰が関与したかを示すのに役立ちます。
 
-Created by Ethan Galstad, the success of Nagios has been due to the
-fantastic community members that support it and provide bug reports,
-patches, and great ideas. See the
-[THANKS file](https://raw.githubusercontent.com/NagiosEnterprises/nagioscore/master/THANKS)
-for some of the many who have contributed since 1999.
+Ethan Galstadによって作成された、Nagiosの成功は、バグレポートを提供する素晴らしいコミュニティのメンバーに起因しています。
+それをサポートし、バグレポート、パッチ、および素晴らしいアイデアを提供する素晴らしいコミュニティのメンバーによるものです。
+パッチ、および素晴らしいアイデアを提供します。以下を参照してください。
+[感謝ファイル](https://raw.githubusercontent.com/NagiosEnterprises/nagioscore/master/THANKS)
+1999年から貢献した多くの人のために。
