@@ -2987,7 +2987,7 @@ int free_object_data(void) {
 #ifndef NSCGI
 static const char *timerange2str(const timerange *tr)
 {
-	static char str[12];
+	static char str[32];
 	int sh, sm, eh, em;
 
 	if(!tr)
@@ -3178,7 +3178,7 @@ void fcache_servicegroup(FILE *fp, servicegroup *temp_servicegroup)
 		fprintf(fp, "\tmembers\t");
 		for(list = temp_servicegroup->members; list; list = list->next) {
 			service *s = list->service_ptr;
-			fprintf(fp, "%s,%s%s", s->host_name, s->description, list->next ? ',' : '\n');
+			fprintf(fp, "%s,%s%s", s->host_name, s->description, list->next ? "," : " \n");
 		}
 	}
 	if(temp_servicegroup->notes)
@@ -3294,17 +3294,17 @@ void fcache_host(FILE *fp, host *temp_host)
 	if(temp_host->statusmap_image)
 		fprintf(fp, "\tstatusmap_image\t%s \n", temp_host->statusmap_image);
 	if(temp_host->have_2d_coords == TRUE)
-		fprintf(fp, "\t2d_coords\t%d,%d \n", temp_host->x_2d, temp_host->y_2d);
+		fprintf(fp, "\t2d_coords\t%d,%d\n", temp_host->x_2d, temp_host->y_2d);
 	if(temp_host->have_3d_coords == TRUE)
-		fprintf(fp, "\t3d_coords\t%f,%f,%f \n", temp_host->x_3d, temp_host->y_3d, temp_host->z_3d);
+		fprintf(fp, "\t3d_coords\t%f,%f,%f\n", temp_host->x_3d, temp_host->y_3d, temp_host->z_3d);
 	if(temp_host->notes)
 		fprintf(fp, "\tnotes\t%s \n", temp_host->notes);
 	if(temp_host->notes_url)
 		fprintf(fp, "\tnotes_url\t%s \n", temp_host->notes_url);
 	if(temp_host->action_url)
 		fprintf(fp, "\taction_url\t%s \n", temp_host->action_url);
-	fprintf(fp, "\tretain_status_information\t%d \n", temp_host->retain_status_information);
-	fprintf(fp, "\tretain_nonstatus_information\t%d \n", temp_host->retain_nonstatus_information);
+	fprintf(fp, "\tretain_status_information\t%d\n", temp_host->retain_status_information);
+	fprintf(fp, "\tretain_nonstatus_information\t%d\n", temp_host->retain_nonstatus_information);
 
 	/* custom variables */
 	fcache_customvars(fp, temp_host->custom_variables);
@@ -3408,7 +3408,7 @@ void fcache_servicedependency(FILE *fp, servicedependency *temp_servicedependenc
 void fcache_serviceescalation(FILE *fp, serviceescalation *temp_serviceescalation)
 {
 	fprintf(fp, "define serviceescalation {\n");
-	fprintf(fp, "\thost_name\t%s\n", temp_serviceescalation->host_name);
+	fprintf(fp, "\thost_name\t%s \n", temp_serviceescalation->host_name);
 	fprintf(fp, "\tservice_description\t%s \n", temp_serviceescalation->description);
 	fprintf(fp, "\tfirst_notification\t%d\n", temp_serviceescalation->first_notification);
 	fprintf(fp, "\tlast_notification\t%d\n", temp_serviceescalation->last_notification);
@@ -3421,13 +3421,13 @@ void fcache_serviceescalation(FILE *fp, serviceescalation *temp_serviceescalatio
 		contactsmember *cl;
 		fprintf(fp, "\tcontacts\t");
 		for(cl = temp_serviceescalation->contacts; cl; cl = cl->next)
-			fprintf(fp, "%s%s", cl->contact_ptr->name, cl->next ? "," : "\n");
+			fprintf(fp, "%s%s", cl->contact_ptr->name, cl->next ? "," : " \n");
 	}
 	if(temp_serviceescalation->contact_groups) {
 		contactgroupsmember *cgl;
 		fprintf(fp, "\tcontact_groups\t");
 		for (cgl = temp_serviceescalation->contact_groups; cgl; cgl = cgl->next)
-			fprintf(fp, "%s%s", cgl->group_name, cgl->next ? "," : "\n");
+			fprintf(fp, "%s%s", cgl->group_name, cgl->next ? "," : " \n");
 	}
 	fprintf(fp, "\t}\n\n");
 }

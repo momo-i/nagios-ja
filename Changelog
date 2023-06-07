@@ -2,6 +2,36 @@
 Nagios Core 4 Change Log
 ########################
 
+4.4.13 - 2023-06-01
+-------------------
+FIXES
+* Fix broken logo images in status pages (regression from 4.4.12) (#917)
+
+4.4.12 - 2023-05-30
+-------------------
+FIXES
+* Clean up most compiler warnings on GCC and clang (#901)
+* Fix incorrect HTML entity escaping in CGIs (#907, #902)
+* Fix issue where predictive dependency checks were not being scheduled for services (#908)
+* Fix several typos (#898, #884)
+
+4.4.11 - 2023-04-14
+-------------------
+FIXES
+* Fix incorrect error message in preflight check (#865)
+* Fix use-after-free in qh_deregister_handler (#866)
+* Fix memory leak in qh_deregister_handler (#866)
+* Fix mismatched host/service behavior when changing from SOFT to HARD state (#891)
+* Minor performance improvements in CGI utility functions (#866)
+
+4.4.10 - 2023-01-17
+-------------------
+FIXES
+* Fix memory leak in nagiostats.c when using -c, -s, -d, or -D multiple times (#888)
+* Improve service scheduling at startup (#887)
+* Improve compilation/reduce warnings when using Clang 16 (#889)
+* Improve compilation on other, stricter C99 compilers (#890)
+
 4.4.9 - 2022-11-16
 ------------------
 FIXES

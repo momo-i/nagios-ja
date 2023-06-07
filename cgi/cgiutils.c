@@ -109,6 +109,7 @@ lifo            *lifo_list = NULL;
 
 char encoded_url_string[2][MAX_INPUT_BUFFER]; // 2 to be able use url_encode twice
 char *encoded_html_string = NULL;
+size_t encoded_html_string_len = 0;
 
 char   ttf_file[MAX_FILENAME_LENGTH];
 
@@ -150,7 +151,21 @@ static command *find_bang_command(char *name)
 	return cmd;
 }
 
+/*
+ * build path with prefix (must already be / terminated) and a subdir
+ */
+void build_subdir_path(char* path, size_t size, const char* prefix, const char* subdir)
+{
+	const size_t prefix_len = strlen(prefix);
+	const size_t subdir_len = strlen(subdir);
 
+	if (prefix_len + subdir_len >= size)
+		return;
+ 
+	memcpy(path, prefix, prefix_len);
+	memcpy(path + prefix_len, subdir, subdir_len);
+	path[prefix_len + subdir_len] = '\0';
+}
 
 /**********************************************************
  ***************** CLEANUP FUNCTIONS **********************
@@ -331,14 +346,10 @@ int read_cgi_config_file(const char *filename, read_config_callback callback) {
 			strncpy(physical_html_path, val, sizeof(physical_html_path));
 			physical_html_path[sizeof(physical_html_path) - 1] = '\x0';
 			strip(physical_html_path);
-			if(physical_html_path[strlen(physical_html_path) - 1] != '/' && (strlen(physical_html_path) < sizeof(physical_html_path) - 1))
-				strcat(physical_html_path, "/");
+			ensure_path_separator(physical_html_path, sizeof(physical_html_path));
 
-			snprintf(physical_images_path, sizeof(physical_images_path), "%simages/", physical_html_path);
-			physical_images_path[sizeof(physical_images_path) - 1] = '\x0';
-
-			snprintf(physical_ssi_path, sizeof(physical_images_path), "%sssi/", physical_html_path);
-			physical_ssi_path[sizeof(physical_ssi_path) - 1] = '\x0';
+			build_subdir_path(physical_images_path, sizeof(physical_images_path), physical_html_path, "images/");
+			build_subdir_path(physical_ssi_path, sizeof(physical_ssi_path), physical_html_path, "ssi/");
 			}
 
 		else if(!strcmp(var, "url_html_path")) {
@@ -347,31 +358,15 @@ int read_cgi_config_file(const char *filename, read_config_callback callback) {
 			url_html_path[sizeof(url_html_path) - 1] = '\x0';
 
 			strip(url_html_path);
-			if(url_html_path[strlen(url_html_path) - 1] != '/' && (strlen(url_html_path) < sizeof(url_html_path) - 1))
-				strcat(url_html_path, "/");
+			ensure_path_separator(url_html_path, sizeof(url_html_path));
 
-			snprintf(url_docs_path, sizeof(url_docs_path), "%sdocs/", url_html_path);
-			url_docs_path[sizeof(url_docs_path) - 1] = '\x0';
-
-			snprintf(url_context_help_path, sizeof(url_context_help_path), "%scontexthelp/", url_html_path);
-			url_context_help_path[sizeof(url_context_help_path) - 1] = '\x0';
-
-			snprintf(url_images_path, sizeof(url_images_path), "%simages/", url_html_path);
-			url_images_path[sizeof(url_images_path) - 1] = '\x0';
-
-			snprintf(url_logo_images_path, sizeof(url_logo_images_path), "%slogos/", url_images_path);
-			url_logo_images_path[sizeof(url_logo_images_path) - 1] = '\x0';
-
-			snprintf(url_stylesheets_path, sizeof(url_stylesheets_path), "%sstylesheets/", url_html_path);
-			url_stylesheets_path[sizeof(url_stylesheets_path) - 1] = '\x0';
-
-			snprintf(url_media_path, sizeof(url_media_path), "%smedia/", url_html_path);
-			url_media_path[sizeof(url_media_path) - 1] = '\x0';
-
-			/* added JS directory 2/1/2012 -MG */
-			snprintf(url_js_path, sizeof(url_js_path), "%sjs/", url_html_path);
-			url_js_path[sizeof(url_js_path) - 1] = '\x0';
-
+			build_subdir_path(url_docs_path, sizeof(url_docs_path), url_html_path, "docs/");
+			build_subdir_path(url_context_help_path, sizeof(url_context_help_path), url_html_path, "contexthelp/");
+			build_subdir_path(url_images_path, sizeof(url_images_path), url_html_path, "images/");
+			build_subdir_path(url_logo_images_path, sizeof(url_logo_images_path), url_images_path, "logos/");
+			build_subdir_path(url_stylesheets_path, sizeof(url_stylesheets_path), url_html_path, "stylesheets/");
+			build_subdir_path(url_media_path, sizeof(url_media_path), url_html_path, "media/");
+			build_subdir_path(url_js_path, sizeof(url_js_path), url_html_path, "js/");
 			}
 
 		else if(!strcmp(var, "service_critical_sound"))
@@ -1105,10 +1100,10 @@ const char *url_encode(const char *input) {
 	return str;
 	}
 
-static inline char* encode_character(char in, char *outcp, int output_max)
+static inline char* encode_character(char in, char *outcp, int outcp_len, char *output)
 {
 	char	*entity = NULL;
-	int		rep_lth, out_len = outcp - encoded_html_string;
+	int		rep_lth, out_len = outcp - output;
 
 	switch(in) {
 	case '&':   entity = "&amp;";   break;
@@ -1120,14 +1115,14 @@ static inline char* encode_character(char in, char *outcp, int output_max)
 
 	if (entity) {
 		rep_lth = strlen(entity);
-		if (out_len + rep_lth < output_max) {
+		if (out_len + rep_lth < outcp_len - 1) {
 			strcpy(outcp, entity);
 			outcp += rep_lth;
 		}
 		return outcp;
 	}
 
-	if (out_len + 6 >= output_max)
+	if (out_len + 6 >= outcp_len - 1)
 		return outcp;
 
 	sprintf(outcp, "&#%u", (unsigned int)in);
@@ -1149,7 +1144,7 @@ static inline char* encode_character(char in, char *outcp, int output_max)
 #define WHERE_IN_COMMENT				6	/* In an HTML comment */
 
 /* escapes a string used in HTML */
-char * html_encode(char *input, int escape_newlines) {
+char * html_encode_with_buffer(char *input, int escape_newlines, char **output, size_t *output_len) {
 	int 		len;
 	int			output_max;
 	char		*incp, *outcp;
@@ -1162,11 +1157,22 @@ char * html_encode(char *input, int escape_newlines) {
 
 	/* we need up to six times the space to do the conversion */
 	len = (int)strlen(input);
-	output_max = len * 6;
-	if(( outcp = encoded_html_string = (char *)malloc(output_max + 1)) == NULL)
+	if (len == 0) {
 		return "";
+	}
 
-	strcpy(encoded_html_string, "");
+	output_max = len * 6 + 1;
+	outcp = *output;
+	if (output_max > *output_len) {
+		outcp = *output = realloc(*output, output_max);
+		if (outcp == NULL) {
+			// Old pointer is valid, so output_len shouldn't be rewritten.
+			return "";
+		}
+		*output_len = output_max;
+	}
+
+	outcp[0] = 0;
 
 	/* Process all converted characters */
 	for (x = 0, incp = input; x < len && *incp; x++, incp++) {
@@ -1255,19 +1261,19 @@ char * html_encode(char *input, int escape_newlines) {
 				if (tag_depth > 0 && !strcmp(tagname, "script"))
 					*outcp++ = *incp;
 				else
-					outcp = encode_character(*incp, outcp, output_max);
+					outcp = encode_character(*incp, outcp, output_max, *output);
 				break;
 			}
 		}
 
 		/* newlines turn to <BR> tags */
 		else if(escape_newlines == TRUE && *incp == '\n') {
-			strncpy( outcp, "<BR>", 4);
+			memcpy( outcp, "<BR>", 4);
 			outcp += 4;
 		}
 
 		else if(escape_newlines == TRUE && *incp == '\\' && *(incp + 1) == '\n') {
-			strncpy( outcp, "<BR>", 4);
+			memcpy( outcp, "<BR>", 4);
 			outcp += 4;
 			incp++; /* needed so loop skips two characters */
 		}
@@ -1296,7 +1302,7 @@ char * html_encode(char *input, int escape_newlines) {
 				if (tag_depth > 0 && !strcmp(tagname, "script"))
 					*outcp++ = *incp;
 				else
-					outcp = encode_character(*incp, outcp, output_max);
+					outcp = encode_character(*incp, outcp, output_max, *output);
 				break;
 			}
 		}
@@ -1318,14 +1324,14 @@ char * html_encode(char *input, int escape_newlines) {
 					where_in_tag = WHERE_OUTSIDE_TAG;
 				}
 				else
-					outcp = encode_character(*incp, outcp, output_max);
+					outcp = encode_character(*incp, outcp, output_max, *output);
 				break;
 
 			default:
 				if (tag_depth > 0 && !strcmp(tagname, "script"))
 					*outcp++ = *incp;
 				else
-					outcp = encode_character(*incp, outcp, output_max);
+					outcp = encode_character(*incp, outcp, output_max, *output);
 				break;
 			}
 		}
@@ -1335,7 +1341,7 @@ char * html_encode(char *input, int escape_newlines) {
 			if (tag_depth > 0 && !strcmp(incp, "&ndash"))
 				*outcp++ = *incp;
 			else
-				outcp = encode_character(*incp, outcp, output_max);
+				outcp = encode_character(*incp, outcp, output_max, *output);
 		}
 
 		else if ((unsigned char)*incp > 0x7f)
@@ -1344,17 +1350,22 @@ char * html_encode(char *input, int escape_newlines) {
 
 		/* for simplicity, all other chars represented by their numeric value */
 		else
-			outcp = encode_character(*incp, outcp, output_max);
+			outcp = encode_character(*incp, outcp, output_max, *output);
 	}
 
 	/* Null terminate the encoded string */
 	*outcp = '\x0';
-	encoded_html_string[ output_max - 1] = '\x0';
+	(*output)[ output_max - 1] = '\x0';
 
-	return encoded_html_string;
+	return *output;
 }
 
-
+/* Note: html_encode() relies on encoded_html_string - if you want to use multiple html_encode()s in e.g. the same printf call,
+ * use html_encode_with_buffer() twice with separate buffers
+ */
+char * html_encode(char *input, int escape_newlines) {
+	return html_encode_with_buffer(input, escape_newlines, &encoded_html_string, &encoded_html_string_len);
+}
 
 /* strip > and < from string */
 void strip_html_brackets(char *buffer) {
@@ -1379,7 +1390,7 @@ void strip_html_brackets(char *buffer) {
 
 
 /* escape string for html form usage */
-char *escape_string(const char *input) {
+char *escape_string_with_buffer(const char *input, char **output, size_t *output_len) {
 	int			len;
 	int			output_max;
 	wchar_t		wctemp[1];
@@ -1396,11 +1407,20 @@ char *escape_string(const char *input) {
 
 	/* We need up to six times the space to do the conversion */
 	len = (int)strlen(input);
-	output_max = len * 6;
-	if(( stp = encoded_html_string = (char *)malloc(output_max + 1)) == NULL)
+	if (len == 0) {
 		return "";
+	}
+	output_max = len * 6 + 1;
+	stp = *output;
+	if (output_max > *output_len) {
+		stp = *output = realloc(*output, output_max);
+		if (stp == NULL) {
+			return "";
+		}
+		*output_len = output_max;
+	}
 
-	strcpy(encoded_html_string, "");
+	stp[0] = 0;
 
 	/* Get the first multibyte character in the input string */
 	mbtowc_result = mbtowc( wctemp, input, MB_CUR_MAX);
@@ -1428,7 +1448,7 @@ char *escape_string(const char *input) {
 				'_' == *wctemp || ':' == *wctemp) {
 			wctomb_result = wctomb( mbtemp, wctemp[0]);
 			if(( wctomb_result > 0) &&
-					((( stp - encoded_html_string) + wctomb_result) < output_max)) {
+					((( stp - *output) + wctomb_result) < output_max)) {
 				strncpy( stp, mbtemp, wctomb_result);
 				stp += wctomb_result;
 				}
@@ -1438,10 +1458,11 @@ char *escape_string(const char *input) {
 		/* Encode everything else (this may be excessive) */
 		else {
 			sprintf( temp_expansion, "&#%u;", ( unsigned int)wctemp[ 0]);
-			if((( stp - encoded_html_string) + strlen( temp_expansion)) <
+			len = strlen( temp_expansion);
+			if((( stp - *output) + len) <
 					(unsigned int)output_max) {
-				strncpy( stp, temp_expansion, strlen( temp_expansion));
-				stp += strlen( temp_expansion);
+				memcpy( stp, temp_expansion, len);
+				stp += len;
 				}
 			input += mbtowc_result;
 			}
@@ -1452,11 +1473,17 @@ char *escape_string(const char *input) {
 
 	/* Null terminate the encoded string */
 	*stp = '\x0';
-	encoded_html_string[ output_max - 1] = '\x0';
+	(*output)[ output_max - 1] = '\x0';
 
-	return encoded_html_string;
+	return *output;
 	}
 
+/* Note: escape_string() relies on encoded_html_string. If you need to use escape_string() multiple times in one function call,
+ * use escape_string_with_buffer() directly with two or more separate buffers.
+ */
+char *escape_string(const char *input) {
+	return escape_string_with_buffer(input, &encoded_html_string, &encoded_html_string_len);
+}
 
 /* determines the log file we should use (from current time) */
 void get_log_archive_to_use(int archive, char *buffer, int buffer_length) {

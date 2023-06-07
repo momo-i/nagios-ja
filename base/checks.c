@@ -983,6 +983,7 @@ static inline void host_state_or_hard_state_type_change(host * hst, int state_ch
 	if (hard_state_change == TRUE) {
 
 		hst->last_hard_state_change = hst->last_check;
+		hst->last_state_change = hst->last_check;
 		hst->last_hard_state = hst->current_state;
 		hst->state_type = HARD_STATE;
 
@@ -1091,6 +1092,43 @@ static inline void host_propagate_checks_to_immediate_children(host * hst, int c
 /******************************************************************************
  ******* Logic chunks propagating dependency checks
  *****************************************************************************/
+static inline void host_propagate_dependency_checks(host * hst, time_t current_time)
+{
+	/* we do to help ensure that the dependency checks are accurate before it comes time to notify */
+	if (hst->current_attempt == (hst->max_attempts - 1) 
+		&& execute_host_checks == TRUE
+		&& enable_predictive_host_dependency_checks == TRUE) {
+
+		objectlist *list;
+		hostdependency *dep = NULL;
+		host *master_host = NULL;
+		
+		log_debug_info(DEBUGL_CHECKS, 1, "Propagating predictive dependency checks to hosts this one depends on...\n");
+
+		for(list = hst->notify_deps; list; list = list->next) {
+			dep = (hostdependency *)list->object_ptr;
+			if (dep->dependent_host_ptr == hst && dep->master_host_ptr != NULL) {
+
+				master_host = (host *)dep->master_host_ptr;
+
+				log_debug_info(DEBUGL_CHECKS, 1, "Check of host '%s' queued.\n", master_host->name);
+				schedule_host_check(master_host, current_time, CHECK_OPTION_NONE);
+			}
+		}
+
+		for(list = hst->exec_deps; list; list = list->next) {
+			dep = (hostdependency *)list->object_ptr;
+			if (dep->dependent_host_ptr == hst && dep->master_host_ptr != NULL) {
+
+				master_host = (host *)dep->master_host_ptr;
+
+				log_debug_info(DEBUGL_CHECKS, 1, "Check of host '%s' queued.\n", master_host->name);
+				schedule_host_check(master_host, current_time, CHECK_OPTION_NONE);
+			}
+		}
+	}
+}
+
 static inline void service_propagate_dependency_checks(service * svc, time_t current_time)
 {
 	if (svc->current_attempt == (svc->max_attempts - 1) 
@@ -1124,43 +1162,6 @@ static inline void service_propagate_dependency_checks(service * svc, time_t cur
 
 				log_debug_info(DEBUGL_CHECKS, 2, "Predictive check of service '%s' on host '%s' queued.\n", master_service->description, master_service->host_name);
 				schedule_service_check(master_service, current_time, CHECK_OPTION_DEPENDENCY_CHECK);
-			}
-		}
-	}
-}
-/*****************************************************************************/
-static inline void host_propagate_dependency_checks(host * hst, time_t current_time)
-{
-	/* we do to help ensure that the dependency checks are accurate before it comes time to notify */
-	if (hst->current_attempt == (hst->max_attempts - 1) 
-		&& execute_host_checks == TRUE
-		&& enable_predictive_host_dependency_checks == TRUE) {
-
-		objectlist *list;
-		hostdependency *dep = NULL;
-		host *master_host = NULL;
-		
-		log_debug_info(DEBUGL_CHECKS, 1, "Propagating predictive dependency checks to hosts this one depends on...\n");
-
-		for(list = hst->notify_deps; list; list = list->next) {
-			dep = (hostdependency *)list->object_ptr;
-			if (dep->dependent_host_ptr == hst && dep->master_host_ptr != NULL) {
-
-				master_host = (host *)dep->master_host_ptr;
-
-				log_debug_info(DEBUGL_CHECKS, 1, "Check of host '%s' queued.\n", master_host->name);
-				schedule_host_check(master_host, current_time, CHECK_OPTION_NONE);
-			}
-		}
-
-		for(list = hst->exec_deps; list; list = list->next) {
-			dep = (hostdependency *)list->object_ptr;
-			if (dep->dependent_host_ptr == hst && dep->master_host_ptr != NULL) {
-
-				master_host = (host *)dep->master_host_ptr;
-
-				log_debug_info(DEBUGL_CHECKS, 1, "Check of host '%s' queued.\n", master_host->name);
-				schedule_host_check(master_host, current_time, CHECK_OPTION_NONE);
 			}
 		}
 	}
@@ -1392,6 +1393,8 @@ int handle_async_service_check_result(service *svc, check_result *cr)
 			svc->current_attempt = 1;
 
 			handle_event = TRUE;
+
+			service_propagate_dependency_checks(svc, current_time);
 		}
 	}
 

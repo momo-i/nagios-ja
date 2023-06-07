@@ -2462,9 +2462,9 @@ ac_config_headers="$ac_config_headers include/config.h lib/snprintf.h lib/iobrok
 
 PKG_NAME=nagios
 
-PKG_VERSION="4.4.9"
+PKG_VERSION="4.4.13"
 PKG_HOME_URL="https://www.nagios.org/"
-PKG_REL_DATE="2022-11-16"
+PKG_REL_DATE="2023-06-01"
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -5920,6 +5920,9 @@ else
 
 #include <sys/types.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 void foo(const char *format, ...) {
        va_list ap;
        int len;
@@ -5939,7 +5942,7 @@ void foo(const char *format, ...) {
 
        exit(0);
 }
-main() { foo("hello"); }
+int main(void) { foo("hello"); }
 
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
