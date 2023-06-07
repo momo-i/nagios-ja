@@ -1227,7 +1227,7 @@ char * html_encode_with_buffer(char *input, int escape_newlines, char **output, 
 				if (tag_depth > 0)
 					*outcp++ = *incp;
 				else
-					outcp = encode_character(*incp, outcp, output_max);
+					outcp = encode_character(*incp, outcp, output_max, *output);
 				break;
 
 			case WHERE_IN_COMMENT:
